@@ -60,3 +60,6 @@ verify_jwt = false
 
 [functions.shadow-fleet-analysis]
 verify_jwt = false
+
+[functions.shipping-route-optimizer]
+verify_jwt = false

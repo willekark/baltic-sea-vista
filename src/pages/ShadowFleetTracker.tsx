@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ShadowFleetMap from '@/components/ShadowFleetMap';
+import RouteOptimizer from '@/components/RouteOptimizer';
 
 interface ShadowFleetAnalysis {
   timestamp: string;
@@ -267,7 +268,7 @@ const ShadowFleetTracker = () => {
                 <TabsTrigger value="emissions">CO₂ Analysis</TabsTrigger>
                 <TabsTrigger value="methods">Detection Methods</TabsTrigger>
                 <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-                <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
+                <TabsTrigger value="intelligence">Route Optimization</TabsTrigger>
               </TabsList>
 
               <TabsContent value="map" className="space-y-4">
@@ -510,69 +511,7 @@ const ShadowFleetTracker = () => {
               </TabsContent>
 
               <TabsContent value="intelligence" className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Threat Assessment</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div>
-                          <div className="flex justify-between text-sm mb-1">
-                            <span>Overall Risk Level</span>
-                            <span className="font-medium">
-                              {analysis.summary.sanctionsViolations > 0 ? 'CRITICAL' :
-                               analysis.summary.darkZoneDetections > 5 ? 'HIGH' :
-                               analysis.summary.suspiciousBehaviors > 3 ? 'MEDIUM' : 'LOW'}
-                            </span>
-                          </div>
-                          <Progress 
-                            value={Math.min(100, (analysis.summary.sanctionsViolations * 40 + 
-                                                  analysis.summary.darkZoneDetections * 10 + 
-                                                  analysis.summary.suspiciousBehaviors * 5))} 
-                            className="h-2" 
-                          />
-                        </div>
-                        
-                        <div className="pt-4 border-t">
-                          <h4 className="font-medium mb-2">Key Risk Factors:</h4>
-                          <ul className="text-sm space-y-1 text-gray-600">
-                            <li>• Proximity to sanctioned jurisdictions</li>
-                            <li>• Frequency of AIS signal interruptions</li>
-                            <li>• Pattern of vessel behavior changes</li>
-                            <li>• Cross-reference with intelligence databases</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Analysis Metadata</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Analysis Time:</span>
-                          <span className="font-medium">{new Date(analysis.timestamp).toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Data Coverage:</span>
-                          <span className="font-medium">Last 24 hours</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Detection Algorithms:</span>
-                          <span className="font-medium">5 active</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Confidence Level:</span>
-                          <span className="font-medium text-green-600">94.2%</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                <RouteOptimizer />
               </TabsContent>
             </Tabs>
 
