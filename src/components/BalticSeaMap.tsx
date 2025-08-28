@@ -29,69 +29,101 @@ const BalticSeaMap = () => {
   ];
 
   const initializeMap = (token: string) => {
-    if (!mapContainer.current || map.current) return;
+    console.log('initializeMap called with token length:', token.length);
+    
+    if (!mapContainer.current) {
+      console.log('Map container not found');
+      return;
+    }
+    
+    if (map.current) {
+      console.log('Map already exists, skipping initialization');
+      return;
+    }
 
+    console.log('Setting Mapbox access token');
     mapboxgl.accessToken = token;
     
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/satellite-streets-v12',
-      center: [18.5, 59.0], // Center on Baltic Sea
-      zoom: 5,
-      pitch: 0,
-      bearing: 0
-    });
+    console.log('Creating new Mapbox map instance');
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/satellite-streets-v12',
+        center: [18.5, 59.0], // Center on Baltic Sea
+        zoom: 5,
+        pitch: 0,
+        bearing: 0
+      });
 
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      console.log('Map instance created successfully');
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-    map.current.on('load', () => {
-      if (!map.current) return;
+      map.current.on('load', () => {
+        console.log('Map loaded successfully');
+        if (!map.current) return;
 
-      // Add monitoring stations
-      monitoringStations.forEach(station => {
-        const el = document.createElement('div');
-        el.className = 'monitoring-station';
-        el.style.cssText = `
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          cursor: pointer;
-          border: 3px solid white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-          background-color: ${
-            station.status === 'active' ? '#10b981' :
-            station.status === 'warning' ? '#f59e0b' : '#ef4444'
-          };
-        `;
-
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-          <div style="padding: 8px;">
-            <h3 style="margin: 0 0 8px 0; font-weight: bold;">${station.name}</h3>
-            <p style="margin: 4px 0; font-size: 12px;">Status: <span style="color: ${
+        // Add monitoring stations
+        monitoringStations.forEach(station => {
+          const el = document.createElement('div');
+          el.className = 'monitoring-station';
+          el.style.cssText = `
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            background-color: ${
               station.status === 'active' ? '#10b981' :
               station.status === 'warning' ? '#f59e0b' : '#ef4444'
-            }; font-weight: bold;">${station.status.toUpperCase()}</span></p>
-            <p style="margin: 4px 0; font-size: 12px;">Oxygen: ${station.oxygenLevel} mg/L</p>
-            <p style="margin: 4px 0; font-size: 12px;">Temperature: ${station.temperature}°C</p>
-          </div>
-        `);
+            };
+          `;
 
-        new mapboxgl.Marker(el)
-          .setLngLat([station.lng, station.lat])
-          .setPopup(popup)
-          .addTo(map.current!);
+          const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+            <div style="padding: 8px;">
+              <h3 style="margin: 0 0 8px 0; font-weight: bold;">${station.name}</h3>
+              <p style="margin: 4px 0; font-size: 12px;">Status: <span style="color: ${
+                station.status === 'active' ? '#10b981' :
+                station.status === 'warning' ? '#f59e0b' : '#ef4444'
+              }; font-weight: bold;">${station.status.toUpperCase()}</span></p>
+              <p style="margin: 4px 0; font-size: 12px;">Oxygen: ${station.oxygenLevel} mg/L</p>
+              <p style="margin: 4px 0; font-size: 12px;">Temperature: ${station.temperature}°C</p>
+            </div>
+          `);
+
+          new mapboxgl.Marker(el)
+            .setLngLat([station.lng, station.lat])
+            .setPopup(popup)
+            .addTo(map.current!);
+        });
+
+        console.log('Monitoring stations added, setting map ready state');
+        setIsMapReady(true);
+        toast({
+          title: "Map Loaded",
+          description: "Baltic Sea monitoring stations are now visible",
+        });
       });
 
-      setIsMapReady(true);
-      toast({
-        title: "Map Loaded",
-        description: "Baltic Sea monitoring stations are now visible",
+      map.current.on('error', (e) => {
+        console.error('Map error:', e);
+        toast({
+          title: "Map Error",
+          description: "Failed to load the map. Please check your token.",
+          variant: "destructive",
+        });
       });
-    });
+    } catch (error) {
+      console.error('Error creating map instance:', error);
+      throw error;
+    }
   };
 
   const handleTokenSubmit = () => {
+    console.log('Load Map button clicked, token:', mapboxToken ? 'Token provided' : 'No token');
+    
     if (!mapboxToken.trim()) {
+      console.log('Token validation failed - empty token');
       toast({
         title: "Token Required",
         description: "Please enter your Mapbox public token",
@@ -100,11 +132,23 @@ const BalticSeaMap = () => {
       return;
     }
 
+    if (!mapboxToken.startsWith('pk.')) {
+      console.log('Token validation failed - invalid format');
+      toast({
+        title: "Invalid Token Format",
+        description: "Mapbox tokens should start with 'pk.'",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log('Attempting to initialize map with token');
     try {
       initializeMap(mapboxToken);
     } catch (error) {
+      console.error('Map initialization error:', error);
       toast({
-        title: "Invalid Token",
+        title: "Map Initialization Failed",
         description: "Please check your Mapbox token and try again",
         variant: "destructive",
       });
