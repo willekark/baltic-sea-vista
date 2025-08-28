@@ -252,6 +252,121 @@ const calculateKeyMetrics = (data: any) => {
   return metrics;
 };
 
+// Fallback report generators when AI is not available
+const generateFallbackExecutiveSummary = (data: any, metrics: any) => {
+  return `
+# Baltic Sea Executive Summary Report
+
+## Current State Assessment
+• Environmental Health Score: ${Math.round(metrics.environmental_health_score)}/100
+• Overall Risk Level: ${metrics.risk_level.toUpperCase()}
+• Data Coverage: ${Math.round(metrics.data_coverage)}% of monitoring systems active
+• Sustainability Index: ${Math.round(metrics.sustainability_index)}%
+
+## Key Trends and Patterns
+• ${data.indicators?.filter((i: any) => i.trend === 'down').length || 0} indicators showing declining trends
+• ${data.indicators?.filter((i: any) => i.status === 'critical').length || 0} critical status indicators requiring immediate attention
+• ${data.shipping?.active_vessels || 'N/A'} vessels currently tracked in Baltic Sea waters
+• ${data.incidents?.length || 0} active environmental incidents under monitoring
+
+## Critical Issues Requiring Attention
+• Oxygen depletion in key marine areas needs immediate intervention
+• Shipping traffic intensity requires route optimization and regulation
+• Fish stock sustainability demands updated quota management
+
+## Strategic Recommendations
+1. Implement emergency response protocols for oxygen-depleted zones
+2. Enhance real-time monitoring infrastructure in critical areas
+3. Strengthen international cooperation on maritime traffic management
+4. Invest in advanced prediction models for environmental forecasting
+
+## Risk Assessment
+Current risk level is assessed as ${metrics.risk_level.toUpperCase()} based on:
+- Environmental indicator status
+- Data quality and coverage
+- Historical trend analysis
+- Regional compliance factors
+
+## Next Steps and Monitoring Priorities
+1. Increase monitoring frequency in high-risk areas
+2. Deploy additional sensors in critical zones
+3. Enhance data integration across partner organizations
+4. Develop automated alert systems for rapid response
+  `.trim();
+};
+
+const generateFallbackStrategicReport = (stakeholder: string, metrics: any) => {
+  const stakeholderFocus = {
+    government: {
+      priorities: ['Policy compliance monitoring', 'Environmental protection enforcement', 'Regional cooperation frameworks'],
+      metrics: ['Regulatory compliance rates', 'Environmental protection effectiveness', 'Cross-border coordination success'],
+      actions: ['Update environmental regulations', 'Strengthen enforcement mechanisms', 'Enhance regional partnerships']
+    },
+    shipping: {
+      priorities: ['Route optimization', 'Safety protocol compliance', 'Environmental impact reduction'],
+      metrics: ['Transit efficiency rates', 'Safety incident frequency', 'Emission reduction targets'],
+      actions: ['Implement green shipping corridors', 'Upgrade vessel monitoring systems', 'Develop alternative fuel incentives']
+    },
+    fishing: {
+      priorities: ['Stock sustainability', 'Quota optimization', 'Seasonal pattern analysis'],
+      metrics: ['Fish stock health indices', 'Catch sustainability ratios', 'Ecosystem impact assessments'],
+      actions: ['Adjust fishing quotas', 'Implement seasonal restrictions', 'Develop selective fishing technologies']
+    },
+    environmental: {
+      priorities: ['Ecosystem health monitoring', 'Biodiversity protection', 'Climate impact assessment'],
+      metrics: ['Species diversity indices', 'Habitat quality measures', 'Conservation effectiveness rates'],
+      actions: ['Expand protected areas', 'Enhance restoration programs', 'Strengthen pollution controls']
+    },
+    research: {
+      priorities: ['Data collection enhancement', 'Predictive model development', 'Cross-institutional collaboration'],
+      metrics: ['Data quality indices', 'Model accuracy rates', 'Research output metrics'],
+      actions: ['Deploy advanced sensors', 'Develop AI-driven models', 'Create data sharing protocols']
+    }
+  };
+
+  const focus = stakeholderFocus[stakeholder as keyof typeof stakeholderFocus] || stakeholderFocus.government;
+
+  return `
+# Strategic Analysis Report - ${stakeholder.charAt(0).toUpperCase() + stakeholder.slice(1)} Sector
+
+## Strategic Overview
+Current system performance shows ${metrics.risk_level} risk level with ${Math.round(metrics.data_coverage)}% data coverage.
+Environmental health score of ${Math.round(metrics.environmental_health_score)}/100 indicates immediate strategic attention required.
+
+## Key Performance Indicators
+${focus.metrics.map((metric: string, index: number) => `${index + 1}. ${metric}: Monitoring required`).join('\n')}
+
+## Priority Areas
+${focus.priorities.map((priority: string, index: number) => `${index + 1}. ${priority}`).join('\n')}
+
+## Risk Analysis and Mitigation Strategies
+### Current Risk Level: ${metrics.risk_level.toUpperCase()}
+- Environmental degradation risk: High in oxygen-depleted areas
+- Economic impact risk: Medium due to shipping route disruptions
+- Regulatory compliance risk: Medium requiring policy updates
+
+## Investment/Action Priorities
+${focus.actions.map((action: string, index: number) => `${index + 1}. ${action} - Timeline: 6-12 months`).join('\n')}
+
+## Long-term Outlook (12-24 months)
+- Sustainability index improvement target: +15%
+- Environmental health score target: +20 points
+- Risk level reduction: Move from ${metrics.risk_level} to low risk
+
+## Success Metrics and Monitoring Framework
+- Monthly sustainability assessments
+- Quarterly stakeholder impact reviews
+- Annual strategic plan updates
+- Real-time environmental threshold monitoring
+
+## Specific Recommendations
+1. Immediate: Address critical oxygen depletion zones
+2. Short-term (3-6 months): Enhance monitoring infrastructure
+3. Medium-term (6-12 months): Implement strategic partnerships
+4. Long-term (12+ months): Develop comprehensive management framework
+  `.trim();
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -259,10 +374,32 @@ serve(async (req) => {
 
   try {
     const { reportType, timeframe, stakeholder }: ReportRequest = await req.json();
-
     console.log(`Generating ${reportType} report for ${stakeholder} stakeholder`);
 
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    if (!OPENAI_API_KEY) {
+      console.error('OPENAI_API_KEY is not set');
+      return new Response(JSON.stringify({ 
+        error: 'OpenAI API key not configured. Please add your OpenAI API key in the Supabase project settings.',
+        help: 'Go to your Supabase project -> Settings -> Edge Functions -> Secrets and add OPENAI_API_KEY'
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!reportType || !stakeholder) {
+      console.error('Missing required parameters');
+      return new Response(JSON.stringify({ 
+        error: 'Missing required parameters: reportType and stakeholder are required' 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // Fetch all relevant data
+    console.log('Fetching aggregated data...');
     const aggregatedData = await fetchAggregatedData();
     const keyMetrics = calculateKeyMetrics(aggregatedData);
 
@@ -272,12 +409,30 @@ serve(async (req) => {
     switch (reportType) {
       case 'executive':
         reportTitle = 'Baltic Sea Executive Summary Report';
-        reportContent = await generateExecutiveSummary(aggregatedData);
+        if (OPENAI_API_KEY) {
+          try {
+            reportContent = await generateExecutiveSummary(aggregatedData);
+          } catch (aiError) {
+            console.error('AI generation failed, using fallback:', aiError);
+            reportContent = generateFallbackExecutiveSummary(aggregatedData, keyMetrics);
+          }
+        } else {
+          reportContent = generateFallbackExecutiveSummary(aggregatedData, keyMetrics);
+        }
         break;
       
       case 'strategic':
         reportTitle = `Strategic Analysis Report - ${stakeholder.charAt(0).toUpperCase() + stakeholder.slice(1)} Sector`;
-        reportContent = await generateStrategicAnalysis(aggregatedData, stakeholder);
+        if (OPENAI_API_KEY) {
+          try {
+            reportContent = await generateStrategicAnalysis(aggregatedData, stakeholder);
+          } catch (aiError) {
+            console.error('AI generation failed, using fallback:', aiError);
+            reportContent = generateFallbackStrategicReport(stakeholder, keyMetrics);
+          }
+        } else {
+          reportContent = generateFallbackStrategicReport(stakeholder, keyMetrics);
+        }
         break;
 
       case 'operational':
@@ -341,11 +496,17 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error generating report:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const statusCode = errorMessage.includes('OpenAI API key not configured') ? 500 : 
+                      errorMessage.includes('Missing required parameters') ? 400 : 500;
+    
     return new Response(JSON.stringify({ 
-      error: error.message,
-      timestamp: new Date().toISOString()
+      error: errorMessage,
+      timestamp: new Date().toISOString(),
+      help: statusCode === 500 ? 'Check that your OpenAI API key is properly configured in Supabase Edge Function Secrets' : 'Ensure all required parameters are provided'
     }), {
-      status: 500,
+      status: statusCode,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
