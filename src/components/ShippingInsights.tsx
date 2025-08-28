@@ -95,12 +95,13 @@ const ShippingInsights = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="operations">Operations</TabsTrigger>
               <TabsTrigger value="environment">Environment</TabsTrigger>
               <TabsTrigger value="regulatory">Regulatory</TabsTrigger>
               <TabsTrigger value="market">Market</TabsTrigger>
+              <TabsTrigger value="backhaul">Backhaul</TabsTrigger>
               <TabsTrigger value="sustainability">Sustainability</TabsTrigger>
             </TabsList>
 
@@ -543,6 +544,304 @@ const ShippingInsights = () => {
               </div>
             </TabsContent>
 
+            <TabsContent value="backhaul" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Ship className="w-5 h-5" />
+                      Mediterranean → Baltic Cargo Opportunities
+                    </CardTitle>
+                    <CardDescription>
+                      Eliminate ballast legs with profitable return cargo from Mediterranean ports
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-3 gap-3 mb-4">
+                      <div className="text-center p-2 bg-green-50 rounded border border-green-200">
+                        <div className="text-lg font-bold text-green-600">€1.2M</div>
+                        <div className="text-xs text-muted-foreground">Total Available</div>
+                      </div>
+                      <div className="text-center p-2 bg-blue-50 rounded border border-blue-200">
+                        <div className="text-lg font-bold text-blue-600">8</div>
+                        <div className="text-xs text-muted-foreground">Active Routes</div>
+                      </div>
+                      <div className="text-center p-2 bg-purple-50 rounded border border-purple-200">
+                        <div className="text-lg font-bold text-purple-600">95%</div>
+                        <div className="text-xs text-muted-foreground">Utilization Gain</div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-sm">High-Priority Backhaul Opportunities</h4>
+                      
+                      <div className="border rounded-lg p-3 bg-red-50 border-red-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <div className="font-medium text-red-800">Bentonite (Drilling Grade)</div>
+                            <div className="text-xs text-red-600">Livorno → Kotka • 8,000 tons</div>
+                          </div>
+                          <Badge variant="destructive" className="text-xs">Critical</Badge>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="flex justify-between">
+                            <span>Rate:</span>
+                            <span className="font-medium text-green-600">€67.30/ton</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Lead Time:</span>
+                            <span className="font-medium">5 days</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Total Value:</span>
+                            <span className="font-medium">€538K</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Vessel Size:</span>
+                            <span className="font-medium">6-15K DWT</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="border rounded-lg p-3 bg-orange-50 border-orange-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <div className="font-medium text-orange-800">Fertilizer (Potash)</div>
+                            <div className="text-xs text-orange-600">Tarragona → Gdansk • 30,000 tons</div>
+                          </div>
+                          <Badge variant="secondary" className="text-xs">High</Badge>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="flex justify-between">
+                            <span>Rate:</span>
+                            <span className="font-medium text-green-600">€45.20/ton</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Lead Time:</span>
+                            <span className="font-medium">7 days</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Total Value:</span>
+                            <span className="font-medium">€1.36M</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Vessel Size:</span>
+                            <span className="font-medium">20-40K DWT</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="border rounded-lg p-3 bg-blue-50 border-blue-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <div className="font-medium text-blue-800">Kaolin (Industrial Clay)</div>
+                            <div className="text-xs text-blue-600">Naples → Tallinn • 12,000 tons</div>
+                          </div>
+                          <Badge variant="outline" className="text-xs">High</Badge>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="flex justify-between">
+                            <span>Rate:</span>
+                            <span className="font-medium text-green-600">€52.10/ton</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Lead Time:</span>
+                            <span className="font-medium">12 days</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Total Value:</span>
+                            <span className="font-medium">€625K</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Vessel Size:</span>
+                            <span className="font-medium">8-20K DWT</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5" />
+                      Backhaul Optimization Analytics
+                    </CardTitle>
+                    <CardDescription>
+                      Route efficiency and ballast leg elimination analysis
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-sm">Route Match Analysis</h4>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center p-2 bg-green-50 rounded border border-green-200">
+                          <span className="text-sm">Barcelona → Stockholm</span>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="default" className="text-xs">Salt • 25K tons</Badge>
+                            <span className="text-xs font-medium text-green-600">€463K</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-2 bg-blue-50 rounded border border-blue-200">
+                          <span className="text-sm">Marseille → Riga</span>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="text-xs">Alumina • 22K tons</Badge>
+                            <span className="text-xs font-medium text-green-600">€856K</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-2 bg-yellow-50 rounded border border-yellow-200">
+                          <span className="text-sm">Valencia → Helsinki</span>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs">Gypsum • 18K tons</Badge>
+                            <span className="text-xs font-medium text-green-600">€410K</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-sm">Seasonal Patterns & Pricing</h4>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="text-center p-3 bg-orange-50 rounded border border-orange-200">
+                          <div className="text-lg font-bold text-orange-600">+30%</div>
+                          <div className="text-xs text-muted-foreground">Winter Premium</div>
+                          <div className="text-xs text-orange-600">Salt & De-icing</div>
+                        </div>
+                        <div className="text-center p-3 bg-green-50 rounded border border-green-200">
+                          <div className="text-lg font-bold text-green-600">+15%</div>
+                          <div className="text-xs text-muted-foreground">Spring Demand</div>
+                          <div className="text-xs text-green-600">Construction Materials</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-sm">Vessel Type Matching</h4>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">Bulk Carriers (15-35K DWT)</span>
+                          <div className="flex items-center gap-2">
+                            <Progress value={85} className="w-16" />
+                            <span className="text-xs">6 matches</span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">Small Bulk (6-15K DWT)</span>
+                          <div className="flex items-center gap-2">
+                            <Progress value={60} className="w-16" />
+                            <span className="text-xs">2 matches</span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">Large Bulk (25-50K DWT)</span>
+                          <div className="flex items-center gap-2">
+                            <Progress value={45} className="w-16" />
+                            <span className="text-xs">1 match</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <div className="font-medium text-purple-800 text-sm">Optimization Potential</div>
+                      <div className="text-xs text-purple-600 mt-1">
+                        Eliminate 95% of ballast legs with strategic backhaul booking, 
+                        saving €125K per voyage in fuel and port costs
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5" />
+                    Cargo Flow Intelligence Dashboard
+                  </CardTitle>
+                  <CardDescription>
+                    Real-time analysis of Mediterranean-Baltic bulk cargo opportunities
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div className="text-center p-3 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-primary">€42.8</div>
+                      <div className="text-xs text-muted-foreground">Avg Rate/Ton</div>
+                    </div>
+                    <div className="text-center p-3 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">186K</div>
+                      <div className="text-xs text-muted-foreground">Tons Available</div>
+                    </div>
+                    <div className="text-center p-3 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">12.8</div>
+                      <div className="text-xs text-muted-foreground">Avg Lead Days</div>
+                    </div>
+                    <div className="text-center p-3 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-orange-600">74%</div>
+                      <div className="text-xs text-muted-foreground">Spot vs Contract</div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div className="lg:col-span-2">
+                      <h4 className="font-semibold text-sm mb-3">Market Demand Heat Map</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between p-2 rounded bg-red-50 border border-red-200">
+                          <span className="text-sm">Drilling Grade Materials</span>
+                          <Badge variant="destructive" className="text-xs">Critical Demand</Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-2 rounded bg-orange-50 border border-orange-200">
+                          <span className="text-sm">Industrial Chemicals</span>
+                          <Badge variant="secondary" className="text-xs">High Demand</Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-2 rounded bg-yellow-50 border border-yellow-200">
+                          <span className="text-sm">Construction Materials</span>
+                          <Badge variant="outline" className="text-xs">Medium Demand</Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-2 rounded bg-blue-50 border border-blue-200">
+                          <span className="text-sm">Agricultural Products</span>
+                          <Badge variant="outline" className="text-xs">Seasonal</Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold text-sm mb-3">Port Pair Performance</h4>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between">
+                          <span>Tarragona → Gdansk</span>
+                          <span className="font-medium text-green-600">€1.36M</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Marseille → Riga</span>
+                          <span className="font-medium text-green-600">€856K</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Naples → Tallinn</span>
+                          <span className="font-medium text-green-600">€625K</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Livorno → Kotka</span>
+                          <span className="font-medium text-green-600">€538K</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Barcelona → Stockholm</span>
+                          <span className="font-medium text-green-600">€463K</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
             <TabsContent value="sustainability" className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
@@ -617,7 +916,7 @@ const ShippingInsights = () => {
           <CardDescription>High-impact opportunities based on current data analysis</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="p-4 bg-green-50 rounded-lg border border-green-200">
               <div className="flex items-center gap-2 mb-2">
                 <Navigation className="w-4 h-4 text-green-600" />
@@ -634,6 +933,15 @@ const ShippingInsights = () => {
               </div>
               <p className="text-sm text-blue-600 mb-3">Upgrade to Tier III NOx compliance in preparation for stricter regulations.</p>
               <Button size="sm" variant="outline" className="w-full">Plan Upgrade</Button>
+            </div>
+            
+            <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+              <div className="flex items-center gap-2 mb-2">
+                <Ship className="w-4 h-4 text-orange-600" />
+                <span className="font-medium text-orange-800">Backhaul Optimization</span>
+              </div>
+              <p className="text-sm text-orange-600 mb-3">Book Bentonite cargo (€538K value) from Livorno to eliminate ballast leg and maximize vessel utilization.</p>
+              <Button size="sm" variant="secondary" className="w-full">Book Cargo</Button>
             </div>
             
             <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
