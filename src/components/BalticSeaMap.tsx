@@ -144,24 +144,32 @@ const BalticSeaMap = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h3 className="font-medium mb-2">Setup Required</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                To view the interactive map, please enter your Mapbox public token. 
-                Get yours at <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">mapbox.com</a>
+            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-lg border border-blue-200">
+              <h3 className="font-semibold text-lg mb-3 text-blue-900">🗺️ Interactive Map Setup</h3>
+              <p className="text-sm text-blue-700 mb-4">
+                To view the interactive Baltic Sea monitoring stations map, you need a free Mapbox token:
               </p>
+              <ol className="text-sm text-blue-700 mb-4 ml-4 list-decimal space-y-1">
+                <li>Visit <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">mapbox.com</a> and create a free account</li>
+                <li>Go to your Account → Access Tokens</li>
+                <li>Copy your "Default public token" (starts with pk.ey...)</li>
+                <li>Paste it below and click "Load Map"</li>
+              </ol>
               <div className="flex gap-2">
                 <Input
                   type="text"
-                  placeholder="Enter Mapbox public token (pk.ey...)"
+                  placeholder="pk.eyJ1IjoibXl1c2VybmFtZSIsImEiOiJjbG..."
                   value={mapboxToken}
                   onChange={(e) => setMapboxToken(e.target.value)}
-                  className="flex-1"
+                  className="flex-1 bg-white"
                 />
-                <Button onClick={handleTokenSubmit}>
-                  Load Map
+                <Button onClick={handleTokenSubmit} className="whitespace-nowrap">
+                  🚀 Load Map
                 </Button>
               </div>
+              <p className="text-xs text-blue-600 mt-2">
+                💡 Your token is only stored locally in your browser and never sent to our servers.
+              </p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
