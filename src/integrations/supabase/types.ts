@@ -14,6 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
+      ais_tracking: {
+        Row: {
+          ais_active: boolean | null
+          course: number | null
+          created_at: string
+          dark_zone_duration_hours: number | null
+          dark_zone_entry: string | null
+          destination: string | null
+          draught: number | null
+          eta: string | null
+          heading: number | null
+          id: string
+          imo_number: number | null
+          location_lat: number
+          location_lng: number
+          mmsi: number | null
+          source: string | null
+          speed: number | null
+          status: string | null
+          timestamp: string
+          vessel_id: string | null
+        }
+        Insert: {
+          ais_active?: boolean | null
+          course?: number | null
+          created_at?: string
+          dark_zone_duration_hours?: number | null
+          dark_zone_entry?: string | null
+          destination?: string | null
+          draught?: number | null
+          eta?: string | null
+          heading?: number | null
+          id?: string
+          imo_number?: number | null
+          location_lat: number
+          location_lng: number
+          mmsi?: number | null
+          source?: string | null
+          speed?: number | null
+          status?: string | null
+          timestamp: string
+          vessel_id?: string | null
+        }
+        Update: {
+          ais_active?: boolean | null
+          course?: number | null
+          created_at?: string
+          dark_zone_duration_hours?: number | null
+          dark_zone_entry?: string | null
+          destination?: string | null
+          draught?: number | null
+          eta?: string | null
+          heading?: number | null
+          id?: string
+          imo_number?: number | null
+          location_lat?: number
+          location_lng?: number
+          mmsi?: number | null
+          source?: string | null
+          speed?: number | null
+          status?: string | null
+          timestamp?: string
+          vessel_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ais_tracking_vessel_id_fkey"
+            columns: ["vessel_id"]
+            isOneToOne: false
+            referencedRelation: "vessels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cargo_flows: {
         Row: {
           cargo_subtype: string | null
@@ -308,6 +382,219 @@ export type Database = {
         }
         Relationships: []
       }
+      port_calls: {
+        Row: {
+          actual_cargo: string | null
+          arrival_time: string | null
+          cargo_discrepancy: boolean | null
+          created_at: string
+          customs_data: Json | null
+          declared_cargo: string | null
+          departure_time: string | null
+          high_risk_port: boolean | null
+          id: string
+          port_country: string
+          port_name: string
+          vessel_id: string | null
+        }
+        Insert: {
+          actual_cargo?: string | null
+          arrival_time?: string | null
+          cargo_discrepancy?: boolean | null
+          created_at?: string
+          customs_data?: Json | null
+          declared_cargo?: string | null
+          departure_time?: string | null
+          high_risk_port?: boolean | null
+          id?: string
+          port_country: string
+          port_name: string
+          vessel_id?: string | null
+        }
+        Update: {
+          actual_cargo?: string | null
+          arrival_time?: string | null
+          cargo_discrepancy?: boolean | null
+          created_at?: string
+          customs_data?: Json | null
+          declared_cargo?: string | null
+          departure_time?: string | null
+          high_risk_port?: boolean | null
+          id?: string
+          port_country?: string
+          port_name?: string
+          vessel_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "port_calls_vessel_id_fkey"
+            columns: ["vessel_id"]
+            isOneToOne: false
+            referencedRelation: "vessels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sanctions_lists: {
+        Row: {
+          created_at: string
+          effective_date: string
+          entity_name: string
+          entity_type: string
+          expiry_date: string | null
+          id: string
+          imo_number: number | null
+          last_verified: string | null
+          sanction_authority: string
+          sanction_reason: string | null
+          sanction_type: string
+          source_url: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          effective_date: string
+          entity_name: string
+          entity_type: string
+          expiry_date?: string | null
+          id?: string
+          imo_number?: number | null
+          last_verified?: string | null
+          sanction_authority: string
+          sanction_reason?: string | null
+          sanction_type: string
+          source_url?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          effective_date?: string
+          entity_name?: string
+          entity_type?: string
+          expiry_date?: string | null
+          id?: string
+          imo_number?: number | null
+          last_verified?: string | null
+          sanction_authority?: string
+          sanction_reason?: string | null
+          sanction_type?: string
+          source_url?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
+      satellite_detections: {
+        Row: {
+          ais_gap_detected: boolean | null
+          created_at: string
+          detection_confidence: number | null
+          detection_time: string
+          id: string
+          image_url: string | null
+          location_lat: number
+          location_lng: number
+          matched_ais_vessel_id: string | null
+          metadata: Json | null
+          satellite_source: string
+          suspicious_score: number | null
+          vessel_length_estimate: number | null
+          vessel_width_estimate: number | null
+        }
+        Insert: {
+          ais_gap_detected?: boolean | null
+          created_at?: string
+          detection_confidence?: number | null
+          detection_time: string
+          id?: string
+          image_url?: string | null
+          location_lat: number
+          location_lng: number
+          matched_ais_vessel_id?: string | null
+          metadata?: Json | null
+          satellite_source: string
+          suspicious_score?: number | null
+          vessel_length_estimate?: number | null
+          vessel_width_estimate?: number | null
+        }
+        Update: {
+          ais_gap_detected?: boolean | null
+          created_at?: string
+          detection_confidence?: number | null
+          detection_time?: string
+          id?: string
+          image_url?: string | null
+          location_lat?: number
+          location_lng?: number
+          matched_ais_vessel_id?: string | null
+          metadata?: Json | null
+          satellite_source?: string
+          suspicious_score?: number | null
+          vessel_length_estimate?: number | null
+          vessel_width_estimate?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "satellite_detections_matched_ais_vessel_id_fkey"
+            columns: ["matched_ais_vessel_id"]
+            isOneToOne: false
+            referencedRelation: "vessels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shadow_fleet_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          alert_data: Json | null
+          alert_type: string
+          created_at: string
+          description: string | null
+          id: string
+          priority: string
+          resolved_at: string | null
+          status: string | null
+          title: string
+          vessel_id: string | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_data?: Json | null
+          alert_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          priority?: string
+          resolved_at?: string | null
+          status?: string | null
+          title: string
+          vessel_id?: string | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_data?: Json | null
+          alert_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          priority?: string
+          resolved_at?: string | null
+          status?: string | null
+          title?: string
+          vessel_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shadow_fleet_alerts_vessel_id_fkey"
+            columns: ["vessel_id"]
+            isOneToOne: false
+            referencedRelation: "vessels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shipping_data: {
         Row: {
           course: number | null
@@ -367,6 +654,203 @@ export type Database = {
           timestamp?: string
           vessel_id?: string
           vessel_name?: string | null
+          vessel_type?: string | null
+        }
+        Relationships: []
+      }
+      sts_transfers: {
+        Row: {
+          created_at: string
+          distance_between_vessels: number | null
+          duration_hours: number | null
+          estimated_cargo_transferred: number | null
+          id: string
+          location_lat: number
+          location_lng: number
+          regulatory_compliance: string | null
+          risk_assessment: string | null
+          transfer_end: string | null
+          transfer_start: string
+          transfer_type: string | null
+          vessel1_id: string | null
+          vessel2_id: string | null
+          weather_conditions: Json | null
+        }
+        Insert: {
+          created_at?: string
+          distance_between_vessels?: number | null
+          duration_hours?: number | null
+          estimated_cargo_transferred?: number | null
+          id?: string
+          location_lat: number
+          location_lng: number
+          regulatory_compliance?: string | null
+          risk_assessment?: string | null
+          transfer_end?: string | null
+          transfer_start: string
+          transfer_type?: string | null
+          vessel1_id?: string | null
+          vessel2_id?: string | null
+          weather_conditions?: Json | null
+        }
+        Update: {
+          created_at?: string
+          distance_between_vessels?: number | null
+          duration_hours?: number | null
+          estimated_cargo_transferred?: number | null
+          id?: string
+          location_lat?: number
+          location_lng?: number
+          regulatory_compliance?: string | null
+          risk_assessment?: string | null
+          transfer_end?: string | null
+          transfer_start?: string
+          transfer_type?: string | null
+          vessel1_id?: string | null
+          vessel2_id?: string | null
+          weather_conditions?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sts_transfers_vessel1_id_fkey"
+            columns: ["vessel1_id"]
+            isOneToOne: false
+            referencedRelation: "vessels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sts_transfers_vessel2_id_fkey"
+            columns: ["vessel2_id"]
+            isOneToOne: false
+            referencedRelation: "vessels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suspicious_activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          description: string | null
+          detected_at: string
+          evidence: Json | null
+          id: string
+          investigated_by: string | null
+          location_lat: number | null
+          location_lng: number | null
+          resolution_notes: string | null
+          severity: string
+          status: string | null
+          updated_at: string
+          vessel_id: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          description?: string | null
+          detected_at: string
+          evidence?: Json | null
+          id?: string
+          investigated_by?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          resolution_notes?: string | null
+          severity?: string
+          status?: string | null
+          updated_at?: string
+          vessel_id?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          description?: string | null
+          detected_at?: string
+          evidence?: Json | null
+          id?: string
+          investigated_by?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          resolution_notes?: string | null
+          severity?: string
+          status?: string | null
+          updated_at?: string
+          vessel_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suspicious_activities_vessel_id_fkey"
+            columns: ["vessel_id"]
+            isOneToOne: false
+            referencedRelation: "vessels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vessels: {
+        Row: {
+          built_year: number | null
+          call_sign: string | null
+          created_at: string
+          flag_state: string | null
+          gross_tonnage: number | null
+          id: string
+          imo_number: number | null
+          insurance_company: string | null
+          last_reflagging_date: string | null
+          manager: string | null
+          metadata: Json | null
+          mmsi: number | null
+          operator: string | null
+          owner: string | null
+          reflagging_count: number | null
+          risk_score: number | null
+          sanctions_status: string | null
+          updated_at: string
+          vessel_name: string
+          vessel_type: string | null
+        }
+        Insert: {
+          built_year?: number | null
+          call_sign?: string | null
+          created_at?: string
+          flag_state?: string | null
+          gross_tonnage?: number | null
+          id?: string
+          imo_number?: number | null
+          insurance_company?: string | null
+          last_reflagging_date?: string | null
+          manager?: string | null
+          metadata?: Json | null
+          mmsi?: number | null
+          operator?: string | null
+          owner?: string | null
+          reflagging_count?: number | null
+          risk_score?: number | null
+          sanctions_status?: string | null
+          updated_at?: string
+          vessel_name: string
+          vessel_type?: string | null
+        }
+        Update: {
+          built_year?: number | null
+          call_sign?: string | null
+          created_at?: string
+          flag_state?: string | null
+          gross_tonnage?: number | null
+          id?: string
+          imo_number?: number | null
+          insurance_company?: string | null
+          last_reflagging_date?: string | null
+          manager?: string | null
+          metadata?: Json | null
+          mmsi?: number | null
+          operator?: string | null
+          owner?: string | null
+          reflagging_count?: number | null
+          risk_score?: number | null
+          sanctions_status?: string | null
+          updated_at?: string
+          vessel_name?: string
           vessel_type?: string | null
         }
         Relationships: []

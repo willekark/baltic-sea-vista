@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Database, BarChart, Map } from "lucide-react";
+import { ArrowRight, Database, BarChart, Map, Skull } from "lucide-react";
 import heroImage from "@/assets/baltic-sea-hero.jpg";
 
 const Hero = () => {
@@ -51,14 +51,19 @@ const Hero = () => {
               }
             }}
           >
-            Explore Dashboard
-            <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+            <BarChart className="w-5 h-5 mr-2" />
+            View Live Data
+            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </Button>
-          <Button variant="outline" size="lg" className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-primary"
-            onClick={() => window.location.href = '/eutrophication'}
+          
+          <Button 
+            variant="outline" 
+            size="lg"
+            className="border-white/20 text-white hover:bg-white/10 transition-all duration-300"
+            onClick={() => window.location.href = '/shadow-fleet'}
           >
-            <Map className="w-5 h-5 mr-2" />
-            Eutrophication Reports
+            <Skull className="w-5 h-5 mr-2" />
+            Shadow Fleet Tracker
           </Button>
         </div>
         
