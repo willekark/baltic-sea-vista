@@ -12,7 +12,10 @@ import { useToast } from "@/hooks/use-toast";
 const BalticSeaMap = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState('');
+  const [mapboxToken, setMapboxToken] = useState(() => {
+    // Load saved token from localStorage
+    return localStorage.getItem('mapbox_token') || '';
+  });
   const [isMapReady, setIsMapReady] = useState(false);
   const { toast } = useToast();
 
@@ -143,6 +146,9 @@ const BalticSeaMap = () => {
       return;
     }
 
+    // Save token to localStorage
+    localStorage.setItem('mapbox_token', mapboxToken);
+
     console.log('Attempting to initialize map with token');
     try {
       initializeMap(mapboxToken);
@@ -155,6 +161,14 @@ const BalticSeaMap = () => {
       });
     }
   };
+
+  // Auto-load map if token is already saved
+  useEffect(() => {
+    if (mapboxToken && mapboxToken.startsWith('pk.') && !isMapReady) {
+      console.log('Auto-loading map with saved token');
+      initializeMap(mapboxToken);
+    }
+  }, [mapboxToken, isMapReady]);
 
   useEffect(() => {
     return () => {
