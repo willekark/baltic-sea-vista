@@ -205,18 +205,32 @@ const BalticSeaMap = () => {
                 <li>Copy your "Default public token" (starts with pk.ey...)</li>
                 <li>Paste it below and click "Load Map"</li>
               </ol>
-              <form onSubmit={handleTokenSubmit} className="flex gap-2">
+              <div className="flex gap-2">
                 <Input
                   type="text"
                   placeholder="pk.eyJ1IjoibXl1c2VybmFtZSIsImEiOiJjbG..."
                   value={mapboxToken}
                   onChange={(e) => setMapboxToken(e.target.value)}
                   className="flex-1 bg-white"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleTokenSubmit();
+                    }
+                  }}
                 />
-                <Button type="submit" className="whitespace-nowrap">
+                <Button 
+                  type="button" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleTokenSubmit();
+                  }} 
+                  className="whitespace-nowrap"
+                >
                   🚀 Load Map
                 </Button>
-              </form>
+              </div>
               <p className="text-xs text-blue-600 mt-2">
                 💡 Your token is only stored locally in your browser and never sent to our servers.
               </p>
