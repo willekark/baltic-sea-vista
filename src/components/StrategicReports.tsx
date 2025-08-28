@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Report {
@@ -179,6 +179,110 @@ Current risk level assessed as MEDIUM based on environmental indicator status, d
 - Data refresh rate: Real-time
 - API uptime: 99.2%
 - Alert response time: <5 minutes`;
+    } else if (stakeholderType === 'shipping') {
+      content = `# Strategic Shipping Industry Analysis Report
+
+## Executive Summary for Maritime Operators
+Current maritime conditions present both opportunities and challenges for Baltic Sea shipping operations. With 2,876 active vessels tracked and shipping intensity up 12.5%, strategic route optimization and environmental compliance are critical for operational efficiency and regulatory compliance.
+
+## Current Maritime Environment Assessment
+• **Traffic Density**: High (2,876 tracked vessels) - Route optimization needed
+• **Environmental Risk Level**: MEDIUM - Enhanced navigation protocols required  
+• **Weather Conditions**: Favorable for navigation (14.8°C avg temperature)
+• **Water Quality Impact**: Oxygen levels at 7.2 mg/L - Some areas require restricted navigation
+
+## Data-Driven Shipping Recommendations
+
+### 1. Route Optimization Strategy
+**Primary Recommendations:**
+- **Northern Routes**: Utilize Gotland-Stockholm corridor (lower traffic density, better oxygen levels: 8.1 mg/L)
+- **Southern Avoidance**: Limit operations in Gdansk Bay area (critical oxygen: 4.2 mg/L, high environmental risk)
+- **Peak Traffic Management**: Avoid Helsinki Bay during high-density periods (1600+ daily transits)
+- **Seasonal Routing**: Leverage Kattegat corridor (optimal conditions: 9.1 mg/L oxygen, moderate traffic)
+
+### 2. Environmental Compliance & Efficiency
+**Fuel Efficiency Opportunities:**
+- **Optimal Speed Zones**: Maintain 8-12 knots in monitored areas for fuel efficiency
+- **Weather Routing**: Current wind patterns support 15% fuel savings on east-west routes
+- **Draft Optimization**: Water depth data suggests 12-14m draft optimal for main shipping lanes
+
+**Regulatory Compliance:**
+- **Emission Control Areas (ECA)**: All Baltic Sea operations under strict sulfur regulations
+- **Ballast Water**: Enhanced monitoring at 8 key monitoring stations requires certified treatment systems
+- **Waste Discharge**: Zero tolerance in areas with oxygen levels below 6.0 mg/L
+
+### 3. Safety & Risk Management
+**Critical Safety Zones:**
+- **High-Risk Areas**: Bornholm Basin (environmental incidents tracking), Gulf of Finland (congested)
+- **Safe Havens**: Stockholm Archipelago, Bothnian Bay (optimal environmental conditions)
+- **Weather Windows**: Current data shows 4-day forecast reliability of 92% for planning
+
+**Navigation Hazards:**
+- **Fishing Activity Zones**: 47% increase in commercial fishing - coordinate with ICES data
+- **Environmental Incidents**: Real-time monitoring shows 3 active zones requiring avoidance
+- **Ice Conditions**: Seasonal monitoring indicates potential restrictions in northern routes (Oct-Mar)
+
+### 4. Economic Optimization Strategies
+**Cost Reduction Opportunities:**
+- **Port Selection**: Prioritize ports with integrated environmental monitoring (reduced delays)
+- **Cargo Optimization**: Current weather patterns favor 15-20% increased payload capacity
+- **Fuel Procurement**: Price optimization based on regional fuel quality data and ECA compliance
+
+**Revenue Enhancement:**
+- **Schedule Reliability**: 99.2% data uptime enables precise arrival predictions
+- **Capacity Planning**: Traffic analysis suggests 30% capacity increase potential on northern routes
+- **Value-Added Services**: Environmental compliance consulting based on real-time data access
+
+### 5. Technology Integration Recommendations
+**Digital Navigation Enhancement:**
+- **Real-Time Integration**: Connect ship systems with Baltic monitoring network (42 active stations)
+- **Predictive Analytics**: Leverage AI insights for 48-72 hour voyage optimization
+- **Automated Reporting**: Environmental compliance reporting integration with monitoring systems
+
+**Fleet Management Optimization:**
+- **Vessel Positioning**: AIS data integration with environmental monitoring for optimal deployment
+- **Maintenance Scheduling**: Coordinate with environmental windows for dry dock operations
+- **Crew Scheduling**: Optimize based on environmental conditions and regulatory requirements
+
+### 6. Regulatory & Stakeholder Alignment
+**Policy Compliance Strategy:**
+- **HELCOM Regulations**: Proactive compliance with updated Baltic Action Plan requirements
+- **National Waters**: Country-specific regulations in Swedish, Finnish, Danish, German, Polish waters
+- **International Coordination**: IMO regulations specific to Baltic Sea operations
+
+**Stakeholder Engagement:**
+- **Environmental Groups**: Demonstrate proactive environmental stewardship through data sharing
+- **Port Authorities**: Coordinate arrival times with environmental monitoring schedules
+- **Regulatory Bodies**: Participate in data sharing initiatives for improved maritime safety
+
+## Implementation Timeline & Priorities
+
+### Immediate Actions (0-3 months)
+1. **Route Analysis Integration**: Connect fleet management systems with real-time environmental data
+2. **Crew Training**: Environmental compliance and optimal navigation in monitored waters
+3. **Technology Upgrade**: Install compatible AIS and environmental monitoring integration systems
+
+### Medium-term Strategy (3-12 months)
+1. **Fleet Optimization**: Adjust vessel deployment based on traffic and environmental analysis
+2. **Operational Procedures**: Develop standardized protocols for environmental compliance
+3. **Partnership Development**: Establish relationships with monitoring stations and regulatory bodies
+
+### Long-term Planning (12+ months)
+1. **Infrastructure Investment**: Consider vessels optimized for Baltic environmental conditions
+2. **Market Expansion**: Leverage environmental compliance as competitive advantage
+3. **Innovation Leadership**: Pioneer new technologies for sustainable Baltic operations
+
+## Key Performance Indicators for Success
+- **Fuel Efficiency**: Target 20% improvement through optimized routing
+- **Environmental Compliance**: Achieve 100% regulatory adherence score
+- **Operational Efficiency**: Reduce transit times by 15% through data-driven navigation
+- **Safety Record**: Zero environmental incidents through proactive monitoring
+- **Cost Optimization**: 10-15% operational cost reduction through integrated planning
+
+## Conclusion & Next Steps
+The Baltic Sea maritime environment offers significant opportunities for operators who leverage comprehensive environmental and traffic data for strategic decision-making. Success requires integration of real-time monitoring, proactive environmental compliance, and data-driven operational optimization.
+
+**Recommended Immediate Action**: Establish direct data feeds from Baltic monitoring network to enable real-time decision-making and capitalize on identified optimization opportunities.`;
     } else {
       content = `# Strategic Analysis Report - ${stakeholderType.charAt(0).toUpperCase() + stakeholderType.slice(1)} Sector
 
@@ -210,6 +314,7 @@ Current system performance shows medium risk level with 85% data coverage. Envir
       id: crypto.randomUUID(),
       title: type === 'executive' ? 'Baltic Sea Executive Summary Report' : 
              type === 'operational' ? 'Operational Status Report' :
+             stakeholderType === 'shipping' ? 'Strategic Shipping Industry Analysis Report' :
              `Strategic Analysis Report - ${stakeholderType.charAt(0).toUpperCase() + stakeholderType.slice(1)} Sector`,
       type: type as 'executive' | 'operational' | 'strategic' | 'environmental' | 'economic',
       stakeholder: stakeholderType,
@@ -423,7 +528,7 @@ Key Metrics:
                 </Card>
               </div>
 
-              <Card>
+               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Key Strategic Decision Areas</CardTitle>
                 </CardHeader>
@@ -453,6 +558,153 @@ Key Metrics:
                   </div>
                 </CardContent>
               </Card>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="w-5 h-5" />
+                      Shipping Industry Insights
+                    </CardTitle>
+                    <CardDescription>Data-driven recommendations for maritime operators</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="text-xl font-bold text-blue-600">2,876</div>
+                        <div className="text-xs text-blue-600">Tracked Vessels</div>
+                      </div>
+                      <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+                        <div className="text-xl font-bold text-green-600">+12.5%</div>
+                        <div className="text-xs text-green-600">Traffic Increase</div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-sm">Optimal Routes & Efficiency</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-3 p-2 bg-green-50 rounded border border-green-200">
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-1.5"></div>
+                          <div className="text-sm">
+                            <div className="font-medium text-green-800">Stockholm-Gotland Corridor</div>
+                            <div className="text-xs text-green-600">Optimal conditions: 8.1 mg/L O₂, low congestion</div>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-2 bg-blue-50 rounded border border-blue-200">
+                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5"></div>
+                          <div className="text-sm">
+                            <div className="font-medium text-blue-800">Kattegat Alternative</div>
+                            <div className="text-xs text-blue-600">15% fuel savings, excellent water quality (9.1 mg/L)</div>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-2 bg-red-50 rounded border border-red-200">
+                          <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5"></div>
+                          <div className="text-sm">
+                            <div className="font-medium text-red-800">Avoid Gdansk Bay</div>
+                            <div className="text-xs text-red-600">Critical oxygen levels (4.2 mg/L), regulatory restrictions</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-sm">Environmental Compliance</h4>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>ECA Compliance Required</span>
+                          <Badge variant="outline" className="text-xs">Baltic-wide</Badge>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Ballast Water Treatment</span>
+                          <Badge variant="secondary" className="text-xs">8 Stations</Badge>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Speed Restrictions</span>
+                          <Badge variant="destructive" className="text-xs">Sensitive Areas</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5" />
+                      Maritime Operations Analysis
+                    </CardTitle>
+                    <CardDescription>Current conditions & strategic recommendations</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-sm">Current Maritime Conditions</h4>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="flex justify-between">
+                          <span>Sea Temperature:</span>
+                          <span className="font-medium">14.8°C</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Wind Speed:</span>
+                          <span className="font-medium">8.5 m/s</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Wave Height:</span>
+                          <span className="font-medium">1.2m</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Visibility:</span>
+                          <span className="font-medium text-green-600">Good</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-sm">Cost Optimization Opportunities</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2 p-2 bg-yellow-50 rounded border border-yellow-200">
+                          <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full mt-1.5"></div>
+                          <div className="text-sm">
+                            <div className="font-medium text-yellow-800">Fuel Efficiency</div>
+                            <div className="text-xs text-yellow-600">20% savings via weather routing and optimal speeds</div>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-2 p-2 bg-purple-50 rounded border border-purple-200">
+                          <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-1.5"></div>
+                          <div className="text-sm">
+                            <div className="font-medium text-purple-800">Port Optimization</div>
+                            <div className="text-xs text-purple-600">Schedule coordination reduces waiting times by 30%</div>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-2 p-2 bg-indigo-50 rounded border border-indigo-200">
+                          <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full mt-1.5"></div>
+                          <div className="text-sm">
+                            <div className="font-medium text-indigo-800">Cargo Capacity</div>
+                            <div className="text-xs text-indigo-600">Current conditions support 15% payload increase</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-sm">Risk Mitigation</h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span>Fishing Zones:</span>
+                          <Badge variant="outline" className="text-xs">Monitor ICES</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Weather Alerts:</span>
+                          <Badge variant="default" className="text-xs">48h Forecast</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Traffic Density:</span>
+                          <Badge variant="secondary" className="text-xs">Real-time AIS</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
           </Tabs>
         </CardContent>
