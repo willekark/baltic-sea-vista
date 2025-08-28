@@ -1,62 +1,63 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Activity, Waves, Ship, Fish, Thermometer, Wind } from "lucide-react";
+import AIInsights from "./AIInsights";
 
 const Dashboard = () => {
   const indicators = [
     {
       title: "Oxygen Levels",
       value: "7.2 mg/L",
-      change: "-2.1%",
-      trend: "down",
+      change: -2.1,
+      trend: "down" as const,
       icon: Activity,
       color: "text-destructive",
-      status: "Critical"
+      status: "critical" as const
     },
     {
       title: "Sea Temperature",
       value: "14.8°C",
-      change: "+1.3°C",
-      trend: "up",
+      change: +1.3,
+      trend: "up" as const,
       icon: Thermometer,
       color: "text-secondary",
-      status: "Normal"
+      status: "good" as const
     },
     {
       title: "Shipping Intensity",
       value: "2,847",
-      change: "+12.5%",
-      trend: "up",
+      change: +12.5,
+      trend: "up" as const,
       icon: Ship,
       color: "text-primary",
-      status: "High"
+      status: "warning" as const
     },
     {
       title: "Fish Stock Index",
       value: "0.67",
-      change: "-8.3%",
-      trend: "down",
+      change: -8.3,
+      trend: "down" as const,
       icon: Fish,
       color: "text-accent",
-      status: "Declining"
+      status: "warning" as const
     },
     {
       title: "Wave Height",
       value: "1.2m",
-      change: "+0.3m",
-      trend: "up",
+      change: +0.3,
+      trend: "up" as const,
       icon: Waves,
       color: "text-secondary",
-      status: "Moderate"
+      status: "good" as const
     },
     {
       title: "Wind Speed",
       value: "8.5 m/s",
-      change: "-1.2 m/s",
-      trend: "down",
+      change: -1.2,
+      trend: "down" as const,
       icon: Wind,
       color: "text-muted-foreground",
-      status: "Light"
+      status: "excellent" as const
     }
   ];
 
@@ -95,9 +96,9 @@ const Dashboard = () => {
                           indicator.trend === "up" ? "text-secondary" : "text-destructive"
                         }`}>
                           <TrendIcon className="w-4 h-4 mr-1" />
-                          {indicator.change}
+                          {indicator.change > 0 ? '+' : ''}{indicator.change}%
                         </div>
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className="text-xs capitalize">
                           {indicator.status}
                         </Badge>
                       </div>
@@ -127,6 +128,11 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* AI Insights Section */}
+        <div className="mt-12">
+          <AIInsights marineData={indicators} />
+        </div>
       </div>
     </section>
   );
