@@ -54,6 +54,9 @@ serve(async (req) => {
     
     // Detect potential STS transfers
     const stsAnalysis = detectSTSTransfers(aisData || []);
+    
+    // Analyze CO2 emissions anomalies
+    const emissionsAnalysis = await analyzeEmissionsViolations(supabase, aisData || []);
 
     // Generate comprehensive report
     const analysis = {
@@ -64,15 +67,17 @@ serve(async (req) => {
         suspiciousBehaviors: behaviorAnalysis.length,
         sanctionsViolations: sanctionsAnalysis.length,
         stsTransfers: stsAnalysis.length,
+        emissionsAnomalies: emissionsAnalysis.length,
         highRiskVessels: getHighRiskVesselCount(aisData || [])
       },
       alerts: [
         ...darkZoneAnalysis,
         ...behaviorAnalysis,
         ...sanctionsAnalysis,
-        ...stsAnalysis
+        ...stsAnalysis,
+        ...emissionsAnalysis
       ],
-      recommendations: generateRecommendations(darkZoneAnalysis, behaviorAnalysis, sanctionsAnalysis, stsAnalysis)
+      recommendations: generateRecommendations(darkZoneAnalysis, behaviorAnalysis, sanctionsAnalysis, stsAnalysis, emissionsAnalysis)
     };
 
     // Store alerts in database
@@ -363,7 +368,71 @@ function getHighRiskVesselCount(aisData: any[]): number {
   ).size;
 }
 
-function generateRecommendations(darkZones: any[], behaviors: any[], sanctions: any[], sts: any[]): string[] {
+// Analyze CO2 emissions data for vessels to detect anomalies
+async function analyzeEmissionsViolations(supabase: any, aisData: any[]): Promise<any[]> {
+  const alerts: any[] = [];
+  
+  try {
+    // Get recent emissions anomalies
+    const { data: anomalies } = await supabase
+      .from('emissions_anomalies')
+      .select('*')
+      .eq('status', 'active')
+      .gte('detected_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+    
+    if (!anomalies) return alerts;
+    
+    anomalies.forEach(anomaly => {
+      let priority = 'medium';
+      let title = '';
+      let description = '';
+      
+      switch (anomaly.anomaly_type) {
+        case 'excess_emissions':
+          priority = anomaly.severity === 'critical' ? 'critical' : 'high';
+          title = `Excess CO₂ Emissions Detected`;
+          description = `Vessel emitting ${anomaly.deviation_percent.toFixed(1)}% more CO₂ than expected for its type and speed`;
+          break;
+          
+        case 'under_emissions':
+          priority = 'high';
+          title = `Suspiciously Low CO₂ Emissions`;
+          description = `Vessel emitting ${Math.abs(anomaly.deviation_percent).toFixed(1)}% less CO₂ than expected - possible AIS spoofing`;
+          break;
+          
+        case 'dark_zone_emissions':
+          priority = 'critical';
+          title = `Dark Zone CO₂ Detection`;
+          description = `Elevated atmospheric CO₂ detected without corresponding AIS activity - possible hidden vessel`;
+          break;
+      }
+      
+      alerts.push({
+        vesselId: anomaly.vessel_id,
+        type: 'emissions_anomaly',
+        priority,
+        title,
+        description,
+        data: {
+          anomalyType: anomaly.anomaly_type,
+          expectedEmissions: anomaly.expected_emissions,
+          actualEmissions: anomaly.actual_emissions,
+          deviationPercent: anomaly.deviation_percent,
+          location: { lat: anomaly.location_lat, lng: anomaly.location_lng },
+          analysisData: anomaly.analysis_data,
+          detectedAt: anomaly.detected_at
+        }
+      });
+    });
+    
+  } catch (error) {
+    console.error('Error analyzing emissions violations:', error);
+  }
+  
+  return alerts;
+}
+
+function generateRecommendations(darkZones: any[], behaviors: any[], sanctions: any[], sts: any[], emissions: any[]): string[] {
   const recommendations = [];
   
   if (darkZones.length > 0) {
@@ -380,6 +449,10 @@ function generateRecommendations(darkZones: any[], behaviors: any[], sanctions: 
   
   if (behaviors.length > 0) {
     recommendations.push(`Review ${behaviors.length} suspicious behavior patterns for compliance violations`);
+  }
+  
+  if (emissions.length > 0) {
+    recommendations.push(`Analyze ${emissions.length} CO₂ emissions anomalies - possible fuel underreporting or hidden vessels`);
   }
   
   if (recommendations.length === 0) {

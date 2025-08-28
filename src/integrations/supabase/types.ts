@@ -190,6 +190,51 @@ export type Database = {
         }
         Relationships: []
       }
+      co2_emissions: {
+        Row: {
+          created_at: string
+          data_type: string
+          id: string
+          location_lat: number
+          location_lng: number
+          metadata: Json | null
+          quality_flag: string | null
+          source: string
+          timestamp: string
+          unit: string
+          value: number
+          vessel_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          data_type: string
+          id?: string
+          location_lat: number
+          location_lng: number
+          metadata?: Json | null
+          quality_flag?: string | null
+          source: string
+          timestamp: string
+          unit: string
+          value: number
+          vessel_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          data_type?: string
+          id?: string
+          location_lat?: number
+          location_lng?: number
+          metadata?: Json | null
+          quality_flag?: string | null
+          source?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          vessel_id?: string | null
+        }
+        Relationships: []
+      }
       data_summaries: {
         Row: {
           calculation_date: string
@@ -232,6 +277,54 @@ export type Database = {
           status?: string
           trend?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      emissions_anomalies: {
+        Row: {
+          actual_emissions: number | null
+          analysis_data: Json | null
+          anomaly_type: string
+          created_at: string
+          detected_at: string
+          deviation_percent: number | null
+          expected_emissions: number | null
+          id: string
+          location_lat: number
+          location_lng: number
+          severity: string
+          status: string | null
+          vessel_id: string | null
+        }
+        Insert: {
+          actual_emissions?: number | null
+          analysis_data?: Json | null
+          anomaly_type: string
+          created_at?: string
+          detected_at?: string
+          deviation_percent?: number | null
+          expected_emissions?: number | null
+          id?: string
+          location_lat: number
+          location_lng: number
+          severity?: string
+          status?: string | null
+          vessel_id?: string | null
+        }
+        Update: {
+          actual_emissions?: number | null
+          analysis_data?: Json | null
+          anomaly_type?: string
+          created_at?: string
+          detected_at?: string
+          deviation_percent?: number | null
+          expected_emissions?: number | null
+          id?: string
+          location_lat?: number
+          location_lng?: number
+          severity?: string
+          status?: string | null
+          vessel_id?: string | null
         }
         Relationships: []
       }

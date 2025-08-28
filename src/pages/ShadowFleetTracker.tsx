@@ -35,6 +35,7 @@ interface ShadowFleetAnalysis {
     suspiciousBehaviors: number;
     sanctionsViolations: number;
     stsTransfers: number;
+    emissionsAnomalies: number;
     highRiskVessels: number;
   };
   alerts: any[];
@@ -89,6 +90,7 @@ const ShadowFleetTracker = () => {
       case 'sts_transfer': return Fuel;
       case 'loitering': return Anchor;
       case 'false_destination': return Navigation;
+      case 'emissions_anomaly': return TrendingUp;
       default: return AlertTriangle;
     }
   };
@@ -233,10 +235,22 @@ const ShadowFleetTracker = () => {
                 </CardContent>
               </Card>
 
+              <Card className="bg-gradient-dark-panel shadow-panel border-warning/20">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center text-warning">
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    CO₂ Anomalies
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-warning">{analysis.summary.emissionsAnomalies}</div>
+                </CardContent>
+              </Card>
+
               <Card className="bg-gradient-dark-panel shadow-panel border-muted/20">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center text-muted-foreground">
-                    <TrendingUp className="w-4 h-4 mr-2" />
+                    <Ship className="w-4 h-4 mr-2" />
                     High Risk Vessels
                   </CardTitle>
                 </CardHeader>
@@ -247,9 +261,10 @@ const ShadowFleetTracker = () => {
             </div>
 
             <Tabs defaultValue="map" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="map">Tracking Map</TabsTrigger>
                 <TabsTrigger value="alerts">Active Alerts</TabsTrigger>
+                <TabsTrigger value="emissions">CO₂ Analysis</TabsTrigger>
                 <TabsTrigger value="methods">Detection Methods</TabsTrigger>
                 <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
                 <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
@@ -312,6 +327,72 @@ const ShadowFleetTracker = () => {
                       );
                     })
                   )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="emissions" className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <Card className="bg-gradient-dark-panel shadow-panel border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center text-primary">
+                        <TrendingUp className="w-5 h-5 mr-2" />
+                        CO₂ Emissions Analysis
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-muted-foreground">
+                        Advanced atmospheric monitoring to detect shadow fleet activities through emissions analysis.
+                      </p>
+                      <div className="space-y-3">
+                        <div className="bg-gradient-subtle p-3 rounded border border-primary/20">
+                          <h4 className="font-medium text-primary">Data Sources:</h4>
+                          <ul className="text-sm text-muted-foreground mt-2 space-y-1">
+                            <li>• SOCAT: Ocean surface pCO₂ measurements</li>
+                            <li>• Copernicus: Air-sea CO₂ flux modeling</li>
+                            <li>• ICOS: Atmospheric CO₂ monitoring stations</li>
+                            <li>• Sentinel: Satellite ship plume detection</li>
+                          </ul>
+                        </div>
+                        <div className="bg-gradient-danger p-3 rounded border border-destructive/20">
+                          <h4 className="font-medium text-destructive">Active Anomalies:</h4>
+                          <p className="text-sm text-destructive-foreground mt-1">
+                            {analysis.summary.emissionsAnomalies} emissions anomalies detected requiring investigation
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-gradient-dark-panel shadow-panel border-accent/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center text-accent">
+                        <Satellite className="w-5 h-5 mr-2" />
+                        Detection Methods
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-3">
+                        <div className="bg-gradient-subtle p-3 rounded border border-accent/20">
+                          <h4 className="font-medium text-accent">Excess Emissions</h4>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Ships emitting more CO₂ than expected may be carrying undeclared cargo or using tampered engines.
+                          </p>
+                        </div>
+                        <div className="bg-gradient-subtle p-3 rounded border border-warning/20">
+                          <h4 className="font-medium text-warning">Under-reporting</h4>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Suspiciously low emissions compared to AIS data may indicate false vessel identification.
+                          </p>
+                        </div>
+                        <div className="bg-gradient-danger p-3 rounded border border-destructive/20">
+                          <h4 className="font-medium text-destructive">Dark Zone Plumes</h4>
+                          <p className="text-sm text-destructive-foreground mt-1">
+                            Atmospheric CO₂ spikes without corresponding AIS activity suggest hidden vessels.
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               </TabsContent>
 
