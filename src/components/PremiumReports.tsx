@@ -41,6 +41,10 @@ interface PremiumReport {
   recommendations?: any;
   roi?: any;
   confidenceLevel?: number;
+  strategicContext?: any;
+  implementation?: any;
+  riskAssessment?: any;
+  conclusion?: string;
 }
 
 const PremiumReports = () => {
@@ -131,15 +135,58 @@ const PremiumReports = () => {
         description: "Please wait while we prepare your report...",
       });
 
+      // Create a print-friendly version of the content
       const reportElement = document.getElementById('premium-report-content');
       if (!reportElement) return;
 
-      const canvas = await html2canvas(reportElement, {
+      // Create a temporary container with print styles
+      const printContainer = document.createElement('div');
+      printContainer.innerHTML = reportElement.innerHTML;
+      printContainer.style.cssText = `
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+        width: 800px;
+        background: white;
+        color: #000000 !important;
+        font-family: 'Arial', sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+        padding: 40px;
+      `;
+      
+      // Override all text colors for PDF readability
+      printContainer.querySelectorAll('*').forEach((el: any) => {
+        el.style.color = '#000000';
+        el.style.backgroundColor = 'transparent';
+        if (el.classList.contains('bg-gradient-success') || el.classList.contains('text-success')) {
+          el.style.color = '#059669';
+          el.style.backgroundColor = '#f0fdf4';
+        }
+        if (el.classList.contains('bg-gradient-primary') || el.classList.contains('text-primary')) {
+          el.style.color = '#2563eb';
+          el.style.backgroundColor = '#eff6ff';
+        }
+        if (el.classList.contains('text-warning')) {
+          el.style.color = '#d97706';
+        }
+        if (el.classList.contains('text-destructive')) {
+          el.style.color = '#dc2626';
+        }
+      });
+
+      document.body.appendChild(printContainer);
+
+      const canvas = await html2canvas(printContainer, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        width: 800,
+        height: printContainer.scrollHeight
       });
+
+      document.body.removeChild(printContainer);
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
@@ -469,219 +516,269 @@ const PremiumReports = () => {
         })}
       </div>
 
-      {/* Report Display */}
+      {/* Current Report Display */}
       {currentReport && currentReportType && (
-        <Card className="bg-gradient-dark-panel shadow-panel border-primary/20">
+        <Card className="bg-gradient-dark-panel shadow-panel border-primary/20" id="premium-report-content">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <currentReportType.icon className={`w-6 h-6 ${currentReportType.color}`} />
-                <div>
-                  <CardTitle>{currentReportType.title}</CardTitle>
-                  <CardDescription>
-                    Generated: {new Date(currentReport.generatedAt).toLocaleString()}
-                  </CardDescription>
-                </div>
+              <div>
+                <CardTitle className="flex items-center text-primary">
+                  <currentReportType.icon className="w-6 h-6 mr-3" />
+                  {currentReportType.title}
+                </CardTitle>
+                <CardDescription className="text-sm text-muted-foreground mt-1">
+                  Generated on {new Date(currentReport.generatedAt).toLocaleDateString()} 
+                  {currentReport.confidenceLevel && (
+                    <Badge variant="outline" className={`ml-2 ${getConfidenceColor(currentReport.confidenceLevel)}`}>
+                      {Math.round(currentReport.confidenceLevel * 100)}% Confidence
+                    </Badge>
+                  )}
+                </CardDescription>
               </div>
-              <div className="flex items-center space-x-3">
-                {currentReport.confidenceLevel && (
-                  <Badge variant="outline" className={getConfidenceColor(currentReport.confidenceLevel)}>
-                    {Math.round(currentReport.confidenceLevel * 100)}% Confidence
-                  </Badge>
-                )}
-                <Button variant="outline" size="sm" onClick={exportToPDF}>
-                  <Download className="w-4 h-4 mr-2" />
-                  Export PDF
-                </Button>
-              </div>
+              <Button onClick={exportToPDF} variant="outline" className="flex items-center">
+                <Download className="w-4 h-4 mr-2" />
+                Export PDF
+              </Button>
             </div>
           </CardHeader>
-          <CardContent id="premium-report-content">
-            <Tabs defaultValue="executive" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="executive">Executive Summary</TabsTrigger>
-                <TabsTrigger value="detailed">Detailed Analysis</TabsTrigger>
-                <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-                <TabsTrigger value="roi">ROI Analysis</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="executive" className="space-y-4">
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {Object.entries(currentReport.executiveSummary).map(([key, value]) => (
-                    <Card key={key} className="bg-gradient-subtle border border-primary/20">
-                      <CardContent className="p-4">
-                        <p className="text-sm text-muted-foreground capitalize">
+          <CardContent>
+            <div className="space-y-8">
+              {/* Executive Summary */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">Executive Summary</h3>
+                {currentReport.executiveSummary?.overview && (
+                  <div className="bg-gradient-subtle p-6 rounded-lg border">
+                    <p className="text-base leading-relaxed">{currentReport.executiveSummary.overview}</p>
+                  </div>
+                )}
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {currentReport.executiveSummary && typeof currentReport.executiveSummary === 'object' && 
+                    Object.entries(currentReport.executiveSummary).filter(([key]) => key !== 'overview').map(([key, value]) => (
+                      <div key={key} className="bg-background/30 p-4 rounded border">
+                        <p className="text-sm text-muted-foreground capitalize mb-1">
                           {key.replace(/([A-Z])/g, ' $1').trim()}
                         </p>
                         <p className="text-lg font-bold">
-                          {typeof value === 'number' 
-                            ? (key.includes('Cost') || key.includes('Savings') || key.includes('Value') 
-                               ? formatCurrency(value) 
-                               : value.toLocaleString())
-                            : String(value)
+                          {typeof value === 'number' && key.includes('Savings') 
+                            ? formatCurrency(value)
+                            : typeof value === 'number' 
+                              ? value.toLocaleString() 
+                              : Array.isArray(value) 
+                                ? `${value.length} items`
+                                : String(value)
                           }
                         </p>
-                      </CardContent>
-                    </Card>
-                  ))}
+                      </div>
+                    ))
+                  }
                 </div>
+              </div>
 
-                {activeReport === 'route_optimization' && currentReport.roi && (
-                  <Alert className="bg-gradient-success border-success/20">
-                    <TrendingUp className="h-4 w-4" />
-                    <AlertDescription className="text-success-foreground">
-                      <strong>Key Finding:</strong> Route optimization can save {formatCurrency(currentReport.roi.annualProjectedSavings)} 
-                      annually with a payback period of just {currentReport.roi.paybackPeriod} months.
-                    </AlertDescription>
-                  </Alert>
-                )}
+              {/* Strategic Context */}
+              {currentReport.strategicContext && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">Strategic Context & Market Position</h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <h4 className="text-lg font-semibold">Market Analysis</h4>
+                      <div className="bg-gradient-subtle p-4 rounded">
+                        <p className="text-sm leading-relaxed">{currentReport.strategicContext.marketAnalysis}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <h4 className="text-lg font-semibold">Industry Trends</h4>
+                      <div className="bg-gradient-subtle p-4 rounded">
+                        <p className="text-sm leading-relaxed">{currentReport.strategicContext.industryTrends}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-                {activeReport === 'market_intelligence' && (
-                  <Alert className="bg-gradient-primary border-primary/20">
-                    <BarChart3 className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>Market Opportunity:</strong> Premium cargo rates are projected to increase 12.5% 
-                      next quarter. Consider capacity expansion in high-value routes.
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                {activeReport === 'risk_assessment' && (
-                  <Alert className="bg-gradient-danger border-destructive/20">
-                    <Shield className="h-4 w-4" />
-                    <AlertDescription className="text-destructive-foreground">
-                      <strong>Risk Alert:</strong> {currentReport.executiveSummary.criticalRisks} critical risks 
-                      identified requiring immediate attention to avoid potential €{(5000000).toLocaleString()} exposure.
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </TabsContent>
-
-              <TabsContent value="detailed" className="space-y-4">
-                {currentReport.detailedAnalysis && (
-                  <div className="space-y-4">
+              {/* Detailed Analysis */}
+              <div className="space-y-6">
+                <h3 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">Comprehensive Analysis</h3>
+                {currentReport.detailedAnalysis && typeof currentReport.detailedAnalysis === 'object' ? (
+                  <div className="space-y-6">
                     {Object.entries(currentReport.detailedAnalysis).map(([section, data]) => (
-                      <Card key={section} className="bg-gradient-subtle border border-primary/20">
+                      <Card key={section} className="bg-background/20 border-primary/10">
                         <CardHeader>
-                          <CardTitle className="text-lg capitalize">
+                          <CardTitle className="text-lg capitalize text-primary">
                             {section.replace(/([A-Z])/g, ' $1').trim()}
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
                           {renderDetailedAnalysis(data, section)}
+                          {data && typeof data === 'object' && (data as any).insights && (
+                            <div className="mt-6 p-4 bg-gradient-subtle rounded border-l-4 border-primary">
+                              <h5 className="font-semibold mb-2">Key Insights</h5>
+                              <p className="text-sm leading-relaxed">{(data as any).insights}</p>
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     ))}
                   </div>
+                ) : (
+                  <p className="text-muted-foreground">No detailed analysis available</p>
                 )}
-              </TabsContent>
+              </div>
 
-              <TabsContent value="recommendations" className="space-y-4">
-                {currentReport.recommendations && (
-                  <div className="space-y-4">
-                    {Object.entries(currentReport.recommendations).map(([category, items]) => (
-                      <Card key={category} className="bg-gradient-subtle border border-primary/20">
-                        <CardHeader>
-                          <CardTitle className="text-lg capitalize flex items-center">
-                            <Target className="w-5 h-5 mr-2 text-primary" />
-                            {category.replace(/([A-Z])/g, ' $1').trim()} Actions
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            {Array.isArray(items) ? items.map((item, index) => (
-                              <div key={index} className="flex items-start space-x-2">
-                                <ArrowUpRight className="w-4 h-4 text-primary mt-0.5" />
-                                <span className="text-sm">{typeof item === 'string' ? item : JSON.stringify(item)}</span>
+              {/* Strategic Recommendations */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">Strategic Action Plan</h3>
+                {currentReport.recommendations && typeof currentReport.recommendations === 'object' ? (
+                  <div className="space-y-6">
+                    {Object.entries(currentReport.recommendations).map(([category, recs]) => (
+                      <div key={category} className="space-y-4">
+                        <h4 className="text-lg font-semibold capitalize text-primary">
+                          {category.replace(/([A-Z])/g, ' $1').trim()} Recommendations
+                        </h4>
+                        <Card className="bg-background/20 border-primary/10">
+                          <CardContent className="p-6">
+                            {Array.isArray(recs) ? (
+                              <div className="space-y-3">
+                                {recs.map((rec, index) => (
+                                  <div key={index} className="flex items-start p-3 bg-gradient-subtle rounded">
+                                    <div className="flex-shrink-0 w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center mr-3">
+                                      <span className="text-sm font-bold text-primary">{index + 1}</span>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm leading-relaxed">{rec}</p>
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
-                            )) : (
-                              <div className="text-sm">{JSON.stringify(items)}</div>
+                            ) : (
+                              <p className="text-sm leading-relaxed">{String(recs)}</p>
                             )}
+                          </CardContent>
+                        </Card>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">No recommendations available</p>
+                )}
+              </div>
+
+              {/* Implementation Timeline */}
+              {currentReport.implementation && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">Implementation Roadmap</h3>
+                  <div className="space-y-4">
+                    {currentReport.implementation.phases?.map((phase: any, index: number) => (
+                      <Card key={index} className="bg-background/20 border-primary/10">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-semibold text-primary">{phase.title}</h4>
+                            <Badge variant="outline" className="text-xs">
+                              {phase.duration}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">{phase.description}</p>
+                          <div className="text-sm">
+                            <strong>Expected ROI:</strong> {formatCurrency(phase.roi)}
                           </div>
                         </CardContent>
                       </Card>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Financial Analysis */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">Financial Impact Analysis</h3>
+                {currentReport.roi && typeof currentReport.roi === 'object' ? (
+                  <div className="space-y-4">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {Object.entries(currentReport.roi).filter(([key]) => key !== 'analysis').map(([metric, value]) => (
+                        <Card key={metric} className="bg-gradient-success/10 border-success/20">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm text-muted-foreground capitalize">
+                                  {metric.replace(/([A-Z])/g, ' $1').trim()}
+                                </p>
+                                <p className="text-xl font-bold text-success">
+                                  {typeof value === 'number' 
+                                    ? formatCurrency(value)
+                                    : String(value)
+                                  }
+                                </p>
+                              </div>
+                              <DollarSign className="w-8 h-8 text-success" />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                    {currentReport.roi.analysis && (
+                      <Card className="bg-gradient-subtle border-primary/10">
+                        <CardContent className="p-6">
+                          <h4 className="font-semibold text-primary mb-3">Investment Analysis</h4>
+                          <p className="text-sm leading-relaxed">{currentReport.roi.analysis}</p>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">No ROI data available</p>
                 )}
-              </TabsContent>
+              </div>
 
-              <TabsContent value="roi" className="space-y-4">
-                {currentReport.roi && (
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <Card className="bg-gradient-success border border-success/20">
+              {/* Risk Assessment */}
+              {currentReport.riskAssessment && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">Risk Assessment & Mitigation</h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <Card className="bg-gradient-warning/10 border-warning/20">
                       <CardHeader>
-                        <CardTitle className="flex items-center text-success">
-                          <DollarSign className="w-5 h-5 mr-2" />
-                          Financial Impact
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-sm text-muted-foreground">Monthly Savings:</span>
-                            <span className="font-bold text-success">
-                              {formatCurrency(currentReport.roi.monthlyFuelSavings || 0)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm text-muted-foreground">Annual Projected:</span>
-                            <span className="font-bold text-success">
-                              {formatCurrency(currentReport.roi.annualProjectedSavings || 0)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm text-muted-foreground">Net Present Value:</span>
-                            <span className="font-bold text-success">
-                              {formatCurrency(currentReport.roi.netPresentValue || 0)}
-                            </span>
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground mb-2">Payback Period</p>
-                          <div className="flex items-center space-x-2">
-                            <Progress value={(12 - (currentReport.roi.paybackPeriod || 0)) / 12 * 100} className="flex-1" />
-                            <span className="text-sm font-medium">{currentReport.roi.paybackPeriod || 0} months</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="bg-gradient-primary border border-primary/20">
-                      <CardHeader>
-                        <CardTitle className="flex items-center text-primary">
-                          <PieChart className="w-5 h-5 mr-2" />
-                          Business Value Breakdown
-                        </CardTitle>
+                        <CardTitle className="text-base text-warning">Identified Risks</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="space-y-3">
-                          <div className="bg-background/30 p-3 rounded">
-                            <p className="text-sm font-medium">Cost Reduction</p>
-                            <p className="text-2xl font-bold text-success">65%</p>
-                          </div>
-                          <div className="bg-background/30 p-3 rounded">
-                            <p className="text-sm font-medium">Revenue Enhancement</p>
-                            <p className="text-2xl font-bold text-primary">25%</p>
-                          </div>
-                          <div className="bg-background/30 p-3 rounded">
-                            <p className="text-sm font-medium">Risk Mitigation</p>
-                            <p className="text-2xl font-bold text-warning">10%</p>
-                          </div>
-                        </div>
+                        <ul className="space-y-2 text-sm">
+                          {currentReport.riskAssessment.risks?.map((risk: string, index: number) => (
+                            <li key={index} className="flex items-start">
+                              <AlertTriangle className="w-4 h-4 text-warning mr-2 mt-0.5 flex-shrink-0" />
+                              {risk}
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gradient-success/10 border-success/20">
+                      <CardHeader>
+                        <CardTitle className="text-base text-success">Mitigation Strategies</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="space-y-2 text-sm">
+                          {currentReport.riskAssessment.mitigation?.map((strategy: string, index: number) => (
+                            <li key={index} className="flex items-start">
+                              <CheckCircle className="w-4 h-4 text-success mr-2 mt-0.5 flex-shrink-0" />
+                              {strategy}
+                            </li>
+                          ))}
+                        </ul>
                       </CardContent>
                     </Card>
                   </div>
-                )}
+                </div>
+              )}
 
-                <Alert className="bg-gradient-investment border-primary/20">
-                  <Building2 className="h-4 w-4" />
-                  <AlertDescription>
-                    <strong>Enterprise Value:</strong> Premium analytics typically deliver 3-5x ROI within 12 months 
-                    through operational optimization, risk reduction, and strategic decision support.
-                  </AlertDescription>
-                </Alert>
-              </TabsContent>
-            </Tabs>
+              {/* Conclusion */}
+              {currentReport.conclusion && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">Executive Conclusion</h3>
+                  <Card className="bg-gradient-primary/10 border-primary/20">
+                    <CardContent className="p-6">
+                      <p className="text-base leading-relaxed">{currentReport.conclusion}</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}
