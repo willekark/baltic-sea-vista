@@ -14,6 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
+      cargo_flows: {
+        Row: {
+          cargo_subtype: string | null
+          cargo_type: string
+          commodity_group: string | null
+          consignee_company: string | null
+          contract_duration_months: number | null
+          created_at: string
+          currency: string | null
+          demand_level: string | null
+          destination_region: string
+          discharge_time_hours: number | null
+          environmental_requirements: Json | null
+          frequency: string | null
+          id: string
+          lead_time_days: number | null
+          loading_time_hours: number | null
+          max_vessel_size_dwt: number | null
+          metadata: Json | null
+          min_vessel_size_dwt: number | null
+          origin_region: string
+          port_destination: string | null
+          port_origin: string | null
+          rate_per_ton: number | null
+          route_restrictions: Json | null
+          seasonal_factor: number | null
+          shipper_company: string | null
+          spot_vs_contract: string | null
+          updated_at: string
+          valid_from: string
+          valid_until: string | null
+          vessel_type_required: string | null
+          volume_tons: number | null
+        }
+        Insert: {
+          cargo_subtype?: string | null
+          cargo_type: string
+          commodity_group?: string | null
+          consignee_company?: string | null
+          contract_duration_months?: number | null
+          created_at?: string
+          currency?: string | null
+          demand_level?: string | null
+          destination_region: string
+          discharge_time_hours?: number | null
+          environmental_requirements?: Json | null
+          frequency?: string | null
+          id?: string
+          lead_time_days?: number | null
+          loading_time_hours?: number | null
+          max_vessel_size_dwt?: number | null
+          metadata?: Json | null
+          min_vessel_size_dwt?: number | null
+          origin_region: string
+          port_destination?: string | null
+          port_origin?: string | null
+          rate_per_ton?: number | null
+          route_restrictions?: Json | null
+          seasonal_factor?: number | null
+          shipper_company?: string | null
+          spot_vs_contract?: string | null
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+          vessel_type_required?: string | null
+          volume_tons?: number | null
+        }
+        Update: {
+          cargo_subtype?: string | null
+          cargo_type?: string
+          commodity_group?: string | null
+          consignee_company?: string | null
+          contract_duration_months?: number | null
+          created_at?: string
+          currency?: string | null
+          demand_level?: string | null
+          destination_region?: string
+          discharge_time_hours?: number | null
+          environmental_requirements?: Json | null
+          frequency?: string | null
+          id?: string
+          lead_time_days?: number | null
+          loading_time_hours?: number | null
+          max_vessel_size_dwt?: number | null
+          metadata?: Json | null
+          min_vessel_size_dwt?: number | null
+          origin_region?: string
+          port_destination?: string | null
+          port_origin?: string | null
+          rate_per_ton?: number | null
+          route_restrictions?: Json | null
+          seasonal_factor?: number | null
+          shipper_company?: string | null
+          spot_vs_contract?: string | null
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+          vessel_type_required?: string | null
+          volume_tons?: number | null
+        }
+        Relationships: []
+      }
       data_summaries: {
         Row: {
           calculation_date: string
@@ -331,7 +433,117 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      backhaul_opportunities: {
+        Row: {
+          booking_urgency: string | null
+          cargo_subtype: string | null
+          cargo_type: string | null
+          commodity_group: string | null
+          consignee_company: string | null
+          contract_duration_months: number | null
+          created_at: string | null
+          currency: string | null
+          demand_level: string | null
+          destination_region: string | null
+          discharge_time_hours: number | null
+          environmental_requirements: Json | null
+          frequency: string | null
+          id: string | null
+          lead_time_days: number | null
+          loading_time_hours: number | null
+          max_vessel_size_dwt: number | null
+          metadata: Json | null
+          min_vessel_size_dwt: number | null
+          opportunity_score: number | null
+          origin_region: string | null
+          port_destination: string | null
+          port_origin: string | null
+          rate_per_ton: number | null
+          route_restrictions: Json | null
+          seasonal_factor: number | null
+          shipper_company: string | null
+          spot_vs_contract: string | null
+          total_value_eur: number | null
+          updated_at: string | null
+          valid_from: string | null
+          valid_until: string | null
+          vessel_type_required: string | null
+          volume_tons: number | null
+        }
+        Insert: {
+          booking_urgency?: never
+          cargo_subtype?: string | null
+          cargo_type?: string | null
+          commodity_group?: string | null
+          consignee_company?: string | null
+          contract_duration_months?: number | null
+          created_at?: string | null
+          currency?: string | null
+          demand_level?: string | null
+          destination_region?: string | null
+          discharge_time_hours?: number | null
+          environmental_requirements?: Json | null
+          frequency?: string | null
+          id?: string | null
+          lead_time_days?: number | null
+          loading_time_hours?: number | null
+          max_vessel_size_dwt?: number | null
+          metadata?: Json | null
+          min_vessel_size_dwt?: number | null
+          opportunity_score?: never
+          origin_region?: string | null
+          port_destination?: string | null
+          port_origin?: string | null
+          rate_per_ton?: number | null
+          route_restrictions?: Json | null
+          seasonal_factor?: number | null
+          shipper_company?: string | null
+          spot_vs_contract?: string | null
+          total_value_eur?: never
+          updated_at?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          vessel_type_required?: string | null
+          volume_tons?: number | null
+        }
+        Update: {
+          booking_urgency?: never
+          cargo_subtype?: string | null
+          cargo_type?: string | null
+          commodity_group?: string | null
+          consignee_company?: string | null
+          contract_duration_months?: number | null
+          created_at?: string | null
+          currency?: string | null
+          demand_level?: string | null
+          destination_region?: string | null
+          discharge_time_hours?: number | null
+          environmental_requirements?: Json | null
+          frequency?: string | null
+          id?: string | null
+          lead_time_days?: number | null
+          loading_time_hours?: number | null
+          max_vessel_size_dwt?: number | null
+          metadata?: Json | null
+          min_vessel_size_dwt?: number | null
+          opportunity_score?: never
+          origin_region?: string | null
+          port_destination?: string | null
+          port_origin?: string | null
+          rate_per_ton?: number | null
+          route_restrictions?: Json | null
+          seasonal_factor?: number | null
+          shipper_company?: string | null
+          spot_vs_contract?: string | null
+          total_value_eur?: never
+          updated_at?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          vessel_type_required?: string | null
+          volume_tons?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
