@@ -177,17 +177,22 @@ const BalticSeaMap = () => {
     }
   };
 
-  if (!isMapReady) {
-    return (
-      <Card className="shadow-depth border-0">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-primary" />
-            Baltic Sea Monitoring Network
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+  return (
+    <Card className="shadow-depth border-0">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Activity className="w-5 h-5 text-primary" />
+          Baltic Sea Monitoring Network
+          {isMapReady && (
+            <Badge variant="secondary" className="ml-auto">
+              {monitoringStations.length} Stations
+            </Badge>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {!isMapReady && (
+          <div className="space-y-4 mb-6">
             <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-lg border border-blue-200">
               <h3 className="font-semibold text-lg mb-3 text-blue-900">🗺️ Interactive Map Setup</h3>
               <p className="text-sm text-blue-700 mb-4">
@@ -259,27 +264,15 @@ const BalticSeaMap = () => {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="shadow-depth border-0">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Activity className="w-5 h-5 text-primary" />
-          Baltic Sea Monitoring Network
-          <Badge variant="secondary" className="ml-auto">
-            {monitoringStations.length} Stations
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div ref={mapContainer} className="h-96 rounded-lg overflow-hidden" />
-        <div className="mt-4 text-sm text-muted-foreground">
-          <p>Click on station markers for detailed information. Use controls to navigate the map.</p>
-        </div>
+        )}
+        
+        <div ref={mapContainer} className={`h-96 rounded-lg overflow-hidden ${!isMapReady ? 'bg-gray-100' : ''}`} />
+        
+        {isMapReady && (
+          <div className="mt-4 text-sm text-muted-foreground">
+            <p>Click on station markers for detailed information. Use controls to navigate the map.</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
