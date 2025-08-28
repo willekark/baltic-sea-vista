@@ -12,12 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 const BalticSeaMap = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState(() => {
-    // Load saved token from localStorage
-    const savedToken = localStorage.getItem('mapbox_token');
-    console.log('Loading saved token from localStorage:', savedToken ? 'Token found' : 'No token found');
-    return savedToken || '';
-  });
+  const [mapboxToken, setMapboxToken] = useState('');
   const [isMapReady, setIsMapReady] = useState(false);
   const { toast } = useToast();
 
@@ -178,10 +173,23 @@ const BalticSeaMap = () => {
     }
   };
 
-  // Auto-load map if token is already saved
+  // Load token from localStorage and auto-initialize map
   useEffect(() => {
-    if (mapboxToken && mapboxToken.startsWith('pk.') && !isMapReady) {
-      console.log('Auto-loading map with saved token');
+    const savedToken = localStorage.getItem('mapbox_token');
+    console.log('Loading saved token from localStorage:', savedToken ? 'Token found' : 'No token found');
+    if (savedToken) {
+      setMapboxToken(savedToken);
+      if (savedToken.startsWith('pk.') && !map.current) {
+        console.log('Auto-loading map with saved token');
+        initializeMap(savedToken);
+      }
+    }
+  }, []);
+
+  // Auto-load map when token changes
+  useEffect(() => {
+    if (mapboxToken && mapboxToken.startsWith('pk.') && !map.current && !isMapReady) {
+      console.log('Auto-loading map with token change');
       initializeMap(mapboxToken);
     }
   }, [mapboxToken, isMapReady]);

@@ -15,9 +15,7 @@ interface EutrophicationMapProps {
 const EutrophicationMap: React.FC<EutrophicationMapProps> = ({ areas = [] }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState(() => {
-    return localStorage.getItem('mapbox_token') || '';
-  });
+  const [mapboxToken, setMapboxToken] = useState('');
   const [isMapReady, setIsMapReady] = useState(false);
   const { toast } = useToast();
 
@@ -302,11 +300,12 @@ const EutrophicationMap: React.FC<EutrophicationMapProps> = ({ areas = [] }) => 
     }
 
     localStorage.setItem('mapbox_token', mapboxToken);
+    console.log('EutrophicationMap - Token saved to localStorage');
     
     try {
       initializeMap(mapboxToken);
     } catch (error) {
-      console.error('Map initialization error:', error);
+      console.error('EutrophicationMap - Map initialization error:', error);
       toast({
         title: "Map Initialization Failed",
         description: "Please check your Mapbox token and try again",
@@ -315,9 +314,23 @@ const EutrophicationMap: React.FC<EutrophicationMapProps> = ({ areas = [] }) => 
     }
   };
 
-  // Auto-load map if token is already saved
+  // Load token from localStorage and auto-initialize map
   useEffect(() => {
-    if (mapboxToken && mapboxToken.startsWith('pk.') && !isMapReady) {
+    const savedToken = localStorage.getItem('mapbox_token');
+    console.log('EutrophicationMap - Loading saved token from localStorage:', savedToken ? 'Token found' : 'No token found');
+    if (savedToken) {
+      setMapboxToken(savedToken);
+      if (savedToken.startsWith('pk.') && !map.current) {
+        console.log('EutrophicationMap - Auto-loading map with saved token');
+        initializeMap(savedToken);
+      }
+    }
+  }, []);
+
+  // Auto-load map when token changes
+  useEffect(() => {
+    if (mapboxToken && mapboxToken.startsWith('pk.') && !map.current && !isMapReady) {
+      console.log('EutrophicationMap - Auto-loading map with token change');
       initializeMap(mapboxToken);
     }
   }, [mapboxToken, isMapReady]);
