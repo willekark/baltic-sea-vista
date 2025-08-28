@@ -164,24 +164,20 @@ const InteractiveDataViz: React.FC<DataFlowProps> = ({ marineData }) => {
 
   const initialEdges: Edge[] = [
     // Data source to processor connections
-    { id: 'e1', source: 'copernicus', target: 'processor', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e2', source: 'helcom', target: 'processor', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e3', source: 'smhi', target: 'processor', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e4', source: 'ais', target: 'processor', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
+    { id: 'e1', source: 'copernicus', target: 'processor', type: 'default' },
+    { id: 'e2', source: 'helcom', target: 'processor', type: 'default' },
+    { id: 'e3', source: 'smhi', target: 'processor', type: 'default' },
+    { id: 'e4', source: 'ais', target: 'processor', type: 'default' },
     
     // Processor to metrics connections
-    { id: 'e5', source: 'processor', target: 'oxygen', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e6', source: 'processor', target: 'temperature', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e7', source: 'processor', target: 'shipping', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e8', source: 'processor', target: 'fish', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e9', source: 'processor', target: 'waves', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
+    { id: 'e5', source: 'processor', target: 'oxygen', type: 'default' },
+    { id: 'e6', source: 'processor', target: 'temperature', type: 'default' },
+    { id: 'e7', source: 'processor', target: 'shipping', type: 'default' },
+    { id: 'e8', source: 'processor', target: 'fish', type: 'default' },
+    { id: 'e9', source: 'processor', target: 'waves', type: 'default' },
     
-    // Metrics to AI analysis
-    { id: 'e10', source: 'oxygen', target: 'ai-analysis', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e11', source: 'temperature', target: 'ai-analysis', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e12', source: 'shipping', target: 'ai-analysis', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e13', source: 'fish', target: 'ai-analysis', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e14', source: 'waves', target: 'ai-analysis', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
+    // Metrics to AI analysis - simplified to avoid handle issues
+    { id: 'e10', source: 'processor', target: 'ai-analysis', type: 'default', style: { stroke: '#8b5cf6' } },
   ];
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
