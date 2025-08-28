@@ -5,6 +5,7 @@ import AIInsights from "./AIInsights";
 import DataSourceStatus from "./DataSourceStatus";
 import StrategicReports from "./StrategicReports";
 import BalticSeaMap from "./BalticSeaMap";
+import ShippingInsights from "./ShippingInsights";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -177,6 +178,11 @@ const Dashboard = () => {
         {/* Interactive Map */}
         <div className="mb-12">
           <BalticSeaMap />
+        </div>
+
+        {/* Integrated Maritime Intelligence */}
+        <div className="mt-12">
+          <ShippingInsights />
         </div>
 
         {/* AI Insights Section */}
