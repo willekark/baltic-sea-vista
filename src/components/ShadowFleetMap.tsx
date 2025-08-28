@@ -29,6 +29,58 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
   const [isMapReady, setIsMapReady] = useState(false);
   const { toast } = useToast();
 
+  // Generate day/night polygon data based on current time
+  const generateDayNightData = (date: Date) => {
+    const hour = date.getUTCHours();
+    const minute = date.getUTCMinutes();
+    const timeDecimal = hour + minute / 60;
+    
+    // Calculate solar terminator line (simplified)
+    // For Baltic Sea region (roughly 54-66°N, 10-30°E)
+    const features: any[] = [];
+    
+    // Create night polygon based on solar position
+    if (timeDecimal < 6 || timeDecimal > 18) { // Approximate night hours
+      // Add night overlay for areas not receiving sunlight
+      features.push({
+        type: 'Feature' as const,
+        properties: { type: 'night' },
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [[
+            [10, 66],
+            [30, 66],
+            [30, 54],
+            [10, 54],
+            [10, 66]
+          ]]
+        }
+      });
+    } else if (timeDecimal < 8 || timeDecimal > 16) {
+      // Partial daylight (dawn/dusk) - create gradient effect
+      const duskFactor = timeDecimal < 8 ? (8 - timeDecimal) / 2 : (timeDecimal - 16) / 2;
+      features.push({
+        type: 'Feature' as const,
+        properties: { type: 'twilight', intensity: duskFactor },
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [[
+            [10, 66],
+            [30, 66],
+            [30, 54],
+            [10, 54],
+            [10, 66]
+          ]]
+        }
+      });
+    }
+    
+    return {
+      type: 'FeatureCollection' as const,
+      features
+    };
+  };
+
   // Mock data for demonstration
   const mockVessels = [
     { id: 1, name: "Northern Star", lat: 58.5, lng: 16.2, riskLevel: "high", mmsi: 123456789, type: "tanker" },
@@ -66,6 +118,33 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
 
       map.current.on('load', () => {
         if (!map.current) return;
+
+        // Add day/night overlay
+        const now = new Date();
+        const dayNightSource = {
+          type: 'geojson' as const,
+          data: generateDayNightData(now)
+        };
+
+        map.current.addSource('day-night', dayNightSource);
+        
+        map.current.addLayer({
+          id: 'night-overlay',
+          type: 'fill',
+          source: 'day-night',
+          paint: {
+            'fill-color': '#000080',
+            'fill-opacity': 0.3
+          }
+        });
+
+        // Update day/night overlay every minute
+        setInterval(() => {
+          if (map.current && map.current.getSource('day-night')) {
+            const updatedData = generateDayNightData(new Date());
+            (map.current.getSource('day-night') as any).setData(updatedData);
+          }
+        }, 60000);
 
         // Add vessels
         (vessels.length > 0 ? vessels : mockVessels).forEach(vessel => {
@@ -375,10 +454,19 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
                 <div className="w-4 h-4 bg-green-500 rounded"></div>
                 <span>Low Risk</span>
               </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-blue-800 rounded opacity-30"></div>
+                <span>Night Areas</span>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Click markers for vessel details. 👁️ = Dark Zones, ⛽ = STS Transfers, 🚢 = Tracked Vessels
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Click markers for vessel details. 👁️ = Dark Zones, ⛽ = STS Transfers, 🚢 = Tracked Vessels
+              </p>
+              <div className="text-xs text-muted-foreground">
+                🌓 Real-time Day/Night: {new Date().toLocaleTimeString()} UTC
+              </div>
+            </div>
           </div>
         )}
       </CardContent>

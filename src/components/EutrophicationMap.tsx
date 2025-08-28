@@ -21,6 +21,56 @@ const EutrophicationMap: React.FC<EutrophicationMapProps> = ({ areas = [] }) => 
   const [isMapReady, setIsMapReady] = useState(false);
   const { toast } = useToast();
 
+  // Generate day/night polygon data based on current time
+  const generateDayNightData = (date: Date) => {
+    const hour = date.getUTCHours();
+    const minute = date.getUTCMinutes();
+    const timeDecimal = hour + minute / 60;
+    
+    // Calculate solar position for Baltic Sea region
+    // Simplified calculation for demonstration
+    const features: any[] = [];
+    
+    // Determine night areas based on solar position
+    if (timeDecimal < 5 || timeDecimal > 19) { // Deep night
+      features.push({
+        type: 'Feature' as const,
+        properties: { type: 'night' },
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [[
+            [10, 67],
+            [31, 67],
+            [31, 53],
+            [10, 53],
+            [10, 67]
+          ]]
+        }
+      });
+    } else if (timeDecimal < 7 || timeDecimal > 17) {
+      // Twilight hours - environmental monitoring is affected by light levels
+      features.push({
+        type: 'Feature' as const,
+        properties: { type: 'twilight' },
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [[
+            [10, 67],
+            [31, 67],
+            [31, 53],
+            [10, 53],
+            [10, 67]
+          ]]
+        }
+      });
+    }
+    
+    return {
+      type: 'FeatureCollection' as const,
+      features
+    };
+  };
+
   // Mock data for demonstration
   const mockAreas = [
     { 
@@ -99,6 +149,33 @@ const EutrophicationMap: React.FC<EutrophicationMapProps> = ({ areas = [] }) => 
 
       map.current.on('load', () => {
         if (!map.current) return;
+
+        // Add day/night overlay for environmental monitoring
+        const now = new Date();
+        const dayNightSource = {
+          type: 'geojson' as const,
+          data: generateDayNightData(now)
+        };
+
+        map.current.addSource('day-night', dayNightSource);
+        
+        map.current.addLayer({
+          id: 'night-overlay',
+          type: 'fill',
+          source: 'day-night',
+          paint: {
+            'fill-color': '#1a1a2e',
+            'fill-opacity': 0.25
+          }
+        });
+
+        // Update day/night overlay every minute
+        setInterval(() => {
+          if (map.current && map.current.getSource('day-night')) {
+            const updatedData = generateDayNightData(new Date());
+            (map.current.getSource('day-night') as any).setData(updatedData);
+          }
+        }, 60000);
 
         // Add eutrophication areas
         (areas.length > 0 ? areas : mockAreas).forEach(area => {
@@ -361,10 +438,19 @@ const EutrophicationMap: React.FC<EutrophicationMapProps> = ({ areas = [] }) => 
                 <div className="w-4 h-4 bg-green-600 rounded-full"></div>
                 <span>Low Level</span>
               </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-gray-800 rounded opacity-25"></div>
+                <span>Night Areas</span>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Click markers to view detailed nutrient levels and environmental data. Larger circles indicate more severe conditions.
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Click markers to view detailed nutrient levels and environmental data. Larger circles indicate more severe conditions.
+              </p>
+              <div className="text-xs text-muted-foreground">
+                🌗 Light Conditions: {new Date().toLocaleTimeString()} UTC
+              </div>
+            </div>
           </div>
         )}
       </CardContent>
