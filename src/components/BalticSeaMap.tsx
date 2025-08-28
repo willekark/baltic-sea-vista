@@ -248,17 +248,28 @@ const BalticSeaMap = () => {
                     }
                   }}
                 />
-                <button 
-                  type="button"
+                <div 
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 cursor-pointer"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    e.nativeEvent?.stopImmediatePropagation();
+                    console.log('Button clicked - preventing all default behaviors');
                     handleTokenSubmit();
-                  }} 
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                    return false;
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleTokenSubmit();
+                    }
+                  }}
                 >
                   🚀 Load Map
-                </button>
+                </div>
               </div>
               <p className="text-xs text-blue-600 mt-2">
                 💡 Your token is only stored locally in your browser and never sent to our servers.
