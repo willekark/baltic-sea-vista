@@ -6,6 +6,9 @@ import DataSourceStatus from "./DataSourceStatus";
 import StrategicReports from "./StrategicReports";
 import BalticSeaMap from "./BalticSeaMap";
 import ShippingInsights from "./ShippingInsights";
+import InteractiveMetricCard from "./InteractiveMetricCard";
+import InteractiveDataViz from "./InteractiveDataViz";
+import DataExplorer from "./DataExplorer";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -140,44 +143,28 @@ const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {indicators.map((indicator, index) => {
-            const Icon = indicator.icon;
-            const TrendIcon = indicator.trend === "up" ? TrendingUp : TrendingDown;
-            
-            return (
-              <Card key={index} className="hover:shadow-surface transition-all duration-300 border-0 shadow-ocean">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    {indicator.title}
-                  </CardTitle>
-                  <Icon className={`h-5 w-5 ${indicator.color}`} />
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-3xl font-bold mb-1">{indicator.value}</div>
-                      <div className="flex items-center gap-2">
-                        <div className={`flex items-center text-sm ${
-                          indicator.trend === "up" ? "text-secondary" : "text-destructive"
-                        }`}>
-                          <TrendIcon className="w-4 h-4 mr-1" />
-                          {indicator.change > 0 ? '+' : ''}{indicator.change}%
-                        </div>
-                        <Badge variant="secondary" className="text-xs capitalize">
-                          {indicator.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+          {indicators.map((indicator, index) => (
+            <InteractiveMetricCard
+              key={index}
+              metric={indicator}
+              onExplore={() => console.log('Exploring', indicator.title)}
+            />
+          ))}
         </div>
 
         {/* Interactive Map */}
         <div className="mb-12">
           <BalticSeaMap />
+        </div>
+
+        {/* Interactive Data Flow Visualization */}
+        <div className="mb-12">
+          <InteractiveDataViz marineData={indicators} />
+        </div>
+
+        {/* Data Explorer */}
+        <div className="mb-12">
+          <DataExplorer marineData={indicators} />
         </div>
 
         {/* Integrated Maritime Intelligence */}
