@@ -25,6 +25,7 @@ import {
   Fuel
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ShadowFleetMap from '@/components/ShadowFleetMap';
 
 interface ShadowFleetAnalysis {
   timestamp: string;
@@ -245,13 +246,23 @@ const ShadowFleetTracker = () => {
               </Card>
             </div>
 
-            <Tabs defaultValue="alerts" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4">
+            <Tabs defaultValue="map" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="map">Tracking Map</TabsTrigger>
                 <TabsTrigger value="alerts">Active Alerts</TabsTrigger>
                 <TabsTrigger value="methods">Detection Methods</TabsTrigger>
                 <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
                 <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
               </TabsList>
+
+              <TabsContent value="map" className="space-y-4">
+                <div className="mb-6">
+                  <ShadowFleetMap 
+                    vessels={analysis.alerts.filter(alert => alert.data?.vesselInfo)} 
+                    alerts={analysis.alerts}
+                  />
+                </div>
+              </TabsContent>
 
               <TabsContent value="alerts" className="space-y-4">
                 <div className="grid gap-4">

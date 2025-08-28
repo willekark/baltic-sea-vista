@@ -21,6 +21,7 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import EutrophicationMap from '@/components/EutrophicationMap';
 
 interface EutrophicationArea {
   location: string;
@@ -209,12 +210,19 @@ const EutrophicationReports = () => {
               </Card>
             </div>
 
-            <Tabs defaultValue="analysis" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-3">
+            <Tabs defaultValue="map" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="map">Impact Map</TabsTrigger>
                 <TabsTrigger value="analysis">AI Analysis</TabsTrigger>
                 <TabsTrigger value="areas">Affected Areas</TabsTrigger>
                 <TabsTrigger value="forecast">Forecast & Trends</TabsTrigger>
               </TabsList>
+
+              <TabsContent value="map" className="space-y-6">
+                <div className="mb-6">
+                  <EutrophicationMap areas={report.areas} />
+                </div>
+              </TabsContent>
 
               <TabsContent value="analysis" className="space-y-6">
                 <Card>
