@@ -119,7 +119,8 @@ const BalticSeaMap = () => {
     }
   };
 
-  const handleTokenSubmit = () => {
+  const handleTokenSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault(); // Prevent form submission
     console.log('Load Map button clicked, token:', mapboxToken ? 'Token provided' : 'No token');
     
     if (!mapboxToken.trim()) {
@@ -204,7 +205,7 @@ const BalticSeaMap = () => {
                 <li>Copy your "Default public token" (starts with pk.ey...)</li>
                 <li>Paste it below and click "Load Map"</li>
               </ol>
-              <div className="flex gap-2">
+              <form onSubmit={handleTokenSubmit} className="flex gap-2">
                 <Input
                   type="text"
                   placeholder="pk.eyJ1IjoibXl1c2VybmFtZSIsImEiOiJjbG..."
@@ -212,10 +213,10 @@ const BalticSeaMap = () => {
                   onChange={(e) => setMapboxToken(e.target.value)}
                   className="flex-1 bg-white"
                 />
-                <Button onClick={handleTokenSubmit} className="whitespace-nowrap">
+                <Button type="submit" className="whitespace-nowrap">
                   🚀 Load Map
                 </Button>
-              </div>
+              </form>
               <p className="text-xs text-blue-600 mt-2">
                 💡 Your token is only stored locally in your browser and never sent to our servers.
               </p>
