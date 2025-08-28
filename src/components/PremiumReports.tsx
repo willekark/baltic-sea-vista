@@ -6,6 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import { 
   TrendingUp,
   DollarSign,
@@ -24,7 +27,10 @@ import {
   Building2,
   Fuel,
   Globe,
-  Calculator
+  Calculator,
+  MapPin,
+  Navigation,
+  TrendingDown
 } from 'lucide-react';
 
 interface PremiumReport {
@@ -106,8 +112,225 @@ const PremiumReports = () => {
       setReports(prev => ({ ...prev, [reportType]: data }));
     } catch (err) {
       console.error('Error generating report:', err);
+      toast({
+        title: "Error",
+        description: "Failed to generate report. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(prev => ({ ...prev, [reportType]: false }));
+    }
+  };
+
+  const exportToPDF = async () => {
+    if (!currentReport || !currentReportType) return;
+    
+    try {
+      toast({
+        title: "Generating PDF",
+        description: "Please wait while we prepare your report...",
+      });
+
+      const reportElement = document.getElementById('premium-report-content');
+      if (!reportElement) return;
+
+      const canvas = await html2canvas(reportElement, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const imgWidth = 210;
+      const pageHeight = 295;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      const fileName = `${currentReportType.title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+
+      toast({
+        title: "PDF Generated",
+        description: "Your report has been downloaded successfully.",
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to generate PDF. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const renderDetailedAnalysis = (data: any, section: string) => {
+    if (!data || typeof data !== 'object') return null;
+
+    switch (section) {
+      case 'routePerformance':
+        return (
+          <div className="space-y-4">
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="bg-background/30 p-4 rounded">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Navigation className="w-5 h-5 text-primary" />
+                  <p className="font-medium">Total Routes Analyzed</p>
+                </div>
+                <p className="text-2xl font-bold">{data.totalRoutes || 0}</p>
+              </div>
+              <div className="bg-background/30 p-4 rounded">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Fuel className="w-5 h-5 text-warning" />
+                  <p className="font-medium">Fuel Consumption</p>
+                </div>
+                <p className="text-2xl font-bold">{data.fuelConsumption || 0}L</p>
+              </div>
+              <div className="bg-background/30 p-4 rounded">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Target className="w-5 h-5 text-success" />
+                  <p className="font-medium">Route Efficiency</p>
+                </div>
+                <p className="text-2xl font-bold">{Math.round((data.efficiency || 0) * 100)}%</p>
+              </div>
+            </div>
+            {data.optimizedRoutes && data.optimizedRoutes.length > 0 && (
+              <div>
+                <h4 className="font-medium mb-3">Optimized Routes</h4>
+                <div className="space-y-2">
+                  {data.optimizedRoutes.map((route: any, index: number) => (
+                    <div key={index} className="bg-background/20 p-3 rounded border-l-4 border-primary">
+                      <p className="font-medium">{route.name || `Route ${index + 1}`}</p>
+                      <p className="text-sm text-muted-foreground">{route.description || 'Optimized for fuel efficiency'}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'fuelOptimization':
+        return (
+          <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card className="bg-gradient-success border-success/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <DollarSign className="w-5 h-5 text-success" />
+                    <p className="font-medium text-success">Total Savings</p>
+                  </div>
+                  <p className="text-2xl font-bold text-success">{formatCurrency(data.totalSavings || 0)}</p>
+                  <p className="text-sm text-success/80 mt-1">Annual projected savings</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-primary border-primary/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <TrendingUp className="w-5 h-5 text-primary" />
+                    <p className="font-medium text-primary">Average Savings</p>
+                  </div>
+                  <p className="text-2xl font-bold text-primary">{(data.averageSavings || 0).toFixed(1)}%</p>
+                  <p className="text-sm text-primary/80 mt-1">Per route optimization</p>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="bg-background/20 p-4 rounded">
+              <h4 className="font-medium mb-2">Monthly Breakdown</h4>
+              <div className="flex justify-between">
+                <span>Monthly Fuel Savings:</span>
+                <span className="font-bold text-success">{formatCurrency(data.monthlySavings || 0)}</span>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'weatherRouting':
+        return (
+          <div className="space-y-4">
+            <h4 className="font-medium flex items-center">
+              <Globe className="w-5 h-5 mr-2 text-primary" />
+              Seasonal Weather Recommendations
+            </h4>
+            {data.seasonalRecommendations && data.seasonalRecommendations.length > 0 ? (
+              <div className="space-y-2">
+                {data.seasonalRecommendations.map((recommendation: string, index: number) => (
+                  <Alert key={index} className="bg-gradient-subtle border-primary/20">
+                    <ArrowUpRight className="h-4 w-4" />
+                    <AlertDescription>{recommendation}</AlertDescription>
+                  </Alert>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No seasonal recommendations available</p>
+            )}
+          </div>
+        );
+
+      case 'portEfficiency':
+        return (
+          <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="bg-background/30 p-4 rounded">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Clock className="w-5 h-5 text-warning" />
+                  <p className="font-medium">Average Port Time</p>
+                </div>
+                <p className="text-2xl font-bold">{data.averagePortTime || 0}h</p>
+              </div>
+              <div className="bg-background/30 p-4 rounded">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Target className="w-5 h-5 text-success" />
+                  <p className="font-medium">Port Efficiency</p>
+                </div>
+                <p className="text-2xl font-bold">{Math.round((data.efficiency || 0) * 100)}%</p>
+              </div>
+            </div>
+            {data.recommendations && data.recommendations.length > 0 && (
+              <div>
+                <h4 className="font-medium mb-3">Port Optimization Recommendations</h4>
+                <div className="space-y-2">
+                  {data.recommendations.map((rec: string, index: number) => (
+                    <div key={index} className="flex items-start space-x-2">
+                      <ArrowUpRight className="w-4 h-4 text-primary mt-0.5" />
+                      <span className="text-sm">{rec}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      default:
+        if (typeof data === 'string') {
+          return <p className="text-sm">{data}</p>;
+        }
+        return (
+          <div className="bg-background/20 p-4 rounded">
+            <p className="text-sm text-muted-foreground">
+              {Object.entries(data).map(([key, value]) => (
+                <div key={key} className="flex justify-between py-1">
+                  <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
+                  <span className="font-medium">{String(value)}</span>
+                </div>
+              ))}
+            </p>
+          </div>
+        );
     }
   };
 
@@ -266,14 +489,14 @@ const PremiumReports = () => {
                     {Math.round(currentReport.confidenceLevel * 100)}% Confidence
                   </Badge>
                 )}
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={exportToPDF}>
                   <Download className="w-4 h-4 mr-2" />
                   Export PDF
                 </Button>
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent id="premium-report-content">
             <Tabs defaultValue="executive" className="space-y-4">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="executive">Executive Summary</TabsTrigger>
@@ -345,9 +568,7 @@ const PremiumReports = () => {
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <pre className="text-sm text-muted-foreground whitespace-pre-wrap overflow-x-auto">
-                            {JSON.stringify(data, null, 2)}
-                          </pre>
+                          {renderDetailedAnalysis(data, section)}
                         </CardContent>
                       </Card>
                     ))}
