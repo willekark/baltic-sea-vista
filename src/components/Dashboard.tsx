@@ -4,6 +4,7 @@ import { TrendingUp, TrendingDown, Activity, Waves, Ship, Fish, Thermometer, Win
 import AIInsights from "./AIInsights";
 import DataSourceStatus from "./DataSourceStatus";
 import StrategicReports from "./StrategicReports";
+import BalticSeaMap from "./BalticSeaMap";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -173,24 +174,10 @@ const Dashboard = () => {
           })}
         </div>
 
-        {/* Map Preview */}
-        <Card className="shadow-depth border-0">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-primary" />
-              Baltic Sea Monitoring Network
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64 bg-gradient-ocean rounded-lg flex items-center justify-center text-white">
-              <div className="text-center">
-                <Activity className="w-16 h-16 mx-auto mb-4 opacity-60" />
-                <p className="text-lg font-medium">Interactive Map Visualization</p>
-                <p className="text-sm opacity-80">Real-time monitoring stations and data points</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Interactive Map */}
+        <div className="mb-12">
+          <BalticSeaMap />
+        </div>
 
         {/* AI Insights Section */}
         <div className="mt-12">
