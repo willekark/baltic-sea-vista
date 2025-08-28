@@ -123,7 +123,16 @@ const BalticSeaMap = () => {
   };
 
   const handleTokenSubmit = (e?: React.FormEvent) => {
-    e?.preventDefault(); // Prevent form submission
+    console.log('=== DEBUGGING TOKEN SUBMIT ===');
+    console.log('Event object:', e);
+    console.log('Current scroll position:', window.scrollY);
+    
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation(); 
+      console.log('Event prevented and stopped');
+    }
+    
     console.log('Load Map button clicked, token:', mapboxToken ? 'Token provided' : 'No token');
     
     if (!mapboxToken.trim()) {
@@ -148,10 +157,15 @@ const BalticSeaMap = () => {
 
     // Save token to localStorage
     localStorage.setItem('mapbox_token', mapboxToken);
+    console.log('Token saved to localStorage');
 
+    console.log('Scroll position before map init:', window.scrollY);
     console.log('Attempting to initialize map with token');
+    
     try {
       initializeMap(mapboxToken);
+      console.log('Map initialization completed');
+      console.log('Scroll position after map init:', window.scrollY);
     } catch (error) {
       console.error('Map initialization error:', error);
       toast({
