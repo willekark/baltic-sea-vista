@@ -7,7 +7,7 @@ import StrategicReports from "./StrategicReports";
 import BalticSeaMap from "./BalticSeaMap";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -124,7 +124,7 @@ const Dashboard = () => {
   };
 
   return (
-    <section className="py-24 bg-gradient-subtle">
+    <section id="dashboard-section" className="py-24 bg-gradient-subtle">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <Badge variant="outline" className="mb-4">

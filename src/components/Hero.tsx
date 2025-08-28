@@ -37,7 +37,20 @@ const Hero = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-          <Button variant="secondary" size="lg" className="group transition-all duration-300 hover:shadow-surface">
+          <Button 
+            variant="secondary" 
+            size="lg" 
+            className="group transition-all duration-300 hover:shadow-surface"
+            onClick={() => {
+              const dashboardSection = document.getElementById('dashboard-section');
+              if (dashboardSection) {
+                dashboardSection.scrollIntoView({ 
+                  behavior: 'smooth',
+                  block: 'start'
+                });
+              }
+            }}
+          >
             Explore Dashboard
             <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
           </Button>
