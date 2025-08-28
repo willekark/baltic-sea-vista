@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Activity, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const BalticSeaMap = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
