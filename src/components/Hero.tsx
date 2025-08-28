@@ -54,8 +54,11 @@ const Hero = () => {
             Explore Dashboard
             <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
           </Button>
-          <Button variant="outline" size="lg" className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-primary">
-            View Data Sources
+          <Button variant="outline" size="lg" className="bg-white/10 border-white/30 text-white hover:bg-white hover:text-primary"
+            onClick={() => window.location.href = '/eutrophication'}
+          >
+            <Map className="w-5 h-5 mr-2" />
+            Eutrophication Reports
           </Button>
         </div>
         
