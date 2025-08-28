@@ -14,7 +14,9 @@ const BalticSeaMap = () => {
   const map = useRef<mapboxgl.Map | null>(null);
   const [mapboxToken, setMapboxToken] = useState(() => {
     // Load saved token from localStorage
-    return localStorage.getItem('mapbox_token') || '';
+    const savedToken = localStorage.getItem('mapbox_token');
+    console.log('Loading saved token from localStorage:', savedToken ? 'Token found' : 'No token found');
+    return savedToken || '';
   });
   const [isMapReady, setIsMapReady] = useState(false);
   const { toast } = useToast();
