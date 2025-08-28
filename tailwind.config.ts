@@ -18,6 +18,20 @@ export default {
 			}
 		},
 		extend: {
+			backgroundImage: {
+				'gradient-ocean': 'var(--gradient-ocean)',
+				'gradient-depth': 'var(--gradient-depth)',
+				'gradient-surface': 'var(--gradient-surface)',
+				'gradient-subtle': 'var(--gradient-subtle)',
+			},
+			boxShadow: {
+				'ocean': 'var(--shadow-ocean)',
+				'depth': 'var(--shadow-depth)',
+				'surface': 'var(--shadow-surface)',
+			},
+			transitionTimingFunction: {
+				'wave': 'cubic-bezier(0.23, 1, 0.32, 1)',
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
