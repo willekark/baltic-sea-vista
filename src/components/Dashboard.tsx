@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Activity, Waves, Ship, Fish, Thermometer, Wind } from "lucide-react";
 import AIInsights from "./AIInsights";
 import DataSourceStatus from "./DataSourceStatus";
+import StrategicReports from "./StrategicReports";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -199,6 +200,11 @@ const Dashboard = () => {
         {/* Data Sources Status */}
         <div className="mt-12">
           <DataSourceStatus />
+        </div>
+
+        {/* Strategic Reports */}
+        <div className="mt-12">
+          <StrategicReports />
         </div>
       </div>
     </section>
