@@ -58,6 +58,9 @@ verify_jwt = false
 [functions.get-dashboard-data]
 verify_jwt = false
 
+[functions.premium-shipping-reports]
+verify_jwt = false
+
 [functions.shadow-fleet-analysis]
 verify_jwt = false
 

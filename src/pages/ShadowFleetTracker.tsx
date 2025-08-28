@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ShadowFleetMap from '@/components/ShadowFleetMap';
-import RouteOptimizer from '@/components/RouteOptimizer';
+import PremiumReports from '@/components/PremiumReports';
 
 interface ShadowFleetAnalysis {
   timestamp: string;
@@ -511,7 +511,7 @@ const ShadowFleetTracker = () => {
               </TabsContent>
 
               <TabsContent value="intelligence" className="space-y-4">
-                <RouteOptimizer />
+                <PremiumReports />
               </TabsContent>
             </Tabs>
 
