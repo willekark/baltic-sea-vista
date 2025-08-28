@@ -95,12 +95,12 @@ const ShadowFleetTracker = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="min-h-screen bg-gradient-tech">
         <div className="container mx-auto px-6 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
-              <RefreshCw className="w-8 h-8 mx-auto mb-4 animate-spin text-red-600" />
-              <p className="text-gray-600">Analyzing Baltic Sea vessel patterns...</p>
+              <RefreshCw className="w-8 h-8 mx-auto mb-4 animate-spin text-destructive" />
+              <p className="text-muted-foreground">Analyzing Baltic Sea vessel patterns...</p>
             </div>
           </div>
         </div>
@@ -110,13 +110,13 @@ const ShadowFleetTracker = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="min-h-screen bg-gradient-tech">
         <div className="container mx-auto px-6 py-8">
-          <Alert className="max-w-2xl mx-auto">
+          <Alert className="max-w-2xl mx-auto bg-gradient-danger border-destructive/20">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               Error loading shadow fleet analysis: {error}
-              <Button onClick={fetchAnalysis} variant="outline" size="sm" className="ml-4">
+              <Button onClick={fetchAnalysis} variant="outline" size="sm" className="ml-4 border-primary/30">
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Retry
               </Button>
@@ -128,13 +128,13 @@ const ShadowFleetTracker = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-tech">
       <div className="container mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center mb-4">
             <Link to="/" className="mr-4">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                 <ChevronLeft className="w-4 h-4 mr-2" />
                 Back to Dashboard
               </Button>
@@ -143,15 +143,15 @@ const ShadowFleetTracker = () => {
           
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center">
-                <Skull className="w-10 h-10 mr-3 text-red-600" />
-                Shadow Fleet Tracker
+              <h1 className="text-4xl font-bold mb-2 flex items-center bg-gradient-investment bg-clip-text text-transparent">
+                <Skull className="w-10 h-10 mr-3 text-destructive" />
+                Shadow Fleet Intelligence
               </h1>
-              <p className="text-lg text-gray-600">
-                Real-time monitoring and detection of potentially sanctioned vessels in the Baltic Sea
+              <p className="text-lg text-muted-foreground">
+                Real-time threat detection and analysis of potentially sanctioned vessels in the Baltic Sea
               </p>
             </div>
-            <Button onClick={fetchAnalysis} variant="outline">
+            <Button onClick={fetchAnalysis} variant="outline" className="border-primary/30 hover:bg-primary/10">
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh Analysis
             </Button>
@@ -162,9 +162,9 @@ const ShadowFleetTracker = () => {
           <>
             {/* Critical Alerts Banner */}
             {analysis.summary.sanctionsViolations > 0 && (
-              <Alert className="mb-6 border-red-500 bg-red-50">
-                <Shield className="h-4 w-4 text-red-600" />
-                <AlertDescription className="text-red-800">
+              <Alert className="mb-6 border-destructive/50 bg-gradient-danger">
+                <Shield className="h-4 w-4 text-destructive" />
+                <AlertDescription className="text-destructive-foreground">
                   <strong>CRITICAL SECURITY ALERT:</strong> {analysis.summary.sanctionsViolations} sanctioned vessel(s) detected in Baltic waters. 
                   Immediate action required - notify maritime authorities.
                 </AlertDescription>
@@ -173,75 +173,75 @@ const ShadowFleetTracker = () => {
 
             {/* Summary Dashboard */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-              <Card className="bg-blue-50 border-blue-200">
+              <Card className="bg-gradient-dark-panel shadow-panel border-primary/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center">
-                    <Ship className="w-4 h-4 mr-2 text-blue-600" />
+                  <CardTitle className="text-sm flex items-center text-primary">
+                    <Ship className="w-4 h-4 mr-2" />
                     Vessels Analyzed
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-blue-900">{analysis.summary.totalVesselsAnalyzed}</div>
+                  <div className="text-2xl font-bold text-accent">{analysis.summary.totalVesselsAnalyzed}</div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-yellow-50 border-yellow-200">
+              <Card className="bg-gradient-dark-panel shadow-panel border-accent/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center">
-                    <Eye className="w-4 h-4 mr-2 text-yellow-600" />
+                  <CardTitle className="text-sm flex items-center text-accent">
+                    <Eye className="w-4 h-4 mr-2" />
                     Dark Zones
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-yellow-900">{analysis.summary.darkZoneDetections}</div>
+                  <div className="text-2xl font-bold text-accent">{analysis.summary.darkZoneDetections}</div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-red-50 border-red-200">
+              <Card className="bg-gradient-danger shadow-panel border-destructive/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center">
-                    <Shield className="w-4 h-4 mr-2 text-red-600" />
+                  <CardTitle className="text-sm flex items-center text-destructive">
+                    <Shield className="w-4 h-4 mr-2" />
                     Sanctions Violations
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-red-900">{analysis.summary.sanctionsViolations}</div>
+                  <div className="text-2xl font-bold text-destructive">{analysis.summary.sanctionsViolations}</div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-orange-50 border-orange-200">
+              <Card className="bg-gradient-dark-panel shadow-panel border-primary/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center">
-                    <Fuel className="w-4 h-4 mr-2 text-orange-600" />
+                  <CardTitle className="text-sm flex items-center text-primary">
+                    <Fuel className="w-4 h-4 mr-2" />
                     STS Transfers
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-orange-900">{analysis.summary.stsTransfers}</div>
+                  <div className="text-2xl font-bold text-primary">{analysis.summary.stsTransfers}</div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-purple-50 border-purple-200">
+              <Card className="bg-gradient-dark-panel shadow-panel border-accent/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center">
-                    <Target className="w-4 h-4 mr-2 text-purple-600" />
+                  <CardTitle className="text-sm flex items-center text-accent">
+                    <Target className="w-4 h-4 mr-2" />
                     Suspicious Behavior
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-purple-900">{analysis.summary.suspiciousBehaviors}</div>
+                  <div className="text-2xl font-bold text-accent">{analysis.summary.suspiciousBehaviors}</div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-50 border-gray-200">
+              <Card className="bg-gradient-dark-panel shadow-panel border-muted/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center">
-                    <TrendingUp className="w-4 h-4 mr-2 text-gray-600" />
+                  <CardTitle className="text-sm flex items-center text-muted-foreground">
+                    <TrendingUp className="w-4 h-4 mr-2" />
                     High Risk Vessels
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-gray-900">{analysis.summary.highRiskVessels}</div>
+                  <div className="text-2xl font-bold text-foreground">{analysis.summary.highRiskVessels}</div>
                 </CardContent>
               </Card>
             </div>

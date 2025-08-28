@@ -110,7 +110,7 @@ const InteractiveMetricCard: React.FC<InteractiveMetricCardProps> = ({
   if (!isExpanded) {
     return (
       <Card 
-        className="hover:shadow-lg transition-all duration-300 border-0 shadow-md cursor-pointer group"
+        className="hover:shadow-tech transition-all duration-300 border-primary/20 bg-gradient-dark-panel shadow-panel cursor-pointer group"
         onClick={() => setIsExpanded(true)}
       >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -118,17 +118,20 @@ const InteractiveMetricCard: React.FC<InteractiveMetricCardProps> = ({
             {metric.title}
           </CardTitle>
           <div className="flex items-center space-x-2">
-            <Icon className={`h-5 w-5 ${metric.color}`} />
-            <BarChart3 className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors" />
+            <Icon className={`h-5 w-5 ${metric.color === 'text-destructive' ? 'text-destructive' : 
+                                       metric.color === 'text-secondary' ? 'text-secondary' :
+                                       metric.color === 'text-primary' ? 'text-primary' :
+                                       metric.color === 'text-accent' ? 'text-accent' : 'text-primary'}`} />
+            <BarChart3 className="h-4 w-4 text-muted-foreground group-hover:text-accent transition-colors" />
           </div>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-3xl font-bold mb-1">{metric.value}</div>
+              <div className="text-3xl font-bold mb-1 text-foreground">{metric.value}</div>
               <div className="flex items-center gap-2">
                 <div className={`flex items-center text-sm ${
-                  metric.trend === "up" ? "text-green-600" : "text-red-600"
+                  metric.trend === "up" ? "text-accent" : "text-destructive"
                 }`}>
                   <TrendIcon className="w-4 h-4 mr-1" />
                   {metric.change > 0 ? '+' : ''}{metric.change}%
@@ -141,19 +144,19 @@ const InteractiveMetricCard: React.FC<InteractiveMetricCardProps> = ({
           </div>
           
           {/* Mini chart preview */}
-          <div className="mt-4 h-8 w-full bg-gray-100 rounded overflow-hidden">
+          <div className="mt-4 h-8 w-full bg-muted rounded overflow-hidden">
             <svg viewBox="0 0 100 100" className="w-full h-full">
               <path
                 d={pathData}
                 fill="none"
-                stroke={metric.trend === 'up' ? '#10b981' : '#ef4444'}
+                stroke={metric.trend === 'up' ? 'hsl(var(--accent))' : 'hsl(var(--destructive))'}
                 strokeWidth="2"
                 className="opacity-60"
               />
             </svg>
           </div>
           
-          <p className="text-xs text-gray-500 mt-2 group-hover:text-primary transition-colors">
+          <p className="text-xs text-muted-foreground mt-2 group-hover:text-accent transition-colors">
             Click to explore detailed analytics →
           </p>
         </CardContent>
@@ -162,8 +165,12 @@ const InteractiveMetricCard: React.FC<InteractiveMetricCardProps> = ({
   }
 
   return (
-    <Card className="hover:shadow-xl transition-all duration-300 border-0 shadow-lg">
-      <CardHeader className={`${statusDetails.bgColor} rounded-t-lg`}>
+    <Card className="hover:shadow-investment transition-all duration-300 border-primary/20 bg-gradient-dark-panel shadow-panel">
+      <CardHeader className={`${statusDetails.bgColor.includes('red') ? 'bg-gradient-danger' :
+                                        statusDetails.bgColor.includes('yellow') ? 'bg-gradient-tech' :
+                                        statusDetails.bgColor.includes('blue') ? 'bg-gradient-chart' :
+                                        statusDetails.bgColor.includes('green') ? 'bg-gradient-success' :
+                                        'bg-gradient-dark-panel'} rounded-t-lg border-b border-border`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className={`p-2 rounded-lg bg-white shadow-sm`}>

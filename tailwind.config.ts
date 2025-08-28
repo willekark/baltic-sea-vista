@@ -19,18 +19,21 @@ export default {
 		},
 		extend: {
 			backgroundImage: {
-				'gradient-ocean': 'var(--gradient-ocean)',
-				'gradient-depth': 'var(--gradient-depth)',
-				'gradient-surface': 'var(--gradient-surface)',
-				'gradient-subtle': 'var(--gradient-subtle)',
+				'gradient-tech': 'var(--gradient-tech)',
+				'gradient-investment': 'var(--gradient-investment)',
+				'gradient-chart': 'var(--gradient-chart)',
+				'gradient-danger': 'var(--gradient-danger)',
+				'gradient-success': 'var(--gradient-success)',
+				'gradient-dark-panel': 'var(--gradient-dark-panel)',
 			},
 			boxShadow: {
-				'ocean': 'var(--shadow-ocean)',
-				'depth': 'var(--shadow-depth)',
-				'surface': 'var(--shadow-surface)',
+				'investment': 'var(--shadow-investment)',
+				'tech': 'var(--shadow-tech)',
+				'panel': 'var(--shadow-panel)',
+				'glow': 'var(--shadow-glow)',
 			},
 			transitionTimingFunction: {
-				'wave': 'cubic-bezier(0.23, 1, 0.32, 1)',
+				'tech': 'cubic-bezier(0.23, 1, 0.32, 1)',
 			},
 			colors: {
 				border: 'hsl(var(--border))',

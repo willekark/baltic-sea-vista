@@ -12,35 +12,35 @@ const Hero = () => {
           alt="Baltic Sea aerial view with data monitoring points"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-depth opacity-75"></div>
+        <div className="absolute inset-0 bg-gradient-tech opacity-90"></div>
       </div>
       
       {/* Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-6 text-center text-white">
         <div className="flex items-center justify-center gap-2 mb-6">
           <Database className="w-8 h-8 text-accent" />
-          <span className="text-xl font-semibold text-accent">Baltic Data Hub</span>
+          <span className="text-xl font-semibold text-accent">Baltic Intelligence Platform</span>
         </div>
         
         <h1 className="text-5xl md:text-7xl font-bold mb-8 leading-tight">
-          Marine Data
+          Maritime Intelligence
           <br />
-          <span className="bg-gradient-surface bg-clip-text text-transparent">
-            Made Accessible
+          <span className="bg-gradient-investment bg-clip-text text-transparent">
+            & Analytics Hub
           </span>
         </h1>
         
         <p className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto text-gray-200">
-          Comprehensive Baltic Sea data platform integrating environmental monitoring, 
-          shipping routes, fisheries, and AI-powered analysis for policymakers, 
-          researchers, and businesses.
+          Advanced Baltic Sea intelligence platform integrating real-time monitoring, 
+          shadow fleet detection, environmental analytics, and AI-powered insights for 
+          strategic decision making.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
           <Button 
             variant="secondary" 
             size="lg" 
-            className="group transition-all duration-300 hover:shadow-surface"
+            className="group transition-all duration-300 hover:shadow-investment bg-gradient-investment text-black font-semibold hover:scale-105"
             onClick={() => {
               const dashboardSection = document.getElementById('dashboard-section');
               if (dashboardSection) {
@@ -52,14 +52,14 @@ const Hero = () => {
             }}
           >
             <BarChart className="w-5 h-5 mr-2" />
-            View Live Data
+            Intelligence Dashboard
             <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </Button>
           
           <Button 
             variant="outline" 
             size="lg"
-            className="border-white/20 text-white hover:bg-white/10 transition-all duration-300"
+            className="border-primary/30 text-white hover:bg-primary/10 hover:border-primary transition-all duration-300 hover:shadow-glow"
             onClick={() => window.location.href = '/shadow-fleet'}
           >
             <Skull className="w-5 h-5 mr-2" />
@@ -69,20 +69,20 @@ const Hero = () => {
         
         {/* Key Features */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-            <BarChart className="w-12 h-12 text-accent mb-4 mx-auto" />
-            <h3 className="text-xl font-semibold mb-2">Interactive Analytics</h3>
-            <p className="text-gray-300">Real-time visualization of oxygen levels, temperature, and marine indicators</p>
+          <div className="bg-card/20 backdrop-blur-sm rounded-xl p-6 border border-primary/20 hover:shadow-tech transition-all duration-300 hover:scale-105">
+            <BarChart className="w-12 h-12 text-primary mb-4 mx-auto" />
+            <h3 className="text-xl font-semibold mb-2 text-accent">Real-Time Analytics</h3>
+            <p className="text-muted-foreground">Advanced visualization of maritime parameters and environmental indicators</p>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-            <Database className="w-12 h-12 text-accent mb-4 mx-auto" />
-            <h3 className="text-xl font-semibold mb-2">Integrated Data</h3>
-            <p className="text-gray-300">AIS shipping routes, fisheries, environmental monitoring in one platform</p>
+          <div className="bg-card/20 backdrop-blur-sm rounded-xl p-6 border border-primary/20 hover:shadow-tech transition-all duration-300 hover:scale-105">
+            <Database className="w-12 h-12 text-primary mb-4 mx-auto" />
+            <h3 className="text-xl font-semibold mb-2 text-accent">Integrated Intelligence</h3>
+            <p className="text-muted-foreground">Unified platform for AIS tracking, environmental data, and security analysis</p>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-            <Map className="w-12 h-12 text-accent mb-4 mx-auto" />
-            <h3 className="text-xl font-semibold mb-2">AI-Powered Insights</h3>
-            <p className="text-gray-300">Forecasts, risk assessments, and scenario analysis for informed decisions</p>
+          <div className="bg-card/20 backdrop-blur-sm rounded-xl p-6 border border-primary/20 hover:shadow-tech transition-all duration-300 hover:scale-105">
+            <Map className="w-12 h-12 text-primary mb-4 mx-auto" />
+            <h3 className="text-xl font-semibold mb-2 text-accent">AI-Powered Insights</h3>
+            <p className="text-muted-foreground">Predictive analytics, threat detection, and strategic decision support</p>
           </div>
         </div>
       </div>

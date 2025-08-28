@@ -64,17 +64,17 @@ const Features = () => {
   ];
 
   return (
-    <section className="py-24">
+    <section className="py-24 bg-gradient-tech">
       <div className="max-w-7xl mx-auto px-6">
         {/* Core Features */}
         <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4">Platform Capabilities</Badge>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Comprehensive <span className="text-primary">Data Solutions</span>
+          <Badge variant="outline" className="mb-4 bg-gradient-investment text-black font-medium border-primary/20">Platform Intelligence</Badge>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-investment bg-clip-text text-transparent">
+            Advanced Maritime Analytics
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            From real-time monitoring to AI-powered analysis, our platform transforms 
-            complex marine data into actionable insights
+            From real-time threat detection to AI-powered environmental analysis, 
+            our platform transforms complex marine data into strategic intelligence
           </p>
         </div>
 
@@ -82,14 +82,20 @@ const Features = () => {
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <Card key={index} className="group hover:shadow-depth transition-all duration-500 border-0 shadow-ocean overflow-hidden">
-                <div className={`h-2 ${feature.gradient}`}></div>
+              <Card key={index} className="group hover:shadow-investment transition-all duration-500 border-primary/20 bg-gradient-dark-panel shadow-panel overflow-hidden hover:scale-105">
+                <div className={`h-2 ${feature.gradient === 'bg-gradient-ocean' ? 'bg-gradient-investment' :
+                                       feature.gradient === 'bg-gradient-surface' ? 'bg-gradient-chart' :
+                                       feature.gradient === 'bg-gradient-depth' ? 'bg-gradient-success' :
+                                       'bg-gradient-tech'}`}></div>
                 <CardHeader>
                   <div className="flex items-center gap-4 mb-4">
-                    <div className={`p-3 rounded-xl ${feature.gradient} text-white`}>
+                    <div className={`p-3 rounded-xl ${feature.gradient === 'bg-gradient-ocean' ? 'bg-gradient-investment' :
+                                                     feature.gradient === 'bg-gradient-surface' ? 'bg-gradient-chart' :
+                                                     feature.gradient === 'bg-gradient-depth' ? 'bg-gradient-success' :
+                                                     'bg-gradient-tech'} text-black shadow-tech`}>
                       <Icon className="w-6 h-6" />
                     </div>
-                    <CardTitle className="text-2xl">{feature.title}</CardTitle>
+                    <CardTitle className="text-2xl text-foreground">{feature.title}</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -99,13 +105,13 @@ const Features = () => {
                   <div className="space-y-2 mb-6">
                     {feature.highlights.map((highlight, i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-secondary" />
-                        <span className="text-sm">{highlight}</span>
+                        <CheckCircle className="w-4 h-4 text-accent" />
+                        <span className="text-sm text-muted-foreground">{highlight}</span>
                       </div>
                     ))}
                   </div>
-                  <Button variant="ghost" className="group-hover:text-primary transition-colors">
-                    Learn More <ArrowRight className="ml-2 w-4 h-4" />
+                  <Button variant="ghost" className="group-hover:text-accent transition-colors hover:bg-primary/10">
+                    Explore Feature <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
                 </CardContent>
               </Card>
@@ -115,9 +121,9 @@ const Features = () => {
 
         {/* Stakeholders */}
         <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4">For Decision Makers</Badge>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Trusted by <span className="text-secondary">Key Stakeholders</span>
+          <Badge variant="outline" className="mb-4 bg-gradient-investment text-black font-medium border-primary/20">Strategic Users</Badge>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-investment bg-clip-text text-transparent">
+            Trusted Intelligence Platform
           </h2>
         </div>
 
@@ -125,12 +131,12 @@ const Features = () => {
           {stakeholders.map((stakeholder, index) => {
             const Icon = stakeholder.icon;
             return (
-              <Card key={index} className="text-center hover:shadow-surface transition-all duration-300 border-0 shadow-ocean">
+              <Card key={index} className="text-center hover:shadow-tech transition-all duration-300 border-primary/20 bg-gradient-dark-panel shadow-panel hover:scale-105">
                 <CardHeader>
-                  <div className="mx-auto w-16 h-16 bg-gradient-ocean rounded-xl flex items-center justify-center mb-4">
-                    <Icon className="w-8 h-8 text-white" />
+                  <div className="mx-auto w-16 h-16 bg-gradient-investment rounded-xl flex items-center justify-center mb-4 shadow-glow">
+                    <Icon className="w-8 h-8 text-black" />
                   </div>
-                  <CardTitle className="text-xl">{stakeholder.title}</CardTitle>
+                  <CardTitle className="text-xl text-foreground">{stakeholder.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">{stakeholder.description}</p>

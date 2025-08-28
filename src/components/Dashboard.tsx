@@ -128,63 +128,78 @@ const Dashboard = () => {
   };
 
   return (
-    <section id="dashboard-section" className="py-24 bg-gradient-subtle">
+    <section id="dashboard-section" className="py-24 bg-gradient-tech min-h-screen">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4">
+          <Badge variant="outline" className="mb-4 bg-gradient-investment text-black font-medium border-primary/20">
             {isLoading ? 'Loading Data...' : 'Live Dashboard'}
           </Badge>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Baltic Sea <span className="text-primary">Key Indicators</span>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-investment bg-clip-text text-transparent">
+            Baltic Sea Intelligence Hub
           </h2>
           <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-            Real-time monitoring of critical marine parameters from Copernicus, HELCOM, SMHI, AIS, and ICES data sources
+            Real-time monitoring and analytics from Copernicus, HELCOM, SMHI, AIS, and ICES data sources
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {indicators.map((indicator, index) => (
-            <InteractiveMetricCard
-              key={index}
-              metric={indicator}
-              onExplore={() => console.log('Exploring', indicator.title)}
-            />
+            <div key={index} className="transform transition-all duration-300 hover:scale-105">
+              <InteractiveMetricCard
+                metric={indicator}
+                onExplore={() => console.log('Exploring', indicator.title)}
+              />
+            </div>
           ))}
         </div>
 
         {/* Interactive Map */}
         <div className="mb-12">
-          <BalticSeaMap />
+          <div className="bg-gradient-dark-panel rounded-2xl p-1 shadow-panel">
+            <BalticSeaMap />
+          </div>
         </div>
 
         {/* Interactive Data Flow Visualization */}
         <div className="mb-12">
-          <InteractiveDataViz marineData={indicators} />
+          <div className="bg-gradient-dark-panel rounded-2xl p-1 shadow-panel">
+            <InteractiveDataViz marineData={indicators} />
+          </div>
         </div>
 
         {/* Data Explorer */}
         <div className="mb-12">
-          <DataExplorer marineData={indicators} />
+          <div className="bg-gradient-dark-panel rounded-2xl p-1 shadow-panel">
+            <DataExplorer marineData={indicators} />
+          </div>
         </div>
 
         {/* Integrated Maritime Intelligence */}
         <div className="mt-12">
-          <ShippingInsights />
+          <div className="bg-gradient-dark-panel rounded-2xl p-1 shadow-panel">
+            <ShippingInsights />
+          </div>
         </div>
 
         {/* AI Insights Section */}
         <div className="mt-12">
-          <AIInsights marineData={indicators} />
+          <div className="bg-gradient-dark-panel rounded-2xl p-1 shadow-panel">
+            <AIInsights marineData={indicators} />
+          </div>
         </div>
 
         {/* Data Sources Status */}
         <div className="mt-12">
-          <DataSourceStatus />
+          <div className="bg-gradient-dark-panel rounded-2xl p-1 shadow-panel">
+            <DataSourceStatus />
+          </div>
         </div>
 
         {/* Strategic Reports */}
         <div className="mt-12">
-          <StrategicReports />
+          <div className="bg-gradient-dark-panel rounded-2xl p-1 shadow-panel">
+            <StrategicReports />
+          </div>
         </div>
       </div>
     </section>

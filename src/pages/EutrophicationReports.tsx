@@ -99,12 +99,12 @@ const EutrophicationReports = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
+      <div className="min-h-screen bg-gradient-tech">
         <div className="container mx-auto px-6 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
-              <RefreshCw className="w-8 h-8 mx-auto mb-4 animate-spin text-blue-600" />
-              <p className="text-gray-600">Generating eutrophication analysis...</p>
+              <RefreshCw className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
+              <p className="text-muted-foreground">Generating environmental intelligence analysis...</p>
             </div>
           </div>
         </div>
@@ -114,13 +114,13 @@ const EutrophicationReports = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
+      <div className="min-h-screen bg-gradient-tech">
         <div className="container mx-auto px-6 py-8">
-          <Alert className="max-w-2xl mx-auto">
+          <Alert className="max-w-2xl mx-auto bg-gradient-danger border-destructive/20">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               Error loading eutrophication report: {error}
-              <Button onClick={fetchReport} variant="outline" size="sm" className="ml-4">
+              <Button onClick={fetchReport} variant="outline" size="sm" className="ml-4 border-primary/30">
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Retry
               </Button>
@@ -132,13 +132,13 @@ const EutrophicationReports = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
+    <div className="min-h-screen bg-gradient-tech">
       <div className="container mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center mb-4">
             <Link to="/" className="mr-4">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                 <ChevronLeft className="w-4 h-4 mr-2" />
                 Back to Dashboard
               </Button>
@@ -147,14 +147,14 @@ const EutrophicationReports = () => {
           
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                Eutrophication Analysis Report
+              <h1 className="text-4xl font-bold mb-2 bg-gradient-investment bg-clip-text text-transparent">
+                Environmental Intelligence Analysis
               </h1>
-              <p className="text-lg text-gray-600">
-                Real-time monitoring and forecasting of nutrient pollution in Baltic Sea waters
+              <p className="text-lg text-muted-foreground">
+                Advanced monitoring and forecasting of nutrient pollution in Baltic Sea waters
               </p>
             </div>
-            <Button onClick={fetchReport} variant="outline">
+            <Button onClick={fetchReport} variant="outline" className="border-primary/30 hover:bg-primary/10">
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
@@ -165,46 +165,46 @@ const EutrophicationReports = () => {
           <>
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <Card>
+              <Card className="bg-gradient-dark-panel shadow-panel border-primary/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Areas</CardTitle>
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-primary">Total Areas</CardTitle>
+                  <MapPin className="h-4 w-4 text-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{report.summary.totalAreas}</div>
+                  <div className="text-2xl font-bold text-accent">{report.summary.totalAreas}</div>
                   <p className="text-xs text-muted-foreground">Monitored locations</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-danger shadow-panel border-destructive/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Severe Areas</CardTitle>
-                  <AlertTriangle className="h-4 w-4 text-red-500" />
+                  <CardTitle className="text-sm font-medium text-destructive">Severe Areas</CardTitle>
+                  <AlertTriangle className="h-4 w-4 text-destructive" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-red-600">{report.summary.severeAreas}</div>
+                  <div className="text-2xl font-bold text-destructive">{report.summary.severeAreas}</div>
                   <p className="text-xs text-muted-foreground">Critical conditions</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-dark-panel shadow-panel border-accent/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">High Risk</CardTitle>
-                  <Droplets className="h-4 w-4 text-orange-500" />
+                  <CardTitle className="text-sm font-medium text-accent">High Risk</CardTitle>
+                  <Droplets className="h-4 w-4 text-accent" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-orange-600">{report.summary.highRiskAreas}</div>
+                  <div className="text-2xl font-bold text-accent">{report.summary.highRiskAreas}</div>
                   <p className="text-xs text-muted-foreground">Elevated concern</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-dark-panel shadow-panel border-destructive/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Worsening</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-red-500" />
+                  <CardTitle className="text-sm font-medium text-destructive">Worsening</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-destructive" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-red-600">{report.summary.trendingWorse}</div>
+                  <div className="text-2xl font-bold text-destructive">{report.summary.trendingWorse}</div>
                   <p className="text-xs text-muted-foreground">Deteriorating trends</p>
                 </CardContent>
               </Card>
