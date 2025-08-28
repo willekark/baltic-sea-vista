@@ -321,7 +321,16 @@ const BalticSeaMap = () => {
           </div>
         )}
         
-        <div ref={mapContainer} className={`h-96 rounded-lg overflow-hidden ${!isMapReady ? 'bg-gray-100' : ''}`} />
+        <div 
+          ref={mapContainer} 
+          className={`h-96 rounded-lg overflow-hidden relative ${!isMapReady ? 'bg-gray-100' : ''}`}
+          style={{
+            width: '100%',
+            height: '384px',
+            position: 'relative',
+            zIndex: 1
+          }}
+        />
         
         {isMapReady && (
           <div className="mt-4 text-sm text-muted-foreground">
