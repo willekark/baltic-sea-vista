@@ -175,15 +175,32 @@ const BalticSeaMap = () => {
 
   // Load token from localStorage and auto-initialize map
   useEffect(() => {
-    const savedToken = localStorage.getItem('mapbox_token');
-    console.log('Loading saved token from localStorage:', savedToken ? 'Token found' : 'No token found');
-    if (savedToken) {
-      setMapboxToken(savedToken);
-      if (savedToken.startsWith('pk.') && !map.current) {
-        console.log('Auto-loading map with saved token');
-        initializeMap(savedToken);
+    console.log('BalticSeaMap - Component mounted, checking for saved token...');
+    
+    // Add a small delay to ensure localStorage is ready
+    setTimeout(() => {
+      try {
+        const savedToken = localStorage.getItem('mapbox_token');
+        console.log('BalticSeaMap - localStorage check result:', savedToken ? `Token found: ${savedToken.substring(0, 10)}...` : 'No token found');
+        
+        if (savedToken && savedToken.startsWith('pk.')) {
+          console.log('BalticSeaMap - Valid token found, setting state and initializing map...');
+          setMapboxToken(savedToken);
+          
+          // Only initialize if map hasn't been created yet
+          if (!map.current && !isMapReady) {
+            console.log('BalticSeaMap - Map not yet created, initializing now...');
+            initializeMap(savedToken);
+          } else {
+            console.log('BalticSeaMap - Map already exists or ready:', { mapCurrent: !!map.current, isMapReady });
+          }
+        } else {
+          console.log('BalticSeaMap - No valid token found in localStorage');
+        }
+      } catch (error) {
+        console.error('BalticSeaMap - Error accessing localStorage:', error);
       }
-    }
+    }, 100);
   }, []);
 
   // Auto-load map when token changes

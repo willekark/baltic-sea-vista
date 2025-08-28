@@ -316,15 +316,32 @@ const EutrophicationMap: React.FC<EutrophicationMapProps> = ({ areas = [] }) => 
 
   // Load token from localStorage and auto-initialize map
   useEffect(() => {
-    const savedToken = localStorage.getItem('mapbox_token');
-    console.log('EutrophicationMap - Loading saved token from localStorage:', savedToken ? 'Token found' : 'No token found');
-    if (savedToken) {
-      setMapboxToken(savedToken);
-      if (savedToken.startsWith('pk.') && !map.current) {
-        console.log('EutrophicationMap - Auto-loading map with saved token');
-        initializeMap(savedToken);
+    console.log('EutrophicationMap - Component mounted, checking for saved token...');
+    
+    // Add a small delay to ensure localStorage is ready
+    setTimeout(() => {
+      try {
+        const savedToken = localStorage.getItem('mapbox_token');
+        console.log('EutrophicationMap - localStorage check result:', savedToken ? `Token found: ${savedToken.substring(0, 10)}...` : 'No token found');
+        
+        if (savedToken && savedToken.startsWith('pk.')) {
+          console.log('EutrophicationMap - Valid token found, setting state and initializing map...');
+          setMapboxToken(savedToken);
+          
+          // Only initialize if map hasn't been created yet
+          if (!map.current && !isMapReady) {
+            console.log('EutrophicationMap - Map not yet created, initializing now...');
+            initializeMap(savedToken);
+          } else {
+            console.log('EutrophicationMap - Map already exists or ready:', { mapCurrent: !!map.current, isMapReady });
+          }
+        } else {
+          console.log('EutrophicationMap - No valid token found in localStorage');
+        }
+      } catch (error) {
+        console.error('EutrophicationMap - Error accessing localStorage:', error);
       }
-    }
+    }, 100);
   }, []);
 
   // Auto-load map when token changes

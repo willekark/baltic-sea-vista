@@ -44,6 +44,7 @@ const RouteOptimizer = () => {
   const fetchOptimization = async (customRequest = {}) => {
     try {
       setLoading(true);
+      console.log('RouteOptimizer - Starting optimization fetch...');
       
       const requestData = {
         origin,
@@ -52,21 +53,30 @@ const RouteOptimizer = () => {
         ...customRequest
       };
 
+      console.log('RouteOptimizer - Request data:', requestData);
+
       const { data, error } = await supabase.functions.invoke('shipping-route-optimizer', {
         body: requestData
       });
       
-      if (error) throw error;
+      console.log('RouteOptimizer - Response:', { data, error });
       
+      if (error) {
+        console.error('RouteOptimizer - Supabase function error:', error);
+        throw error;
+      }
+      
+      console.log('RouteOptimizer - Setting optimization data:', data);
       setOptimization(data);
     } catch (err) {
-      console.error('Error fetching route optimization:', err);
+      console.error('RouteOptimizer - Error fetching route optimization:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    console.log('RouteOptimizer - Component mounted, fetching initial optimization...');
     // Load general optimization on component mount
     fetchOptimization();
   }, []);

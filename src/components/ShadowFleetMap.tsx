@@ -98,11 +98,23 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
   ];
 
   const initializeMap = (token: string) => {
-    if (!mapContainer.current || map.current) return;
+    console.log('ShadowFleetMap - initializeMap called with token:', token.substring(0, 10) + '...');
+    
+    if (!mapContainer.current) {
+      console.error('ShadowFleetMap - No map container found!');
+      return;
+    }
+    
+    if (map.current) {
+      console.log('ShadowFleetMap - Map already exists, skipping initialization');
+      return;
+    }
 
+    console.log('ShadowFleetMap - Setting mapbox access token...');
     mapboxgl.accessToken = token;
     
     try {
+      console.log('ShadowFleetMap - Creating new map instance...');
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/dark-v11',
@@ -112,6 +124,7 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
         bearing: 0
       });
 
+      console.log('ShadowFleetMap - Map instance created, adding controls...');
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
       map.current.on('load', () => {
@@ -309,7 +322,10 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
       e.stopPropagation();
     }
     
+    console.log('ShadowFleetMap - Attempting to submit token:', mapboxToken.substring(0, 10) + '...');
+    
     if (!mapboxToken.trim()) {
+      console.log('ShadowFleetMap - No token provided');
       toast({
         title: "Token Required",
         description: "Please enter your Mapbox public token",
@@ -319,6 +335,7 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
     }
 
     if (!mapboxToken.startsWith('pk.')) {
+      console.log('ShadowFleetMap - Invalid token format');
       toast({
         title: "Invalid Token Format",
         description: "Mapbox tokens should start with 'pk.'",
@@ -327,11 +344,25 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
       return;
     }
 
-    localStorage.setItem('mapbox_token', mapboxToken);
-    console.log('ShadowFleetMap - Token saved to localStorage');
-    
     try {
-      initializeMap(mapboxToken);
+      localStorage.setItem('mapbox_token', mapboxToken);
+      console.log('ShadowFleetMap - Token saved to localStorage successfully');
+      
+      // Verify the token was saved
+      const savedToken = localStorage.getItem('mapbox_token');
+      console.log('ShadowFleetMap - Verification - Retrieved token from localStorage:', savedToken ? 'Token found' : 'Token NOT found');
+      
+      if (savedToken === mapboxToken) {
+        console.log('ShadowFleetMap - Token verification successful, initializing map...');
+        initializeMap(mapboxToken);
+      } else {
+        console.error('ShadowFleetMap - Token verification failed!');
+        toast({
+          title: "Storage Error",
+          description: "Failed to save token to browser storage",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error('ShadowFleetMap - Map initialization error:', error);
       toast({
@@ -344,19 +375,43 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
 
   // Load token from localStorage and auto-initialize map
   useEffect(() => {
-    const savedToken = localStorage.getItem('mapbox_token');
-    console.log('ShadowFleetMap - Loading saved token from localStorage:', savedToken ? 'Token found' : 'No token found');
-    if (savedToken) {
-      setMapboxToken(savedToken);
-      if (savedToken.startsWith('pk.') && !map.current) {
-        console.log('ShadowFleetMap - Auto-loading map with saved token');
-        initializeMap(savedToken);
+    console.log('ShadowFleetMap - Component mounted, checking for saved token...');
+    
+    // Add a small delay to ensure localStorage is ready
+    setTimeout(() => {
+      try {
+        const savedToken = localStorage.getItem('mapbox_token');
+        console.log('ShadowFleetMap - localStorage check result:', savedToken ? `Token found: ${savedToken.substring(0, 10)}...` : 'No token found');
+        
+        if (savedToken && savedToken.startsWith('pk.')) {
+          console.log('ShadowFleetMap - Valid token found, setting state and initializing map...');
+          setMapboxToken(savedToken);
+          
+          // Only initialize if map hasn't been created yet
+          if (!map.current && !isMapReady) {
+            console.log('ShadowFleetMap - Map not yet created, initializing now...');
+            initializeMap(savedToken);
+          } else {
+            console.log('ShadowFleetMap - Map already exists or ready:', { mapCurrent: !!map.current, isMapReady });
+          }
+        } else {
+          console.log('ShadowFleetMap - No valid token found in localStorage');
+        }
+      } catch (error) {
+        console.error('ShadowFleetMap - Error accessing localStorage:', error);
       }
-    }
+    }, 100);
   }, []);
 
   // Auto-load map when token changes
   useEffect(() => {
+    console.log('ShadowFleetMap - Token changed:', { 
+      hasToken: !!mapboxToken, 
+      validToken: mapboxToken && mapboxToken.startsWith('pk.'), 
+      mapExists: !!map.current, 
+      isReady: isMapReady 
+    });
+    
     if (mapboxToken && mapboxToken.startsWith('pk.') && !map.current && !isMapReady) {
       console.log('ShadowFleetMap - Auto-loading map with token change');
       initializeMap(mapboxToken);
