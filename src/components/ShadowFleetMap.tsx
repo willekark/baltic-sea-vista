@@ -3,7 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Ship, AlertTriangle, Eye, Fuel, Shield, Anchor } from "lucide-react";
+import { Ship, AlertTriangle, Eye, Fuel } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -13,13 +13,15 @@ interface ShadowFleetMapProps {
   alerts?: any[];
   stsTransfers?: any[];
   darkZones?: any[];
+  allVessels?: any[]; // New prop for all vessels with risk assessments
 }
 
 const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({ 
   vessels = [], 
   alerts = [], 
   stsTransfers = [], 
-  darkZones = [] 
+  darkZones = [],
+  allVessels = [] // New prop
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -79,12 +81,16 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
     };
   };
 
-  // Mock data for demonstration
+  // Enhanced mock data with shadow fleet probabilities
   const mockVessels = [
-    { id: 1, name: "Northern Star", lat: 58.5, lng: 16.2, riskLevel: "high", mmsi: 123456789, type: "tanker" },
-    { id: 2, name: "Baltic Express", lat: 59.2, lng: 19.8, riskLevel: "medium", mmsi: 987654321, type: "cargo" },
-    { id: 3, name: "Sea Wolf", lat: 56.8, lng: 15.5, riskLevel: "critical", mmsi: 555666777, type: "tanker" },
-    { id: 4, name: "Ocean Drift", lat: 60.1, lng: 24.9, riskLevel: "low", mmsi: 111222333, type: "container" },
+    { id: 1, name: "Northern Star", lat: 58.5, lng: 16.2, shadowFleetProbability: 85, mmsi: 123456789, type: "tanker" },
+    { id: 2, name: "Baltic Express", lat: 59.2, lng: 19.8, shadowFleetProbability: 45, mmsi: 987654321, type: "cargo" },
+    { id: 3, name: "Sea Wolf", lat: 56.8, lng: 15.5, shadowFleetProbability: 92, mmsi: 555666777, type: "tanker" },
+    { id: 4, name: "Ocean Drift", lat: 60.1, lng: 24.9, shadowFleetProbability: 15, mmsi: 111222333, type: "container" },
+    { id: 5, name: "Nordic Breeze", lat: 57.3, lng: 18.1, shadowFleetProbability: 8, mmsi: 444555666, type: "ferry" },
+    { id: 6, name: "Baltic Trader", lat: 55.2, lng: 13.8, shadowFleetProbability: 35, mmsi: 777888999, type: "bulk_carrier" },
+    { id: 7, name: "Freedom Spirit", lat: 59.8, lng: 22.4, shadowFleetProbability: 3, mmsi: 101202303, type: "passenger" },
+    { id: 8, name: "Dark Shadow", lat: 58.9, lng: 20.1, shadowFleetProbability: 78, mmsi: 404505606, type: "tanker" }
   ];
 
   const mockDarkZones = [
@@ -157,40 +163,100 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
           }
         }, 60000);
 
-        // Add vessels
-        (vessels.length > 0 ? vessels : mockVessels).forEach(vessel => {
-          const riskColor = vessel.riskLevel === 'critical' ? '#ef4444' : 
-                           vessel.riskLevel === 'high' ? '#f97316' :
-                           vessel.riskLevel === 'medium' ? '#eab308' : '#10b981';
+        // Add all vessels with probability-based colors
+        const vesselsToDisplay = allVessels.length > 0 ? allVessels : mockVessels;
+        
+        vesselsToDisplay.forEach(vessel => {
+          const probability = vessel.shadowFleetProbability || 0;
+          
+          // Color coding based on shadow fleet probability
+          let vesselColor = '#10b981'; // Green for normal vessels
+          let vesselIcon = '🚢';
+          let riskLabel = 'Normal';
+          
+          if (probability >= 70) {
+            vesselColor = '#ef4444'; // Red for high-risk shadow fleet
+            vesselIcon = '⚠️';
+            riskLabel = 'High Risk Shadow Fleet';
+          } else if (probability >= 50) {
+            vesselColor = '#f97316'; // Orange for probable shadow fleet
+            vesselIcon = '🚨';
+            riskLabel = 'Probable Shadow Fleet';
+          } else if (probability >= 30) {
+            vesselColor = '#eab308'; // Yellow for suspicious vessels
+            vesselIcon = '⚡';
+            riskLabel = 'Suspicious Activity';
+          }
 
           const el = document.createElement('div');
           el.className = 'vessel-marker';
           el.style.cssText = `
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
             cursor: pointer;
-            border: 3px solid ${riskColor};
+            border: 3px solid ${vesselColor};
             background-color: rgba(0,0,0,0.8);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.6);
+            transition: all 0.3s ease;
           `;
-          el.innerHTML = '🚢';
+          el.innerHTML = vesselIcon;
+          
+          // Add hover effect
+          el.addEventListener('mouseenter', () => {
+            el.style.transform = 'scale(1.2)';
+            el.style.boxShadow = `0 6px 20px ${vesselColor}40`;
+          });
+          
+          el.addEventListener('mouseleave', () => {
+            el.style.transform = 'scale(1)';
+            el.style.boxShadow = '0 3px 12px rgba(0,0,0,0.6)';
+          });
 
           const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-            <div style="padding: 12px; min-width: 200px;">
-              <h3 style="margin: 0 0 8px 0; font-weight: bold; color: ${riskColor};">${vessel.name}</h3>
-              <p style="margin: 4px 0; font-size: 12px;"><strong>MMSI:</strong> ${vessel.mmsi}</p>
-              <p style="margin: 4px 0; font-size: 12px;"><strong>Type:</strong> ${vessel.type}</p>
-              <p style="margin: 4px 0; font-size: 12px;"><strong>Risk Level:</strong> 
-                <span style="color: ${riskColor}; font-weight: bold; text-transform: uppercase;">${vessel.riskLevel}</span>
-              </p>
-              <p style="margin: 4px 0; font-size: 12px;"><strong>Position:</strong> ${vessel.lat.toFixed(4)}°N, ${vessel.lng.toFixed(4)}°E</p>
+            <div style="padding: 14px; min-width: 240px; font-family: system-ui;">
+              <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin: 0; font-weight: bold; color: ${vesselColor}; font-size: 16px;">
+                  ${vesselIcon} ${vessel.name}
+                </h3>
+                <span style="margin-left: auto; background: ${vesselColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                  ${probability}%
+                </span>
+              </div>
+              
+              <div style="background: ${vesselColor}15; padding: 8px; border-radius: 6px; margin-bottom: 10px;">
+                <p style="margin: 0; font-size: 13px; font-weight: 600; color: ${vesselColor};">
+                  ${riskLabel}
+                </p>
+              </div>
+              
+              <div style="font-size: 12px; line-height: 1.4;">
+                <p style="margin: 4px 0;"><strong>MMSI:</strong> ${vessel.mmsi}</p>
+                <p style="margin: 4px 0;"><strong>Type:</strong> ${vessel.type}</p>
+                <p style="margin: 4px 0;"><strong>Position:</strong> ${vessel.lat.toFixed(4)}°N, ${vessel.lng.toFixed(4)}°E</p>
+                ${vessel.flagState ? `<p style="margin: 4px 0;"><strong>Flag:</strong> ${vessel.flagState}</p>` : ''}
+                ${vessel.speed ? `<p style="margin: 4px 0;"><strong>Speed:</strong> ${vessel.speed} knots</p>` : ''}
+                ${vessel.destination ? `<p style="margin: 4px 0;"><strong>Destination:</strong> ${vessel.destination}</p>` : ''}
+              </div>
+              
+              ${vessel.alerts && vessel.alerts.length > 0 ? `
+                <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #e5e5e5;">
+                  <p style="margin: 0 0 4px 0; font-size: 11px; font-weight: bold; color: #ef4444;">
+                    Active Alerts: ${vessel.alerts.length}
+                  </p>
+                  ${vessel.alerts.slice(0, 2).map((alert: any) => `
+                    <p style="margin: 2px 0; font-size: 10px; color: #666;">
+                      • ${alert.title}
+                    </p>
+                  `).join('')}
+                </div>
+              ` : ''}
             </div>
           `);
 
@@ -468,26 +534,57 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
               </div>
             </div>
             
+            <div className="bg-gradient-to-r from-green-50 to-yellow-50 to-red-50 p-4 rounded-lg border border-gray-200 mb-4">
+              <h4 className="font-semibold text-sm mb-3">🎯 Vessel Classification Legend</h4>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="flex items-center">
+                  <div className="w-4 h-4 bg-green-500 rounded mr-2"></div>
+                  <span><strong>Green:</strong> Normal vessels (&lt;30% risk)</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-4 h-4 bg-yellow-500 rounded mr-2"></div>
+                  <span><strong>Yellow:</strong> Suspicious (30-70% risk)</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-4 h-4 bg-orange-500 rounded mr-2"></div>
+                  <span><strong>Orange:</strong> Probable shadow fleet (50-70%)</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-4 h-4 bg-red-500 rounded mr-2"></div>
+                  <span><strong>Red:</strong> High-risk shadow fleet (≥70%)</span>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-3 bg-gray-50 rounded">
+              <div className="text-center p-3 bg-green-50 rounded border border-green-200">
+                <Ship className="w-6 h-6 mx-auto mb-2 text-green-600" />
+                <p className="text-xs font-medium">Normal Vessels</p>
+                <p className="text-lg font-bold text-green-600">
+                  {(allVessels.length > 0 ? allVessels : mockVessels).filter(v => (v.shadowFleetProbability || 0) < 30).length}
+                </p>
+              </div>
+              <div className="text-center p-3 bg-yellow-50 rounded border border-yellow-200">
+                <AlertTriangle className="w-6 h-6 mx-auto mb-2 text-yellow-600" />
+                <p className="text-xs font-medium">Suspicious Vessels</p>
+                <p className="text-lg font-bold text-yellow-600">
+                  {(allVessels.length > 0 ? allVessels : mockVessels).filter(v => {
+                    const prob = v.shadowFleetProbability || 0;
+                    return prob >= 30 && prob < 70;
+                  }).length}
+                </p>
+              </div>
+              <div className="text-center p-3 bg-red-50 rounded border border-red-200">
                 <Ship className="w-6 h-6 mx-auto mb-2 text-red-600" />
-                <p className="text-xs font-medium">High-Risk Vessels</p>
-                <p className="text-lg font-bold text-red-600">{mockVessels.filter(v => v.riskLevel === 'high' || v.riskLevel === 'critical').length}</p>
+                <p className="text-xs font-medium">High-Risk Shadow Fleet</p>
+                <p className="text-lg font-bold text-red-600">
+                  {(allVessels.length > 0 ? allVessels : mockVessels).filter(v => (v.shadowFleetProbability || 0) >= 70).length}
+                </p>
               </div>
               <div className="text-center p-3 bg-gray-50 rounded">
-                <Eye className="w-6 h-6 mx-auto mb-2 text-yellow-600" />
+                <Eye className="w-6 h-6 mx-auto mb-2 text-gray-600" />
                 <p className="text-xs font-medium">Dark Zones</p>
-                <p className="text-lg font-bold text-yellow-600">{mockDarkZones.length}</p>
-              </div>
-              <div className="text-center p-3 bg-gray-50 rounded">
-                <Fuel className="w-6 h-6 mx-auto mb-2 text-orange-600" />
-                <p className="text-xs font-medium">STS Transfers</p>
-                <p className="text-lg font-bold text-orange-600">{mockSTSTransfers.length}</p>
-              </div>
-              <div className="text-center p-3 bg-gray-50 rounded">
-                <AlertTriangle className="w-6 h-6 mx-auto mb-2 text-red-600" />
-                <p className="text-xs font-medium">Active Alerts</p>
-                <p className="text-lg font-bold text-red-600">3</p>
+                <p className="text-lg font-bold text-gray-600">{mockDarkZones.length}</p>
               </div>
             </div>
           </div>
@@ -507,20 +604,20 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
           <div className="mt-4 space-y-2">
             <div className="flex flex-wrap gap-4 text-xs">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-red-500 rounded"></div>
-                <span>Critical Risk</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-orange-500 rounded"></div>
-                <span>High Risk</span>
+                <div className="w-4 h-4 bg-green-500 rounded"></div>
+                <span>Normal (&lt;30%)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-yellow-500 rounded"></div>
-                <span>Medium Risk</span>
+                <span>Suspicious (30-50%)</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-500 rounded"></div>
-                <span>Low Risk</span>
+                <div className="w-4 h-4 bg-orange-500 rounded"></div>
+                <span>Probable (50-70%)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-red-500 rounded"></div>
+                <span>High Risk (≥70%)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-blue-800 rounded opacity-30"></div>
@@ -529,7 +626,7 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
             </div>
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Click markers for vessel details. 👁️ = Dark Zones, ⛽ = STS Transfers, 🚢 = Tracked Vessels
+                Click markers for vessel details. 👁️ = Dark Zones, ⛽ = STS Transfers, Ships = Tracked Vessels
               </p>
               <div className="text-xs text-muted-foreground">
                 🌓 Real-time Day/Night: {new Date().toLocaleTimeString()} UTC

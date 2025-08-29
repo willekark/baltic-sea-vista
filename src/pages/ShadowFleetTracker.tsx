@@ -39,6 +39,7 @@ interface ShadowFleetAnalysis {
     emissionsAnomalies: number;
     highRiskVessels: number;
   };
+  vessels?: any[];
   alerts: any[];
   recommendations: string[];
 }
@@ -276,6 +277,7 @@ const ShadowFleetTracker = () => {
                   <ShadowFleetMap 
                     vessels={analysis.alerts.filter(alert => alert.data?.vesselInfo)} 
                     alerts={analysis.alerts}
+                    allVessels={analysis.vessels || []}
                   />
                 </div>
               </TabsContent>

@@ -58,6 +58,10 @@ serve(async (req) => {
     // Analyze CO2 emissions anomalies
     const emissionsAnalysis = await analyzeEmissionsViolations(supabase, aisData || []);
 
+    // Generate all vessels with risk assessments
+    const allVesselsWithRisk = generateVesselRiskAssessments(aisData || [], 
+      [...darkZoneAnalysis, ...behaviorAnalysis, ...sanctionsAnalysis, ...stsAnalysis, ...emissionsAnalysis]);
+
     // Generate comprehensive report
     const analysis = {
       timestamp: new Date().toISOString(),
@@ -68,8 +72,12 @@ serve(async (req) => {
         sanctionsViolations: sanctionsAnalysis.length,
         stsTransfers: stsAnalysis.length,
         emissionsAnomalies: emissionsAnalysis.length,
-        highRiskVessels: getHighRiskVesselCount(aisData || [])
+        highRiskVessels: getHighRiskVesselCount(aisData || []),
+        normalVessels: allVesselsWithRisk.filter(v => v.shadowFleetProbability < 30).length,
+        suspiciousVessels: allVesselsWithRisk.filter(v => v.shadowFleetProbability >= 30 && v.shadowFleetProbability < 70).length,
+        highRiskShadowVessels: allVesselsWithRisk.filter(v => v.shadowFleetProbability >= 70).length
       },
+      vessels: allVesselsWithRisk,
       alerts: [
         ...darkZoneAnalysis,
         ...behaviorAnalysis,
@@ -430,6 +438,98 @@ async function analyzeEmissionsViolations(supabase: any, aisData: any[]): Promis
   }
   
   return alerts;
+}
+
+function generateVesselRiskAssessments(aisData: any[], alerts: any[]): any[] {
+  const vesselMap = new Map();
+  const alertsByVessel = new Map();
+
+  // Group alerts by vessel
+  alerts.forEach(alert => {
+    if (!alertsByVessel.has(alert.vesselId)) {
+      alertsByVessel.set(alert.vesselId, []);
+    }
+    alertsByVessel.get(alert.vesselId).push(alert);
+  });
+
+  // Process all vessels from AIS data
+  aisData.forEach(record => {
+    if (!vesselMap.has(record.vessel_id)) {
+      const vesselAlerts = alertsByVessel.get(record.vessel_id) || [];
+      const shadowFleetProbability = calculateShadowFleetProbability(record, vesselAlerts);
+      
+      vesselMap.set(record.vessel_id, {
+        id: record.vessel_id,
+        name: record.vessels?.vessel_name || 'Unknown Vessel',
+        imo: record.vessels?.imo_number,
+        mmsi: record.vessels?.mmsi,
+        type: record.vessels?.vessel_type || 'Unknown',
+        flagState: record.vessels?.flag_state,
+        lat: record.location_lat,
+        lng: record.location_lng,
+        speed: record.speed,
+        course: record.course,
+        destination: record.destination,
+        shadowFleetProbability,
+        riskLevel: shadowFleetProbability >= 70 ? 'critical' : 
+                   shadowFleetProbability >= 50 ? 'high' :
+                   shadowFleetProbability >= 30 ? 'medium' : 'low',
+        alerts: vesselAlerts,
+        lastUpdate: record.timestamp,
+        vesselInfo: record.vessels
+      });
+    }
+  });
+
+  return Array.from(vesselMap.values());
+}
+
+function calculateShadowFleetProbability(aisRecord: any, alerts: any[]): number {
+  let probability = 0;
+
+  // Base risk from vessel attributes
+  const vessel = aisRecord.vessels;
+  if (vessel) {
+    // High-risk flags
+    const highRiskFlags = ['Russia', 'Iran', 'North Korea', 'Syria'];
+    if (highRiskFlags.includes(vessel.flag_state)) probability += 20;
+
+    // Sanctions status
+    if (vessel.sanctions_status === 'sanctioned') probability += 60;
+    if (vessel.sanctions_status === 'watchlist') probability += 30;
+
+    // Existing risk score
+    if (vessel.risk_score) probability += Math.min(vessel.risk_score / 2, 30);
+  }
+
+  // Add probability based on alerts
+  alerts.forEach(alert => {
+    switch (alert.type) {
+      case 'sanctions_violation':
+        probability += 80;
+        break;
+      case 'ais_dark_zone':
+        probability += alert.priority === 'high' ? 40 : 20;
+        break;
+      case 'sts_transfer':
+        probability += 35;
+        break;
+      case 'emissions_anomaly':
+        probability += alert.priority === 'critical' ? 30 : 15;
+        break;
+      case 'loitering':
+        probability += 15;
+        break;
+      case 'false_destination':
+        probability += 25;
+        break;
+      default:
+        probability += 10;
+    }
+  });
+
+  // Cap at 95% (never 100% certain without human verification)
+  return Math.min(probability, 95);
 }
 
 function generateRecommendations(darkZones: any[], behaviors: any[], sanctions: any[], sts: any[], emissions: any[]): string[] {
