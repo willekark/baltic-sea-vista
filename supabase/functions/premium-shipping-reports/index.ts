@@ -575,8 +575,16 @@ function analyzePortEfficiency(routes: any[]) {
     recommendations.push("Negotiate priority berthing agreements at key ports");
   }
 
+  // Calculate waiting costs based on port time and vessel operating costs
+  const dailyOperatingCost = 12000; // EUR per day estimate
+  const excessTime = Math.max(0, averagePortTime - 12); // Hours beyond optimal 12h
+  const waitingCosts = Math.round((excessTime / 24) * dailyOperatingCost * 365);
+  const averageWaitTime = Math.round(excessTime * 10) / 10;
+
   return {
     averagePortTime: Math.round(averagePortTime * 10) / 10,
+    averageWaitTime: averageWaitTime,
+    waitingCosts: waitingCosts,
     efficiency: Math.round(efficiency * 100) / 100,
     recommendations: recommendations.length > 0 ? recommendations : ["Port efficiency is optimal"]
   };
