@@ -43,7 +43,13 @@ enable_confirmations = false
 [functions.ai-insights]
 verify_jwt = false
 
+[functions.arbitrage-analyzer]
+verify_jwt = false
+
 [functions.co2-emissions-collector]
+verify_jwt = false
+
+[functions.environmental-forecasting]
 verify_jwt = false
 
 [functions.eutrophication-reports]
@@ -56,6 +62,12 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.get-dashboard-data]
+verify_jwt = false
+
+[functions.integrated-shipping-intelligence]
+verify_jwt = false
+
+[functions.port-agent-services]
 verify_jwt = false
 
 [functions.premium-shipping-reports]
