@@ -164,9 +164,11 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
           }
         }, 60000);
 
-        // Add all vessels with probability-based colors
-        const vesselsToDisplay = allVessels.length > 0 ? allVessels : mockVessels;
-        console.log('ShadowFleetMap - Adding vessels to map:', vesselsToDisplay.length, vesselsToDisplay.map(v => `${v.name} at ${v.lat},${v.lng}`));
+        // Add all vessels - combine real data with mock data for demonstration
+        const realVessels = allVessels.length > 0 ? allVessels : [];
+        const vesselsToDisplay = [...realVessels, ...mockVessels];
+        console.log('ShadowFleetMap - Adding vessels to map:', vesselsToDisplay.length, 'vessels (', realVessels.length, 'real +', mockVessels.length, 'mock)');
+        console.log('ShadowFleetMap - Vessel details:', vesselsToDisplay.map(v => `${v.name} at ${v.lat},${v.lng} (${v.shadowFleetProbability || 0}% risk)`));
         
         vesselsToDisplay.forEach(vessel => {
           const probability = vessel.shadowFleetProbability || 0;
