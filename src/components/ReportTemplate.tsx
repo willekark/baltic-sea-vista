@@ -115,11 +115,11 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   timeframe
 }) => {
   const colorClasses = {
-    primary: 'border-primary/30 bg-primary/5 text-primary',
-    success: 'border-success/30 bg-success/5 text-success', 
-    warning: 'border-warning/30 bg-warning/5 text-warning',
-    destructive: 'border-destructive/30 bg-destructive/5 text-destructive',
-    accent: 'border-accent/30 bg-accent/5 text-accent'
+    primary: 'border-primary/30 bg-primary/5 text-primary-foreground',
+    success: 'border-success/30 bg-success/5 text-success-foreground', 
+    warning: 'border-warning/30 bg-warning/5 text-warning-foreground',
+    destructive: 'border-destructive/30 bg-destructive/5 text-destructive-foreground',
+    accent: 'border-accent/30 bg-accent/5 text-accent-foreground'
   };
 
   const trendIcon = trend === 'up' ? ArrowUpRight : trend === 'down' ? ArrowDownRight : null;
