@@ -202,6 +202,56 @@ export type Database = {
         }
         Relationships: []
       }
+      berth_availability: {
+        Row: {
+          available_from: string
+          available_until: string
+          berth_number: string
+          berth_type: string
+          created_at: string
+          id: string
+          max_draft_m: number | null
+          max_length_m: number | null
+          port_id: string
+          reserved_vessel_id: string | null
+          status: string
+        }
+        Insert: {
+          available_from: string
+          available_until: string
+          berth_number: string
+          berth_type: string
+          created_at?: string
+          id?: string
+          max_draft_m?: number | null
+          max_length_m?: number | null
+          port_id: string
+          reserved_vessel_id?: string | null
+          status?: string
+        }
+        Update: {
+          available_from?: string
+          available_until?: string
+          berth_number?: string
+          berth_type?: string
+          created_at?: string
+          id?: string
+          max_draft_m?: number | null
+          max_length_m?: number | null
+          port_id?: string
+          reserved_vessel_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "berth_availability_port_id_fkey"
+            columns: ["port_id"]
+            isOneToOne: false
+            referencedRelation: "ports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cargo_flows: {
         Row: {
           cargo_subtype: string | null
@@ -746,6 +796,210 @@ export type Database = {
           weather_factor?: boolean | null
         }
         Relationships: []
+      }
+      port_performance: {
+        Row: {
+          cargo_type: string | null
+          created_at: string
+          id: string
+          measurement_date: string
+          metadata: Json | null
+          metric_type: string
+          metric_value: number
+          port_id: string
+          source: string
+          unit: string
+          vessel_category: string | null
+        }
+        Insert: {
+          cargo_type?: string | null
+          created_at?: string
+          id?: string
+          measurement_date?: string
+          metadata?: Json | null
+          metric_type: string
+          metric_value: number
+          port_id: string
+          source: string
+          unit: string
+          vessel_category?: string | null
+        }
+        Update: {
+          cargo_type?: string | null
+          created_at?: string
+          id?: string
+          measurement_date?: string
+          metadata?: Json | null
+          metric_type?: string
+          metric_value?: number
+          port_id?: string
+          source?: string
+          unit?: string
+          vessel_category?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "port_performance_port_id_fkey"
+            columns: ["port_id"]
+            isOneToOne: false
+            referencedRelation: "ports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      port_tariffs: {
+        Row: {
+          additional_fees: Json | null
+          cargo_type: string | null
+          created_at: string
+          currency: string | null
+          id: string
+          port_id: string
+          rate_per_unit: number
+          service_type: string
+          unit_type: string
+          updated_at: string
+          valid_from: string
+          valid_until: string | null
+          vessel_size_category: string | null
+        }
+        Insert: {
+          additional_fees?: Json | null
+          cargo_type?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          port_id: string
+          rate_per_unit: number
+          service_type: string
+          unit_type: string
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+          vessel_size_category?: string | null
+        }
+        Update: {
+          additional_fees?: Json | null
+          cargo_type?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          port_id?: string
+          rate_per_unit?: number
+          service_type?: string
+          unit_type?: string
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+          vessel_size_category?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "port_tariffs_port_id_fkey"
+            columns: ["port_id"]
+            isOneToOne: false
+            referencedRelation: "ports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ports: {
+        Row: {
+          code: string
+          contact_info: Json | null
+          country: string
+          created_at: string
+          facilities: Json | null
+          id: string
+          location_lat: number
+          location_lng: number
+          name: string
+          operating_hours: Json | null
+          port_type: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          contact_info?: Json | null
+          country: string
+          created_at?: string
+          facilities?: Json | null
+          id?: string
+          location_lat: number
+          location_lng: number
+          name: string
+          operating_hours?: Json | null
+          port_type?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          contact_info?: Json | null
+          country?: string
+          created_at?: string
+          facilities?: Json | null
+          id?: string
+          location_lat?: number
+          location_lng?: number
+          name?: string
+          operating_hours?: Json | null
+          port_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      regulatory_requirements: {
+        Row: {
+          compliance_deadline: string | null
+          created_at: string
+          description: string
+          documentation_required: Json | null
+          fees_eur: number | null
+          id: string
+          mandatory: boolean | null
+          port_id: string
+          requirement_type: string
+          updated_at: string
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          compliance_deadline?: string | null
+          created_at?: string
+          description: string
+          documentation_required?: Json | null
+          fees_eur?: number | null
+          id?: string
+          mandatory?: boolean | null
+          port_id: string
+          requirement_type: string
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          compliance_deadline?: string | null
+          created_at?: string
+          description?: string
+          documentation_required?: Json | null
+          fees_eur?: number | null
+          id?: string
+          mandatory?: boolean | null
+          port_id?: string
+          requirement_type?: string
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "regulatory_requirements_port_id_fkey"
+            columns: ["port_id"]
+            isOneToOne: false
+            referencedRelation: "ports"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sanctions_lists: {
         Row: {

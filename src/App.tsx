@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import EutrophicationReports from "./pages/EutrophicationReports";
 import ShadowFleetTracker from "./pages/ShadowFleetTracker";
 import IntegratedIntelligence from "./pages/IntegratedIntelligence";
+import PortAgent from "./pages/PortAgent";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/eutrophication" element={<EutrophicationReports />} />
           <Route path="/shadow-fleet" element={<ShadowFleetTracker />} />
           <Route path="/intelligence" element={<IntegratedIntelligence />} />
+          <Route path="/port-agent" element={<PortAgent />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
