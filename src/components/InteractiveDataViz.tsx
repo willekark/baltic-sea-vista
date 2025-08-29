@@ -90,115 +90,207 @@ const nodeTypes = {
 const InteractiveDataViz: React.FC<DataFlowProps> = ({ marineData }) => {
   const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
 
-  // Create nodes from marine data
+  // Create comprehensive nodes reflecting our full data pipeline
   const initialNodes: Node[] = useMemo(() => [
-    // Data Sources (Left column)
+    // Data Sources (Left column) - Expanded to show all our sources
     {
       id: 'copernicus',
       type: 'dataSource',
-      position: { x: 50, y: 50 },
+      position: { x: 50, y: 20 },
       data: { 
         label: 'Copernicus',
-        description: 'Satellite data'
+        description: 'Satellite imagery & marine data'
       }
     },
     {
       id: 'helcom',
       type: 'dataSource', 
-      position: { x: 50, y: 130 },
+      position: { x: 50, y: 90 },
       data: { 
         label: 'HELCOM',
-        description: 'Baltic monitoring'
+        description: 'Baltic environmental monitoring'
       }
     },
     {
       id: 'ais',
       type: 'dataSource',
-      position: { x: 50, y: 210 },
+      position: { x: 50, y: 160 },
       data: { 
-        label: 'AIS Shipping',
-        description: 'Vessel tracking'
+        label: 'AIS Network',
+        description: 'Real-time vessel tracking'
+      }
+    },
+    {
+      id: 'satellite',
+      type: 'dataSource',
+      position: { x: 50, y: 230 },
+      data: { 
+        label: 'Satellite Intel',
+        description: 'Shadow fleet detection'
+      }
+    },
+    {
+      id: 'ports',
+      type: 'dataSource',
+      position: { x: 50, y: 300 },
+      data: { 
+        label: 'Port Systems',
+        description: 'Berth & congestion data'
+      }
+    },
+    {
+      id: 'market',
+      type: 'dataSource',
+      position: { x: 50, y: 370 },
+      data: { 
+        label: 'Market Data',
+        description: 'Cargo flows & rates'
       }
     },
 
-    // Processing Hub (Center)
+    // Processing Engines (Center column) - Multiple specialized processors
     {
-      id: 'processor',
+      id: 'environmental-processor',
       type: 'processor',
-      position: { x: 300, y: 140 },
+      position: { x: 280, y: 80 },
       data: { 
-        label: 'Analytics Engine',
-        metrics: marineData.length
+        label: 'Environmental Engine',
+        metrics: '12 metrics'
+      }
+    },
+    {
+      id: 'maritime-processor',
+      type: 'processor',
+      position: { x: 280, y: 180 },
+      data: { 
+        label: 'Maritime Intelligence',
+        metrics: '8 analytics'
+      }
+    },
+    {
+      id: 'risk-processor',
+      type: 'processor',
+      position: { x: 280, y: 280 },
+      data: { 
+        label: 'Risk Assessment',
+        metrics: '6 indicators'
       }
     },
 
-    // Metrics (Right column)
+    // Output Categories (Right column) - Comprehensive outputs
     {
-      id: 'oxygen',
+      id: 'water-quality',
       type: 'metric',
-      position: { x: 550, y: 50 },
+      position: { x: 520, y: 20 },
       data: { 
-        label: 'Oxygen',
-        value: marineData.find(m => m.title === 'Oxygen Levels')?.value || '7.2 mg/L'
+        label: 'Water Quality',
+        value: '7.2 mg/L O₂'
       }
     },
     {
-      id: 'temperature',
+      id: 'environmental',
       type: 'metric',
-      position: { x: 550, y: 120 },
+      position: { x: 520, y: 80 },
       data: { 
-        label: 'Temperature',
-        value: marineData.find(m => m.title === 'Sea Temperature')?.value || '14.8°C'
+        label: 'Environmental',
+        value: '14.8°C SST'
       }
     },
     {
-      id: 'shipping',
+      id: 'shipping-intel',
       type: 'metric',
-      position: { x: 550, y: 190 },
+      position: { x: 520, y: 140 },
       data: { 
-        label: 'Shipping',
-        value: marineData.find(m => m.title === 'Shipping Intensity')?.value || '2,847'
+        label: 'Shipping Intel',
+        value: '2,847 vessels'
       }
     },
     {
-      id: 'fish',
+      id: 'cargo-flows',
       type: 'metric',
-      position: { x: 550, y: 260 },
+      position: { x: 520, y: 200 },
       data: { 
-        label: 'Fish Stock',
-        value: marineData.find(m => m.title === 'Fish Stock Index')?.value || '0.67'
+        label: 'Cargo Flows',
+        value: '€127M revenue'
+      }
+    },
+    {
+      id: 'shadow-fleet',
+      type: 'metric',
+      position: { x: 520, y: 260 },
+      data: { 
+        label: 'Shadow Fleet',
+        value: '23 flagged'
+      }
+    },
+    {
+      id: 'port-efficiency',
+      type: 'metric',
+      position: { x: 520, y: 320 },
+      data: { 
+        label: 'Port Efficiency',
+        value: '87% capacity'
       }
     },
 
-    // AI Analysis (Far right)
+    // AI & Premium Services (Far right)
     {
-      id: 'ai-analysis',
+      id: 'ai-insights',
       type: 'ai',
-      position: { x: 750, y: 155 },
+      position: { x: 760, y: 120 },
       data: { 
-        label: 'AI Insights',
+        label: 'AI Predictions',
         confidence: '94%'
+      }
+    },
+    {
+      id: 'premium-reports',
+      type: 'ai',
+      position: { x: 760, y: 200 },
+      data: { 
+        label: 'Premium Reports',
+        confidence: '€49/month'
+      }
+    },
+    {
+      id: 'alerts',
+      type: 'ai',
+      position: { x: 760, y: 280 },
+      data: { 
+        label: 'Real-time Alerts',
+        confidence: 'Live'
       }
     }
   ], [marineData]);
 
   const initialEdges: Edge[] = [
-    // Data sources to processor
-    { id: 'e1', source: 'copernicus', target: 'processor', animated: true, style: { stroke: '#3b82f6' } },
-    { id: 'e2', source: 'helcom', target: 'processor', animated: true, style: { stroke: '#3b82f6' } },
-    { id: 'e3', source: 'ais', target: 'processor', animated: true, style: { stroke: '#3b82f6' } },
+    // Data sources to specialized processors
+    { id: 'e1', source: 'copernicus', target: 'environmental-processor', animated: true, style: { stroke: '#3b82f6' } },
+    { id: 'e2', source: 'helcom', target: 'environmental-processor', animated: true, style: { stroke: '#3b82f6' } },
+    { id: 'e3', source: 'ais', target: 'maritime-processor', animated: true, style: { stroke: '#3b82f6' } },
+    { id: 'e4', source: 'satellite', target: 'risk-processor', animated: true, style: { stroke: '#3b82f6' } },
+    { id: 'e5', source: 'ports', target: 'maritime-processor', animated: true, style: { stroke: '#3b82f6' } },
+    { id: 'e6', source: 'market', target: 'maritime-processor', animated: true, style: { stroke: '#3b82f6' } },
     
-    // Processor to metrics
-    { id: 'e4', source: 'processor', target: 'oxygen', style: { stroke: '#10b981' } },
-    { id: 'e5', source: 'processor', target: 'temperature', style: { stroke: '#10b981' } },
-    { id: 'e6', source: 'processor', target: 'shipping', style: { stroke: '#10b981' } },
-    { id: 'e7', source: 'processor', target: 'fish', style: { stroke: '#10b981' } },
+    // Cross-processor connections
+    { id: 'e7', source: 'environmental-processor', target: 'risk-processor', style: { stroke: '#10b981', strokeDasharray: '5,5' } },
+    { id: 'e8', source: 'maritime-processor', target: 'risk-processor', style: { stroke: '#10b981', strokeDasharray: '5,5' } },
     
-    // Metrics to AI
-    { id: 'e8', source: 'oxygen', target: 'ai-analysis', style: { stroke: '#8b5cf6' } },
-    { id: 'e9', source: 'temperature', target: 'ai-analysis', style: { stroke: '#8b5cf6' } },
-    { id: 'e10', source: 'shipping', target: 'ai-analysis', style: { stroke: '#8b5cf6' } },
-    { id: 'e11', source: 'fish', target: 'ai-analysis', style: { stroke: '#8b5cf6' } },
+    // Processors to specific outputs
+    { id: 'e9', source: 'environmental-processor', target: 'water-quality', style: { stroke: '#10b981' } },
+    { id: 'e10', source: 'environmental-processor', target: 'environmental', style: { stroke: '#10b981' } },
+    { id: 'e11', source: 'maritime-processor', target: 'shipping-intel', style: { stroke: '#10b981' } },
+    { id: 'e12', source: 'maritime-processor', target: 'cargo-flows', style: { stroke: '#10b981' } },
+    { id: 'e13', source: 'maritime-processor', target: 'port-efficiency', style: { stroke: '#10b981' } },
+    { id: 'e14', source: 'risk-processor', target: 'shadow-fleet', style: { stroke: '#10b981' } },
+    
+    // Outputs to AI/Premium services
+    { id: 'e15', source: 'water-quality', target: 'ai-insights', style: { stroke: '#8b5cf6' } },
+    { id: 'e16', source: 'environmental', target: 'ai-insights', style: { stroke: '#8b5cf6' } },
+    { id: 'e17', source: 'shipping-intel', target: 'premium-reports', style: { stroke: '#f59e0b' } },
+    { id: 'e18', source: 'cargo-flows', target: 'premium-reports', style: { stroke: '#f59e0b' } },
+    { id: 'e19', source: 'shadow-fleet', target: 'alerts', style: { stroke: '#ef4444' } },
+    { id: 'e20', source: 'port-efficiency', target: 'alerts', style: { stroke: '#ef4444' } },
   ];
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -233,7 +325,7 @@ const InteractiveDataViz: React.FC<DataFlowProps> = ({ marineData }) => {
           Data Flow Pipeline Visualization
         </CardTitle>
         <p className="text-sm text-gray-600">
-          This diagram shows how your Baltic Sea data flows from collection sources through processing to analysis. Click any node to see details.
+          Our comprehensive maritime intelligence platform processes data from 6+ sources through specialized AI engines to deliver environmental monitoring, shipping intelligence, and risk assessment services.
         </p>
       </CardHeader>
       <CardContent>
@@ -281,19 +373,27 @@ const InteractiveDataViz: React.FC<DataFlowProps> = ({ marineData }) => {
             <div className="flex flex-wrap gap-2">
               <Badge variant="outline">
                 <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                Data Sources
+                Data Sources (6)
               </Badge>
               <Badge variant="outline">
                 <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                Processing
+                AI Processors (3)
               </Badge>
               <Badge variant="outline">
                 <div className="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
-                Metrics
+                Intelligence Outputs (6)
               </Badge>
               <Badge variant="outline">
                 <div className="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
-                AI Analysis
+                Premium Services
+              </Badge>
+              <Badge variant="outline">
+                <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                Revenue Streams
+              </Badge>
+              <Badge variant="outline">
+                <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                Critical Alerts
               </Badge>
             </div>
           </TabsContent>
