@@ -18,8 +18,8 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-6 text-center text-white">
         <div className="flex items-center justify-center gap-2 mb-6">
-          <Database className="w-8 h-8 text-accent" />
-          <span className="text-xl font-semibold text-accent">Baltic Intelligence Platform</span>
+          <Database className="w-8 h-8 text-primary" />
+          <span className="text-xl font-semibold text-primary">Baltic Intelligence Platform</span>
         </div>
         
         <h1 className="text-5xl md:text-7xl font-bold mb-8 leading-tight">
@@ -71,18 +71,18 @@ const Hero = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
           <div className="bg-card/20 backdrop-blur-sm rounded-xl p-6 border border-primary/20 hover:shadow-tech transition-all duration-300 hover:scale-105">
             <BarChart className="w-12 h-12 text-primary mb-4 mx-auto" />
-            <h3 className="text-xl font-semibold mb-2 text-accent">Real-Time Analytics</h3>
-            <p className="text-muted-foreground">Advanced visualization of maritime parameters and environmental indicators</p>
+            <h3 className="text-xl font-semibold mb-2 text-primary">Real-Time Analytics</h3>
+            <p className="text-foreground/80">Advanced visualization of maritime parameters and environmental indicators</p>
           </div>
           <div className="bg-card/20 backdrop-blur-sm rounded-xl p-6 border border-primary/20 hover:shadow-tech transition-all duration-300 hover:scale-105">
             <Database className="w-12 h-12 text-primary mb-4 mx-auto" />
-            <h3 className="text-xl font-semibold mb-2 text-accent">Integrated Intelligence</h3>
-            <p className="text-muted-foreground">Unified platform for AIS tracking, environmental data, and security analysis</p>
+            <h3 className="text-xl font-semibold mb-2 text-primary">Integrated Intelligence</h3>
+            <p className="text-foreground/80">Unified platform for AIS tracking, environmental data, and security analysis</p>
           </div>
           <div className="bg-card/20 backdrop-blur-sm rounded-xl p-6 border border-primary/20 hover:shadow-tech transition-all duration-300 hover:scale-105">
             <Map className="w-12 h-12 text-primary mb-4 mx-auto" />
-            <h3 className="text-xl font-semibold mb-2 text-accent">AI-Powered Insights</h3>
-            <p className="text-muted-foreground">Predictive analytics, threat detection, and strategic decision support</p>
+            <h3 className="text-xl font-semibold mb-2 text-primary">AI-Powered Insights</h3>
+            <p className="text-foreground/80">Predictive analytics, threat detection, and strategic decision support</p>
           </div>
         </div>
       </div>
