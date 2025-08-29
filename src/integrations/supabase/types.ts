@@ -399,6 +399,60 @@ export type Database = {
         }
         Relationships: []
       }
+      commissions: {
+        Row: {
+          commission_amount_eur: number
+          commission_percentage: number
+          contract_id: string
+          contract_value_eur: number
+          created_at: string
+          id: string
+          payment_status: string
+          stripe_payment_intent_id: string | null
+          updated_at: string
+          winning_bid_id: string
+        }
+        Insert: {
+          commission_amount_eur: number
+          commission_percentage?: number
+          contract_id: string
+          contract_value_eur: number
+          created_at?: string
+          id?: string
+          payment_status?: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+          winning_bid_id: string
+        }
+        Update: {
+          commission_amount_eur?: number
+          commission_percentage?: number
+          contract_id?: string
+          contract_value_eur?: number
+          created_at?: string
+          id?: string
+          payment_status?: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+          winning_bid_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commissions_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contract_bidding_opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_winning_bid_id_fkey"
+            columns: ["winning_bid_id"]
+            isOneToOne: false
+            referencedRelation: "contract_bids"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contract_bidding_opportunities: {
         Row: {
           bid_deadline: string
@@ -491,6 +545,47 @@ export type Database = {
           win_probability?: number | null
         }
         Relationships: []
+      }
+      contract_bids: {
+        Row: {
+          bid_amount_eur: number
+          bid_message: string | null
+          bidder_id: string
+          contract_id: string
+          id: string
+          status: string
+          submitted_at: string
+          updated_at: string
+        }
+        Insert: {
+          bid_amount_eur: number
+          bid_message?: string | null
+          bidder_id: string
+          contract_id: string
+          id?: string
+          status?: string
+          submitted_at?: string
+          updated_at?: string
+        }
+        Update: {
+          bid_amount_eur?: number
+          bid_message?: string | null
+          bidder_id?: string
+          contract_id?: string
+          id?: string
+          status?: string
+          submitted_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_bids_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contract_bidding_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       data_summaries: {
         Row: {
@@ -1041,6 +1136,30 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          company_name: string | null
+          contact_email: string | null
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          company_name?: string | null
+          contact_email?: string | null
+          created_at?: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          company_name?: string | null
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       regulatory_requirements: {
         Row: {
           compliance_deadline: string | null
@@ -1445,6 +1564,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       vessels: {
         Row: {
           built_year: number | null
@@ -1689,10 +1829,16 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "bidder" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1819,6 +1965,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["bidder", "admin"],
+    },
   },
 } as const
