@@ -40,6 +40,8 @@ interface MetricCardProps {
   icon: React.ComponentType<any>;
   color?: 'primary' | 'success' | 'warning' | 'destructive' | 'accent';
   subtitle?: string;
+  description?: string;
+  timeframe?: string;
 }
 
 interface ExecutiveSummaryProps {
@@ -50,6 +52,8 @@ interface ExecutiveSummaryProps {
     value: string | number;
     change?: number;
     icon: React.ComponentType<any>;
+    description?: string;
+    timeframe?: string;
   }>;
   criticalFindings: string[];
   confidenceLevel?: number;
@@ -106,7 +110,9 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   trend = 'neutral', 
   icon: Icon, 
   color = 'primary',
-  subtitle 
+  subtitle,
+  description,
+  timeframe
 }) => {
   const colorClasses = {
     primary: 'border-primary/30 bg-primary/5 text-primary',
@@ -124,7 +130,15 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2 flex-1">
-            <p className="text-sm font-medium opacity-80 uppercase tracking-wide">{title}</p>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium opacity-80 uppercase tracking-wide">{title}</p>
+              {timeframe && (
+                <Badge variant="outline" className="text-xs px-2 py-1">
+                  <Clock className="w-3 h-3 mr-1" />
+                  {timeframe}
+                </Badge>
+              )}
+            </div>
             <div className="flex items-baseline space-x-2">
               <span className="text-3xl font-bold tracking-tight">{value}</span>
               {change && TrendIcon && (
@@ -138,6 +152,14 @@ export const MetricCard: React.FC<MetricCardProps> = ({
             </div>
             {subtitle && (
               <p className="text-xs opacity-70">{subtitle}</p>
+            )}
+            {description && (
+              <details className="text-xs opacity-60 cursor-pointer">
+                <summary className="hover:opacity-80 font-medium">Calculation Details</summary>
+                <p className="mt-2 text-xs leading-relaxed border-l-2 border-primary/20 pl-2 ml-1">
+                  {description}
+                </p>
+              </details>
             )}
           </div>
           <div className="ml-4">
@@ -273,6 +295,8 @@ export const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({
               change={metric.change}
               icon={metric.icon}
               color="primary"
+              description={metric.description}
+              timeframe={metric.timeframe}
             />
           ))}
         </div>
@@ -328,6 +352,7 @@ export const FinancialDashboard: React.FC<{
     value: string;
     change?: number;
     trend?: 'up' | 'down' | 'neutral';
+    description?: string;
   }>;
 }> = ({ metrics }) => {
   return (
@@ -341,15 +366,24 @@ export const FinancialDashboard: React.FC<{
       <CardContent>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           {metrics.map((metric, index) => (
-            <MetricCard
-              key={index}
-              title={metric.label}
-              value={metric.value}
-              change={metric.change}
-              trend={metric.trend}
-              icon={DollarSign}
-              color="success"
-            />
+            <div key={index} className="space-y-2">
+              <MetricCard
+                title={metric.label}
+                value={metric.value}
+                change={metric.change}
+                trend={metric.trend}
+                icon={DollarSign}
+                color="success"
+              />
+              {metric.description && (
+                <div className="bg-white/60 dark:bg-slate-800/60 p-3 rounded-lg border border-success/20">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    <span className="font-medium text-success">Calculation: </span>
+                    {metric.description}
+                  </p>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </CardContent>
