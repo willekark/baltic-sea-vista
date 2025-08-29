@@ -281,8 +281,8 @@ export const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Overview */}
-        <div className="bg-white/50 dark:bg-slate-800/50 p-6 rounded-lg border border-primary/10">
-          <p className="text-base leading-relaxed">{overview}</p>
+        <div className="bg-card/80 backdrop-blur-sm p-6 rounded-lg border border-border">
+          <p className="text-base leading-relaxed text-foreground">{overview}</p>
         </div>
         
         {/* Key metrics grid */}
@@ -376,7 +376,7 @@ export const FinancialDashboard: React.FC<{
                 color="success"
               />
               {metric.description && (
-                <div className="bg-white/60 dark:bg-slate-800/60 p-3 rounded-lg border border-success/20">
+                <div className="bg-card/80 backdrop-blur-sm p-3 rounded-lg border border-border">
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     <span className="font-medium text-success">Calculation: </span>
                     {metric.description}
@@ -420,14 +420,14 @@ export const RiskMatrix: React.FC<{
       </CardHeader>
       <CardContent className="space-y-4">
         {risks.map((risk, index) => (
-          <div key={index} className="bg-white/60 dark:bg-slate-800/60 p-4 rounded-lg border-l-4 border-destructive/30">
+          <div key={index} className="bg-card/80 backdrop-blur-sm p-4 rounded-lg border-l-4 border-destructive/30">
             <div className="flex items-start justify-between mb-2">
-              <h4 className="font-semibold text-base">{risk.category}</h4>
+              <h4 className="font-semibold text-base text-foreground">{risk.category}</h4>
               <Badge 
                 variant={getRiskColor(risk.level) === 'success' ? 'secondary' : 'destructive'}
-                className={`${getRiskColor(risk.level) === 'success' ? 'bg-success/20 text-success' : 
-                           getRiskColor(risk.level) === 'warning' ? 'bg-warning/20 text-warning' : 
-                           'bg-destructive/20 text-destructive'}`}
+                className={`${getRiskColor(risk.level) === 'success' ? 'bg-success/20 text-success-foreground' : 
+                           getRiskColor(risk.level) === 'warning' ? 'bg-warning/20 text-warning-foreground' : 
+                           'bg-destructive/20 text-destructive-foreground'}`}
               >
                 {risk.level.toUpperCase()}
               </Badge>
@@ -436,7 +436,7 @@ export const RiskMatrix: React.FC<{
             {risk.mitigation && (
               <div className="text-xs bg-primary/10 p-2 rounded border border-primary/20">
                 <span className="font-medium text-primary">Mitigation: </span>
-                {risk.mitigation}
+                <span className="text-foreground">{risk.mitigation}</span>
               </div>
             )}
           </div>
@@ -473,10 +473,10 @@ export const ImplementationRoadmap: React.FC<{
                 <div className="absolute left-6 top-12 w-0.5 h-16 bg-primary/30" />
               )}
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center text-primary font-bold border-2 border-primary/30 bg-white dark:bg-slate-800">
+                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center text-primary font-bold border-2 border-primary/30 bg-card">
                   {index + 1}
                 </div>
-                <div className="flex-1 bg-white/60 dark:bg-slate-800/60 p-4 rounded-lg border border-primary/20">
+                <div className="flex-1 bg-card/80 backdrop-blur-sm p-4 rounded-lg border border-border">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-lg">{phase.title}</h4>
                     <Badge variant="outline" className="border-primary text-primary">

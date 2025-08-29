@@ -153,13 +153,13 @@ const IntegratedIntelligence = () => {
 
           {/* Tabbed Analysis */}
           <Tabs defaultValue="optimization" className="w-full">
-            <TabsList className="grid w-full grid-cols-6 bg-white/50 dark:bg-slate-800/50">
-              <TabsTrigger value="optimization">Route Optimization</TabsTrigger>
-              <TabsTrigger value="market">Market Intelligence</TabsTrigger>
-              <TabsTrigger value="financial">Financial Impact</TabsTrigger>
-              <TabsTrigger value="arbitrage">Arbitrage Opportunities</TabsTrigger>
-              <TabsTrigger value="contracts">Contract Bidding</TabsTrigger>
-              <TabsTrigger value="implementation">Implementation</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-6 bg-card/80 backdrop-blur-sm border border-border">
+              <TabsTrigger value="optimization" className="text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Route Optimization</TabsTrigger>
+              <TabsTrigger value="market" className="text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Market Intelligence</TabsTrigger>
+              <TabsTrigger value="financial" className="text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Financial Impact</TabsTrigger>
+              <TabsTrigger value="arbitrage" className="text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Arbitrage Opportunities</TabsTrigger>
+              <TabsTrigger value="contracts" className="text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Contract Bidding</TabsTrigger>
+              <TabsTrigger value="implementation" className="text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Implementation</TabsTrigger>
             </TabsList>
 
             <TabsContent value="optimization" className="space-y-6">
@@ -208,9 +208,9 @@ const IntegratedIntelligence = () => {
                 />
               </div>
 
-              <Card className="bg-white/60 dark:bg-slate-800/60">
+              <Card className="bg-card/80 backdrop-blur-sm border border-border">
                 <CardHeader>
-                  <CardTitle className="flex items-center">
+                  <CardTitle className="flex items-center text-foreground">
                     <MapPin className="w-5 h-5 mr-2" />
                     Optimized Route Recommendations
                   </CardTitle>
@@ -219,7 +219,7 @@ const IntegratedIntelligence = () => {
                   {intelligenceData.routeOptimizations?.slice(0, 3).map((route: any, index: number) => (
                     <div key={index} className="p-4 bg-primary/5 rounded-lg border border-primary/20">
                       <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold">{route.route}</h4>
+                        <h4 className="font-semibold text-foreground">{route.route}</h4>
                         <Badge variant="outline" className="text-success border-success">
                           Save €{route.savingsEur?.toLocaleString() || '45,000'}
                         </Badge>
@@ -240,7 +240,7 @@ const IntegratedIntelligence = () => {
                   ].map((route, index) => (
                     <div key={index} className="p-4 bg-primary/5 rounded-lg border border-primary/20">
                       <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold">{route.route}</h4>
+                        <h4 className="font-semibold text-foreground">{route.route}</h4>
                         <Badge variant="outline" className="text-success border-success">
                           Save €{route.savingsEur.toLocaleString()}
                         </Badge>
@@ -301,9 +301,9 @@ const IntegratedIntelligence = () => {
                 />
               </div>
 
-              <Card className="bg-white/60 dark:bg-slate-800/60">
+              <Card className="bg-card/80 backdrop-blur-sm border border-border">
                 <CardHeader>
-                  <CardTitle className="flex items-center">
+                  <CardTitle className="flex items-center text-foreground">
                     <Globe className="w-5 h-5 mr-2" />
                     Strategic Market Insights
                   </CardTitle>
@@ -311,7 +311,7 @@ const IntegratedIntelligence = () => {
                 <CardContent className="space-y-4">
                   {intelligenceData.marketInsights?.map((insight: any, index: number) => (
                     <div key={index} className="p-4 bg-accent/5 rounded-lg border border-accent/20">
-                      <h4 className="font-semibold mb-2">{insight.category}</h4>
+                      <h4 className="font-semibold mb-2 text-foreground">{insight.category}</h4>
                       <p className="text-sm text-muted-foreground">{insight.insight}</p>
                     </div>
                   )) || [
@@ -325,7 +325,7 @@ const IntegratedIntelligence = () => {
                     }
                   ].map((insight, index) => (
                     <div key={index} className="p-4 bg-accent/5 rounded-lg border border-accent/20">
-                      <h4 className="font-semibold mb-2">{insight.category}</h4>
+                      <h4 className="font-semibold mb-2 text-foreground">{insight.category}</h4>
                       <p className="text-sm text-muted-foreground">{insight.insight}</p>
                     </div>
                   ))}
