@@ -526,6 +526,7 @@ function analyzePortEfficiency(routes: any[]) {
   // Analyze port call durations by looking at stationary periods
   const portCalls = [];
   let totalPortTime = 0;
+  let portStays = []; // Move declaration outside the if block
   
   routes.forEach(route => {
     if (route.speed !== undefined && route.speed < 2) { // Likely in port
@@ -539,7 +540,6 @@ function analyzePortEfficiency(routes: any[]) {
   if (portCalls.length > 0) {
     // Group consecutive low-speed positions to estimate port stays
     let currentPortStay = null;
-    const portStays = [];
     
     portCalls.forEach(call => {
       if (!currentPortStay) {
@@ -562,7 +562,7 @@ function analyzePortEfficiency(routes: any[]) {
     }, 0);
   }
 
-  const averagePortTime = portCalls.length > 0 ? totalPortTime / portStays.length : 24;
+  const averagePortTime = portCalls.length > 0 && portStays.length > 0 ? totalPortTime / portStays.length : 24;
   const efficiency = Math.max(0, Math.min(1, 1 - (averagePortTime - 12) / 36)); // 12h optimal, 48h worst case
   
   const recommendations = [];
