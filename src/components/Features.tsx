@@ -11,7 +11,8 @@ import {
   Users,
   Building,
   Landmark,
-  Download
+  Download,
+  Anchor
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -23,6 +24,14 @@ const Features = () => {
       description: "Real-time visualization of key marine indicators including oxygen levels, temperature, algal blooms, fish stocks, and shipping intensity.",
       highlights: ["Live monitoring", "Multi-layer visualization", "Custom alerts"],
       gradient: "bg-gradient-ocean"
+    },
+    {
+      icon: Anchor,
+      title: "Port Agent Services",
+      description: "Comprehensive port management platform for Baltic operations including cost analysis, berth availability, and route optimization.",
+      highlights: ["Port cost analysis", "Berth availability", "Route optimization"],
+      gradient: "bg-gradient-surface",
+      action: "port-agent"
     },
     {
       icon: FileText,
@@ -130,6 +139,12 @@ const Features = () => {
                         Trial Report
                       </Button>
                     </div>
+                  ) : feature.action === "port-agent" ? (
+                    <Button asChild variant="ghost" className="group-hover:text-accent transition-colors hover:bg-primary/10">
+                      <Link to="/port-agent">
+                        Port Agent Services <ArrowRight className="ml-2 w-4 h-4" />
+                      </Link>
+                    </Button>
                   ) : (
                     <Button variant="ghost" className="group-hover:text-accent transition-colors hover:bg-primary/10">
                       Explore Feature <ArrowRight className="ml-2 w-4 h-4" />
