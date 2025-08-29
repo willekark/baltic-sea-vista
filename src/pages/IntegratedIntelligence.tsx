@@ -27,6 +27,7 @@ import {
   RiskMatrix,
   ImplementationRoadmap 
 } from '@/components/ReportTemplate';
+import ArbitrageOpportunities from '@/components/ArbitrageOpportunities';
 import { supabase } from '@/integrations/supabase/client';
 
 const IntegratedIntelligence = () => {
@@ -125,10 +126,11 @@ const IntegratedIntelligence = () => {
 
           {/* Tabbed Analysis */}
           <Tabs defaultValue="optimization" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-white/50 dark:bg-slate-800/50">
+            <TabsList className="grid w-full grid-cols-5 bg-white/50 dark:bg-slate-800/50">
               <TabsTrigger value="optimization">Route Optimization</TabsTrigger>
               <TabsTrigger value="market">Market Intelligence</TabsTrigger>
               <TabsTrigger value="financial">Financial Impact</TabsTrigger>
+              <TabsTrigger value="arbitrage">Arbitrage Opportunities</TabsTrigger>
               <TabsTrigger value="implementation">Implementation</TabsTrigger>
             </TabsList>
 
@@ -370,6 +372,17 @@ const IntegratedIntelligence = () => {
                   }
                 ]}
               />
+            </TabsContent>
+
+            <TabsContent value="arbitrage" className="space-y-6">
+              <SectionHeader
+                title="Arbitrage Opportunities"
+                subtitle="Profit optimization through market inefficiencies"
+                icon={TrendingUp}
+                number={5}
+              />
+              
+              <ArbitrageOpportunities />
             </TabsContent>
           </Tabs>
 

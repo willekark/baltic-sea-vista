@@ -88,6 +88,120 @@ export type Database = {
           },
         ]
       }
+      arbitrage_opportunities: {
+        Row: {
+          affected_regions: string[] | null
+          alternative_route: string | null
+          arbitrage_rate_per_ton: number | null
+          carbon_cost_savings_eur: number | null
+          confidence_level: number | null
+          created_at: string
+          current_rate_per_ton: number | null
+          data_sources: string[] | null
+          description: string | null
+          destination_port: string | null
+          fuel_cost_difference_per_tonne: number | null
+          ice_class_required: boolean | null
+          id: string
+          implementation_complexity: string | null
+          market_data: Json | null
+          max_vessel_size_dwt: number | null
+          min_vessel_size_dwt: number | null
+          mitigation_strategies: string[] | null
+          opportunity_type: string
+          origin_port: string | null
+          potential_revenue_eur: number | null
+          potential_savings_eur: number | null
+          probability_score: number | null
+          regulatory_factors: Json | null
+          risk_factors: string[] | null
+          risk_level: string | null
+          seasonal_factor: number | null
+          status: string | null
+          time_sensitivity: string | null
+          title: string
+          updated_at: string
+          valid_from: string | null
+          valid_until: string | null
+          vessel_type_required: string | null
+          weather_factors: Json | null
+        }
+        Insert: {
+          affected_regions?: string[] | null
+          alternative_route?: string | null
+          arbitrage_rate_per_ton?: number | null
+          carbon_cost_savings_eur?: number | null
+          confidence_level?: number | null
+          created_at?: string
+          current_rate_per_ton?: number | null
+          data_sources?: string[] | null
+          description?: string | null
+          destination_port?: string | null
+          fuel_cost_difference_per_tonne?: number | null
+          ice_class_required?: boolean | null
+          id?: string
+          implementation_complexity?: string | null
+          market_data?: Json | null
+          max_vessel_size_dwt?: number | null
+          min_vessel_size_dwt?: number | null
+          mitigation_strategies?: string[] | null
+          opportunity_type: string
+          origin_port?: string | null
+          potential_revenue_eur?: number | null
+          potential_savings_eur?: number | null
+          probability_score?: number | null
+          regulatory_factors?: Json | null
+          risk_factors?: string[] | null
+          risk_level?: string | null
+          seasonal_factor?: number | null
+          status?: string | null
+          time_sensitivity?: string | null
+          title: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+          vessel_type_required?: string | null
+          weather_factors?: Json | null
+        }
+        Update: {
+          affected_regions?: string[] | null
+          alternative_route?: string | null
+          arbitrage_rate_per_ton?: number | null
+          carbon_cost_savings_eur?: number | null
+          confidence_level?: number | null
+          created_at?: string
+          current_rate_per_ton?: number | null
+          data_sources?: string[] | null
+          description?: string | null
+          destination_port?: string | null
+          fuel_cost_difference_per_tonne?: number | null
+          ice_class_required?: boolean | null
+          id?: string
+          implementation_complexity?: string | null
+          market_data?: Json | null
+          max_vessel_size_dwt?: number | null
+          min_vessel_size_dwt?: number | null
+          mitigation_strategies?: string[] | null
+          opportunity_type?: string
+          origin_port?: string | null
+          potential_revenue_eur?: number | null
+          potential_savings_eur?: number | null
+          probability_score?: number | null
+          regulatory_factors?: Json | null
+          risk_factors?: string[] | null
+          risk_level?: string | null
+          seasonal_factor?: number | null
+          status?: string | null
+          time_sensitivity?: string | null
+          title?: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+          vessel_type_required?: string | null
+          weather_factors?: Json | null
+        }
+        Relationships: []
+      }
       cargo_flows: {
         Row: {
           cargo_subtype: string | null
@@ -475,6 +589,54 @@ export type Database = {
         }
         Relationships: []
       }
+      fuel_prices: {
+        Row: {
+          availability: string | null
+          created_at: string
+          currency: string | null
+          delivery_time_hours: number | null
+          fuel_type: string
+          id: string
+          minimum_quantity_tonnes: number | null
+          port_country: string
+          port_name: string
+          price_date: string
+          price_per_tonne: number
+          source: string
+          supplier: string | null
+        }
+        Insert: {
+          availability?: string | null
+          created_at?: string
+          currency?: string | null
+          delivery_time_hours?: number | null
+          fuel_type: string
+          id?: string
+          minimum_quantity_tonnes?: number | null
+          port_country: string
+          port_name: string
+          price_date: string
+          price_per_tonne: number
+          source: string
+          supplier?: string | null
+        }
+        Update: {
+          availability?: string | null
+          created_at?: string
+          currency?: string | null
+          delivery_time_hours?: number | null
+          fuel_type?: string
+          id?: string
+          minimum_quantity_tonnes?: number | null
+          port_country?: string
+          port_name?: string
+          price_date?: string
+          price_per_tonne?: number
+          source?: string
+          supplier?: string | null
+        }
+        Relationships: []
+      }
       port_calls: {
         Row: {
           actual_cargo: string | null
@@ -527,6 +689,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      port_congestion: {
+        Row: {
+          average_waiting_time_hours: number | null
+          berth_availability_percent: number | null
+          congestion_level: string
+          congestion_reason: string | null
+          created_at: string
+          estimated_delay_hours: number | null
+          forecast_next_24h: string | null
+          id: string
+          industrial_action: boolean | null
+          infrastructure_issues: boolean | null
+          port_country: string
+          port_name: string
+          source: string
+          timestamp: string
+          vessels_waiting: number | null
+          weather_factor: boolean | null
+        }
+        Insert: {
+          average_waiting_time_hours?: number | null
+          berth_availability_percent?: number | null
+          congestion_level: string
+          congestion_reason?: string | null
+          created_at?: string
+          estimated_delay_hours?: number | null
+          forecast_next_24h?: string | null
+          id?: string
+          industrial_action?: boolean | null
+          infrastructure_issues?: boolean | null
+          port_country: string
+          port_name: string
+          source: string
+          timestamp: string
+          vessels_waiting?: number | null
+          weather_factor?: boolean | null
+        }
+        Update: {
+          average_waiting_time_hours?: number | null
+          berth_availability_percent?: number | null
+          congestion_level?: string
+          congestion_reason?: string | null
+          created_at?: string
+          estimated_delay_hours?: number | null
+          forecast_next_24h?: string | null
+          id?: string
+          industrial_action?: boolean | null
+          infrastructure_issues?: boolean | null
+          port_country?: string
+          port_name?: string
+          source?: string
+          timestamp?: string
+          vessels_waiting?: number | null
+          weather_factor?: boolean | null
+        }
+        Relationships: []
       }
       sanctions_lists: {
         Row: {
