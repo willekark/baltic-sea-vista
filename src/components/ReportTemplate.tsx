@@ -131,16 +131,16 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         <div className="flex items-start justify-between">
           <div className="space-y-2 flex-1">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium opacity-80 uppercase tracking-wide">{title}</p>
+              <p className="text-sm font-medium text-foreground opacity-80 uppercase tracking-wide">{title}</p>
               {timeframe && (
-                <Badge variant="outline" className="text-xs px-2 py-1">
+                <Badge variant="outline" className="text-xs px-2 py-1 text-foreground border-foreground/20">
                   <Clock className="w-3 h-3 mr-1" />
                   {timeframe}
                 </Badge>
               )}
             </div>
             <div className="flex items-baseline space-x-2">
-              <span className="text-3xl font-bold tracking-tight">{value}</span>
+              <span className="text-3xl font-bold tracking-tight text-foreground">{value}</span>
               {change && TrendIcon && (
                 <div className={`flex items-center text-sm font-medium ${
                   trend === 'up' ? 'text-success' : trend === 'down' ? 'text-destructive' : 'text-muted-foreground'
@@ -151,19 +151,19 @@ export const MetricCard: React.FC<MetricCardProps> = ({
               )}
             </div>
             {subtitle && (
-              <p className="text-xs opacity-70">{subtitle}</p>
+              <p className="text-xs text-foreground opacity-70">{subtitle}</p>
             )}
             {description && (
-              <details className="text-xs opacity-60 cursor-pointer">
+              <details className="text-xs text-foreground opacity-60 cursor-pointer">
                 <summary className="hover:opacity-80 font-medium">Calculation Details</summary>
-                <p className="mt-2 text-xs leading-relaxed border-l-2 border-primary/20 pl-2 ml-1">
+                <p className="mt-2 text-xs leading-relaxed border-l-2 border-primary/20 pl-2 ml-1 text-foreground">
                   {description}
                 </p>
               </details>
             )}
           </div>
           <div className="ml-4">
-            <Icon className="w-8 h-8 opacity-80" />
+            <Icon className="w-8 h-8 text-foreground opacity-80" />
           </div>
         </div>
       </CardContent>
