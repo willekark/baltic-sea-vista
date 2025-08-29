@@ -239,7 +239,7 @@ Keep the analysis scientific but accessible, focusing on actionable insights.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-5-mini-2025-08-07',
         messages: [
           {
             role: 'system',
@@ -250,8 +250,7 @@ Keep the analysis scientific but accessible, focusing on actionable insights.`;
             content: prompt
           }
         ],
-        max_tokens: 1000,
-        temperature: 0.7
+        max_completion_tokens: 1000
       }),
     });
 
