@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Ship, 
   TrendingUp, 
@@ -16,7 +17,10 @@ import {
   AlertTriangle,
   Target,
   Waves,
-  Compass
+  Compass,
+  User,
+  LogOut,
+  LogIn
 } from 'lucide-react';
 import { 
   ReportHeader, 
@@ -30,8 +34,12 @@ import {
 import ArbitrageOpportunities from '@/components/ArbitrageOpportunities';
 import ContractBidding from '@/components/ContractBidding';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 const IntegratedIntelligence = () => {
+  const { user, signOut, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [intelligenceData, setIntelligenceData] = useState<any>(null);
 
@@ -59,6 +67,22 @@ const IntegratedIntelligence = () => {
   useEffect(() => {
     generateIntelligence();
   }, []);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center">
+              <Compass className="w-12 h-12 mx-auto mb-4 animate-spin text-primary" />
+              <h2 className="text-xl font-semibold text-foreground mb-2">Loading...</h2>
+              <p className="text-muted-foreground">Checking authentication status...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -95,6 +119,50 @@ const IntegratedIntelligence = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* User Navigation Bar */}
+      <div className="bg-card/50 backdrop-blur-sm border-b border-border">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Ship className="w-6 h-6 text-primary" />
+              <span className="font-semibold text-foreground">Maritime Intelligence Platform</span>
+            </div>
+            <div className="flex items-center space-x-4">
+              {user ? (
+                <div className="flex items-center space-x-4">
+                  <Badge variant="outline" className="text-success border-success/50">
+                    <User className="w-3 h-3 mr-1" />
+                    Signed in
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">
+                    {user.email}
+                  </span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={signOut}
+                    className="hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate('/auth')}
+                  className="border-primary/50 text-primary hover:bg-primary/10"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Sign In to Bid
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto">
         {/* Report Header */}
         <ReportHeader

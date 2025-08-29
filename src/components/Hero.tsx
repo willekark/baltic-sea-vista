@@ -63,6 +63,16 @@ const Hero = () => {
             variant="outline" 
             size="lg"
             className="border-primary/30 text-white hover:bg-primary/10 hover:border-primary transition-all duration-300 hover:shadow-glow"
+            onClick={() => navigate('/auth')}
+          >
+            <Anchor className="w-5 h-5 mr-2" />
+            Access Marketplace
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="lg"
+            className="border-primary/30 text-white hover:bg-primary/10 hover:border-primary transition-all duration-300 hover:shadow-glow"
             onClick={() => navigate('/port-agent')}
           >
             <Anchor className="w-5 h-5 mr-2" />

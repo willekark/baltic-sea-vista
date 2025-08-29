@@ -81,3 +81,6 @@ verify_jwt = false
 
 [functions.shipping-route-optimizer]
 verify_jwt = false
+
+[functions.submit-bid]
+verify_jwt = true
