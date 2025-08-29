@@ -33,7 +33,7 @@ const Hero = () => {
           </span>
         </h1>
         
-        <p className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto text-primary-foreground">
+        <p className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto text-foreground">
           Advanced Baltic Sea intelligence platform integrating real-time monitoring, 
           shadow fleet detection, environmental analytics, and AI-powered insights for 
           strategic decision making.
