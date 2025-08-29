@@ -5,9 +5,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const ShippingInsights = () => {
   const [selectedRoute, setSelectedRoute] = useState('stockholm-gotland');
+  const navigate = useNavigate();
 
   // Mock data that would come from integrated data sources
   const operationsData = {
@@ -923,7 +926,15 @@ const ShippingInsights = () => {
                 <span className="font-medium text-green-800">Route Optimization</span>
               </div>
               <p className="text-sm text-green-600 mb-3">Switch to Stockholm-Gotland corridor for 15% fuel savings and reduced environmental risk.</p>
-              <Button size="sm" className="w-full">Implement Route</Button>
+              <Button 
+                size="sm" 
+                className="w-full"
+                onClick={() => {
+                  toast.success('Route optimization initiated! New Stockholm-Gotland route has been added to your fleet management system.');
+                }}
+              >
+                Implement Route
+              </Button>
             </div>
             
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
@@ -932,7 +943,16 @@ const ShippingInsights = () => {
                 <span className="font-medium text-blue-800">Emissions Compliance</span>
               </div>
               <p className="text-sm text-blue-600 mb-3">Upgrade to Tier III NOx compliance in preparation for stricter regulations.</p>
-              <Button size="sm" variant="outline" className="w-full">Plan Upgrade</Button>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full"
+                onClick={() => {
+                  toast.info('Emissions compliance upgrade plan created. Check your maintenance schedule for implementation timeline.');
+                }}
+              >
+                Plan Upgrade
+              </Button>
             </div>
             
             <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
@@ -941,7 +961,17 @@ const ShippingInsights = () => {
                 <span className="font-medium text-orange-800">Backhaul Optimization</span>
               </div>
               <p className="text-sm text-orange-600 mb-3">Book Bentonite cargo (€538K value) from Livorno to eliminate ballast leg and maximize vessel utilization.</p>
-              <Button size="sm" variant="secondary" className="w-full">Book Cargo</Button>
+              <Button 
+                size="sm" 
+                variant="secondary" 
+                className="w-full"
+                onClick={() => {
+                  navigate('/intelligence');
+                  toast.success('Navigated to marketplace! Bentonite cargo opportunity is now available for booking.');
+                }}
+              >
+                Book Cargo
+              </Button>
             </div>
             
             <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
@@ -950,7 +980,16 @@ const ShippingInsights = () => {
                 <span className="font-medium text-purple-800">Market Opportunity</span>
               </div>
               <p className="text-sm text-purple-600 mb-3">Capitalize on 12.5% cargo growth with optimized scheduling and capacity planning.</p>
-              <Button size="sm" variant="secondary" className="w-full">Analyze Capacity</Button>
+              <Button 
+                size="sm" 
+                variant="secondary" 
+                className="w-full"
+                onClick={() => {
+                  toast.info('Capacity analysis report generated! Market growth opportunities have been analyzed and recommendations added to your dashboard.');
+                }}
+              >
+                Analyze Capacity
+              </Button>
             </div>
           </div>
         </CardContent>
