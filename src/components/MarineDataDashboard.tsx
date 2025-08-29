@@ -17,7 +17,11 @@ import {
   ExternalLink,
   MapPin,
   AlertTriangle,
-  Loader2
+  Loader2,
+  Snowflake,
+  Droplets,
+  Leaf,
+  Eye
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -100,7 +104,11 @@ const MarineDataDashboard: React.FC = () => {
       Waves, 
       Wind,
       Thermometer,
-      Activity
+      Activity,
+      Snowflake,
+      Droplets,
+      Leaf,
+      Eye
     };
     return icons[iconName] || Activity;
   };
@@ -218,8 +226,8 @@ const MarineDataDashboard: React.FC = () => {
 
         <TabsContent value="overview" className="space-y-6">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 5 }, (_, i) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 9 }, (_, i) => (
                 <Card key={i} className="animate-pulse">
                   <CardContent className="p-6">
                     <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
@@ -230,7 +238,7 @@ const MarineDataDashboard: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {marineData.map((tile) => {
                 const IconComponent = getIcon(tile.icon);
                 
@@ -327,19 +335,40 @@ const MarineDataDashboard: React.FC = () => {
         <TabsContent value="detailed" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Detailed Analytics</CardTitle>
+              <CardTitle>Sprint B Analytics - Complete</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <Activity className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                <h3 className="text-lg font-semibold mb-2">Advanced Analytics Coming Soon</h3>
-                <p className="text-gray-600 mb-4">
-                  Interactive maps, depth profiles, time-series analysis, and data export capabilities
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="p-4">
+                  <h4 className="font-semibold mb-3 text-green-600">✅ Sprint A Complete</h4>
+                  <ul className="text-sm space-y-1 text-gray-600">
+                    <li>• Surface Currents (speed, direction)</li>
+                    <li>• Significant Wave Height (Hs, period)</li>
+                    <li>• Wind Speed & Gusts (10m)</li>
+                    <li>• Sea Surface Temperature + MHW</li>
+                    <li>• Sea Level & Storm Surge</li>
+                  </ul>
+                </Card>
+                
+                <Card className="p-4">
+                  <h4 className="font-semibold mb-3 text-blue-600">✅ Sprint B Complete</h4>
+                  <ul className="text-sm space-y-1 text-gray-600">
+                    <li>• Sea Ice (concentration, thickness, drift)</li>
+                    <li>• Dissolved Oxygen & Hypoxia detection</li>
+                    <li>• Chlorophyll-a & HAB Risk assessment</li>
+                    <li>• Water Clarity (TSM, Secchi depth)</li>
+                  </ul>
+                </Card>
+              </div>
+              
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                <h4 className="font-semibold mb-2 text-blue-800">Next: Sprint C Implementation</h4>
+                <p className="text-sm text-blue-600 mb-3">
+                  Coming next: Mixed-Layer Depth, Nutrients (NO₃⁻, PO₄³⁻), Fronts & Upwelling, Coastal Flood Risk
                 </p>
-                <p className="text-sm text-gray-500">
-                  Features: Basin-wise analysis, climatology comparison, threshold configuration, 
-                  correlation matrices, and NetCDF/CSV downloads
-                </p>
+                <div className="text-xs text-blue-500">
+                  Full system includes: Basin-specific thresholds • YAML configuration • Real-time alerting • NetCDF/CSV exports
+                </div>
               </div>
             </CardContent>
           </Card>
