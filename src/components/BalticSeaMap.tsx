@@ -4,17 +4,19 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Activity, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import { Activity, AlertTriangle, CheckCircle, XCircle, MapPin, Waves } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useMapboxToken } from "@/hooks/useMapboxToken";
 
 const BalticSeaMap = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState('');
   const [isMapReady, setIsMapReady] = useState(false);
+  const [inputToken, setInputToken] = useState('');
   const { toast } = useToast();
+  const { token, saveToken, isValidToken, isLoading } = useMapboxToken();
 
   // Mock monitoring stations data
   const monitoringStations = [
@@ -29,65 +31,196 @@ const BalticSeaMap = () => {
   ];
 
   const initializeMap = (token: string) => {
-    console.log('initializeMap called with token length:', token.length);
-    
-    if (!mapContainer.current) {
-      console.log('Map container not found');
-      return;
-    }
-    
-    if (map.current) {
-      console.log('Map already exists, skipping initialization');
-      return;
-    }
+    if (!mapContainer.current || map.current) return;
 
-    console.log('Setting Mapbox access token');
     mapboxgl.accessToken = token;
     
-    console.log('Creating new Mapbox map instance');
     try {
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/satellite-streets-v12',
-        center: [18.5, 59.0], // Center on Baltic Sea
-        zoom: 5,
-        pitch: 0,
-        bearing: 0
+        style: 'mapbox://styles/mapbox/dark-v11',
+        center: [18.5, 59.0],
+        zoom: 5.5,
+        pitch: 45,
+        bearing: -15
       });
 
-      console.log('Map instance created successfully');
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
+      // Add atmosphere for 3D effect
+      map.current.on('style.load', () => {
+        if (!map.current) return;
+        
+        map.current.setFog({
+          'color': 'rgb(50, 50, 70)',
+          'high-color': 'rgb(30, 30, 50)',
+          'horizon-blend': 0.4,
+          'space-color': 'rgb(10, 10, 20)',
+          'star-intensity': 0.8
+        });
+      });
+
       map.current.on('load', () => {
-        console.log('Map loaded successfully');
         if (!map.current) return;
 
-        // Add monitoring stations
-        monitoringStations.forEach(station => {
+        // Add animated wave effect layer
+        map.current.addSource('wave-source', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [{
+              type: 'Feature',
+              geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                  [10, 66], [30, 66], [30, 53], [10, 53], [10, 66]
+                ]]
+              },
+              properties: {}
+            }]
+          }
+        });
+
+        map.current.addLayer({
+          id: 'water-animation',
+          type: 'fill',
+          source: 'wave-source',
+          paint: {
+            'fill-color': ['interpolate', ['linear'], ['zoom'],
+              4, 'rgba(0, 100, 200, 0.1)',
+              8, 'rgba(0, 150, 255, 0.2)'
+            ],
+            'fill-opacity': 0.3
+          }
+        });
+
+        // Add monitoring stations with enhanced markers
+        monitoringStations.forEach((station, index) => {
+          const statusColors = {
+            active: '#00ff88',
+            warning: '#ffaa00', 
+            critical: '#ff3344'
+          };
+          
+          const color = statusColors[station.status as keyof typeof statusColors];
+
+          // Create pulsing animation element
           const el = document.createElement('div');
-          el.className = 'monitoring-station';
-          el.style.cssText = `
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 3px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            background-color: ${
-              station.status === 'active' ? '#10b981' :
-              station.status === 'warning' ? '#f59e0b' : '#ef4444'
-            };
+          el.className = 'monitoring-station-enhanced';
+          el.innerHTML = `
+            <div style="
+              position: relative;
+              width: 32px;
+              height: 32px;
+              animation: pulse-${station.status} 2s infinite;
+            ">
+              <div style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 24px;
+                height: 24px;
+                background: ${color};
+                border: 3px solid white;
+                border-radius: 50%;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+                cursor: pointer;
+                z-index: 2;
+              "></div>
+              <div style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 40px;
+                height: 40px;
+                background: ${color};
+                border-radius: 50%;
+                opacity: 0.3;
+                animation: ripple 2s infinite;
+              "></div>
+            </div>
           `;
 
-          const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-            <div style="padding: 8px;">
-              <h3 style="margin: 0 0 8px 0; font-weight: bold;">${station.name}</h3>
-              <p style="margin: 4px 0; font-size: 12px;">Status: <span style="color: ${
-                station.status === 'active' ? '#10b981' :
-                station.status === 'warning' ? '#f59e0b' : '#ef4444'
-              }; font-weight: bold;">${station.status.toUpperCase()}</span></p>
-              <p style="margin: 4px 0; font-size: 12px;">Oxygen: ${station.oxygenLevel} mg/L</p>
-              <p style="margin: 4px 0; font-size: 12px;">Temperature: ${station.temperature}°C</p>
+          // Add CSS animations
+          if (!document.getElementById('map-animations')) {
+            const style = document.createElement('style');
+            style.id = 'map-animations';
+            style.textContent = `
+              @keyframes ripple {
+                0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.6; }
+                100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+              }
+              @keyframes pulse-active {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.7; }
+              }
+              @keyframes pulse-warning {
+                0%, 100% { opacity: 1; }
+                25%, 75% { opacity: 0.5; }
+              }
+              @keyframes pulse-critical {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.3; }
+              }
+            `;
+            document.head.appendChild(style);
+          }
+
+          const popup = new mapboxgl.Popup({ 
+            offset: 25,
+            className: 'custom-popup'
+          }).setHTML(`
+            <div style="
+              padding: 16px; 
+              background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(30,30,30,0.9));
+              border-radius: 12px;
+              border: 2px solid ${color};
+              color: white;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+              min-width: 280px;
+              backdrop-filter: blur(10px);
+            ">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <div style="
+                  width: 16px; 
+                  height: 16px; 
+                  background: ${color}; 
+                  border-radius: 50%;
+                  box-shadow: 0 0 8px ${color};
+                "></div>
+                <h3 style="margin: 0; font-weight: 700; font-size: 18px;">${station.name}</h3>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                <div style="
+                  background: rgba(255,255,255,0.1); 
+                  padding: 8px; 
+                  border-radius: 8px;
+                  text-align: center;
+                ">
+                  <div style="font-size: 12px; opacity: 0.8;">Oxygen Level</div>
+                  <div style="font-size: 16px; font-weight: bold; color: ${color};">${station.oxygenLevel} mg/L</div>
+                </div>
+                <div style="
+                  background: rgba(255,255,255,0.1); 
+                  padding: 8px; 
+                  border-radius: 8px;
+                  text-align: center;
+                ">
+                  <div style="font-size: 12px; opacity: 0.8;">Temperature</div>
+                  <div style="font-size: 16px; font-weight: bold; color: #00aaff;">${station.temperature}°C</div>
+                </div>
+              </div>
+              <div style="
+                padding: 8px; 
+                background: rgba(${color === '#00ff88' ? '0,255,136' : color === '#ffaa00' ? '255,170,0' : '255,51,68'},0.2); 
+                border-radius: 8px;
+                text-align: center;
+                border: 1px solid ${color};
+              ">
+                <div style="font-size: 14px; font-weight: bold; text-transform: uppercase;">${station.status}</div>
+              </div>
             </div>
           `);
 
@@ -95,13 +228,42 @@ const BalticSeaMap = () => {
             .setLngLat([station.lng, station.lat])
             .setPopup(popup)
             .addTo(map.current!);
+
+          // Add subtle station connection lines
+          if (index > 0) {
+            const prevStation = monitoringStations[index - 1];
+            map.current!.addSource(`connection-${index}`, {
+              type: 'geojson',
+              data: {
+                type: 'Feature',
+                geometry: {
+                  type: 'LineString',
+                  coordinates: [
+                    [prevStation.lng, prevStation.lat],
+                    [station.lng, station.lat]
+                  ]
+                },
+                properties: {}
+              }
+            });
+
+            map.current!.addLayer({
+              id: `connection-line-${index}`,
+              type: 'line',
+              source: `connection-${index}`,
+              paint: {
+                'line-color': 'rgba(100, 200, 255, 0.3)',
+                'line-width': 1,
+                'line-dasharray': [2, 4]
+              }
+            });
+          }
         });
 
-        console.log('Monitoring stations added, setting map ready state');
         setIsMapReady(true);
         toast({
-          title: "Map Loaded",
-          description: "Baltic Sea monitoring stations are now visible",
+          title: "Baltic Sea Monitoring Active",
+          description: "Enhanced 3D visualization loaded with real-time data",
         });
       });
 
@@ -120,20 +282,12 @@ const BalticSeaMap = () => {
   };
 
   const handleTokenSubmit = (e?: React.FormEvent) => {
-    console.log('=== DEBUGGING TOKEN SUBMIT ===');
-    console.log('Event object:', e);
-    console.log('Current scroll position:', window.scrollY);
-    
     if (e) {
       e.preventDefault();
-      e.stopPropagation(); 
-      console.log('Event prevented and stopped');
+      e.stopPropagation();
     }
     
-    console.log('Load Map button clicked, token:', mapboxToken ? 'Token provided' : 'No token');
-    
-    if (!mapboxToken.trim()) {
-      console.log('Token validation failed - empty token');
+    if (!inputToken.trim()) {
       toast({
         title: "Token Required",
         description: "Please enter your Mapbox public token",
@@ -142,74 +296,35 @@ const BalticSeaMap = () => {
       return;
     }
 
-    if (!mapboxToken.startsWith('pk.')) {
-      console.log('Token validation failed - invalid format');
+    if (!isValidToken(inputToken)) {
       toast({
         title: "Invalid Token Format",
-        description: "Mapbox tokens should start with 'pk.'",
+        description: "Mapbox tokens should start with 'pk.' and be valid",
         variant: "destructive",
       });
       return;
     }
 
-    // Save token to localStorage
-    localStorage.setItem('mapbox_token', mapboxToken);
-    console.log('Token saved to localStorage');
-
-    console.log('Scroll position before map init:', window.scrollY);
-    console.log('Attempting to initialize map with token');
-    
-    try {
-      initializeMap(mapboxToken);
-      console.log('Map initialization completed');
-      console.log('Scroll position after map init:', window.scrollY);
-    } catch (error) {
-      console.error('Map initialization error:', error);
+    if (saveToken(inputToken)) {
       toast({
-        title: "Map Initialization Failed",
-        description: "Please check your Mapbox token and try again",
+        title: "Token Saved",
+        description: "Your Mapbox token has been securely saved",
+      });
+    } else {
+      toast({
+        title: "Save Failed",
+        description: "Failed to save your token. Please try again.",
         variant: "destructive",
       });
     }
   };
 
-  // Load token from localStorage and auto-initialize map
+  // Auto-initialize map when token is available
   useEffect(() => {
-    console.log('BalticSeaMap - Component mounted, checking for saved token...');
-    
-    // Add a small delay to ensure localStorage is ready
-    setTimeout(() => {
-      try {
-        const savedToken = localStorage.getItem('mapbox_token');
-        console.log('BalticSeaMap - localStorage check result:', savedToken ? `Token found: ${savedToken.substring(0, 10)}...` : 'No token found');
-        
-        if (savedToken && savedToken.startsWith('pk.')) {
-          console.log('BalticSeaMap - Valid token found, setting state and initializing map...');
-          setMapboxToken(savedToken);
-          
-          // Only initialize if map hasn't been created yet
-          if (!map.current && !isMapReady) {
-            console.log('BalticSeaMap - Map not yet created, initializing now...');
-            initializeMap(savedToken);
-          } else {
-            console.log('BalticSeaMap - Map already exists or ready:', { mapCurrent: !!map.current, isMapReady });
-          }
-        } else {
-          console.log('BalticSeaMap - No valid token found in localStorage');
-        }
-      } catch (error) {
-        console.error('BalticSeaMap - Error accessing localStorage:', error);
-      }
-    }, 100);
-  }, []);
-
-  // Auto-load map when token changes
-  useEffect(() => {
-    if (mapboxToken && mapboxToken.startsWith('pk.') && !map.current && !isMapReady) {
-      console.log('Auto-loading map with token change');
-      initializeMap(mapboxToken);
+    if (!isLoading && isValidToken(token) && !map.current && !isMapReady) {
+      initializeMap(token);
     }
-  }, [mapboxToken, isMapReady]);
+  }, [token, isLoading, isMapReady]);
 
   useEffect(() => {
     return () => {
@@ -234,86 +349,96 @@ const BalticSeaMap = () => {
   };
 
   return (
-    <Card className="shadow-depth border-0">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Activity className="w-5 h-5 text-primary" />
-          Baltic Sea Monitoring Network
-          {isMapReady && (
-            <Badge variant="secondary" className="ml-auto">
-              {monitoringStations.length} Stations
-            </Badge>
-          )}
+    <Card className="shadow-depth border-0 bg-gradient-to-br from-background to-muted/20">
+      <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10">
+        <CardTitle className="flex items-center gap-3">
+          <div className="p-2 rounded-full bg-primary/20">
+            <Waves className="w-6 h-6 text-primary" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              Baltic Sea Monitoring Network
+              {isMapReady && (
+                <Badge variant="secondary" className="bg-success/20 text-success border-success/30">
+                  <Activity className="w-3 h-3 mr-1" />
+                  {monitoringStations.length} Stations Live
+                </Badge>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">Enhanced 3D Environmental Monitoring</p>
+          </div>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        {!isMapReady && (
-          <div className="space-y-4 mb-6">
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-lg border border-blue-200">
-              <h3 className="font-semibold text-lg mb-3 text-blue-900">🗺️ Interactive Map Setup</h3>
-              <p className="text-sm text-blue-700 mb-4">
-                To view the interactive Baltic Sea monitoring stations map, you need a free Mapbox token:
+      <CardContent className="p-0">
+        {!isMapReady && !isValidToken(token) && (
+          <div className="p-6 space-y-6">
+            <div className="bg-gradient-to-br from-primary/5 to-secondary/5 p-6 rounded-xl border border-primary/10">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 rounded-full bg-primary/20">
+                  <MapPin className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-lg">🗺️ Enhanced Monitoring Setup</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Experience the Baltic Sea like never before with our 3D monitoring visualization. 
+                Enter your Mapbox token to unlock the enhanced interface:
               </p>
-              <ol className="text-sm text-blue-700 mb-4 ml-4 list-decimal space-y-1">
+              <ol className="text-sm text-muted-foreground mb-4 ml-4 list-decimal space-y-1">
                 <li>Visit <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">mapbox.com</a> and create a free account</li>
-                <li>Go to your Account → Access Tokens</li>
+                <li>Navigate to Account → Access Tokens</li>
                 <li>Copy your "Default public token" (starts with pk.ey...)</li>
-                <li>Paste it below and click "Load Map"</li>
+                <li>Paste it below to activate the enhanced visualization</li>
               </ol>
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <Input
                   type="text"
                   placeholder="pk.eyJ1IjoibXl1c2VybmFtZSIsImEiOiJjbG..."
-                  value={mapboxToken}
-                  onChange={(e) => setMapboxToken(e.target.value)}
-                  className="flex-1 bg-white"
+                  value={inputToken}
+                  onChange={(e) => setInputToken(e.target.value)}
+                  className="flex-1 bg-background/50 border-primary/20 focus:border-primary/40"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      e.stopPropagation();
                       handleTokenSubmit();
                     }
                   }}
                 />
-                <div 
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 cursor-pointer"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.nativeEvent?.stopImmediatePropagation();
-                    console.log('Button clicked - preventing all default behaviors');
-                    handleTokenSubmit();
-                    return false;
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleTokenSubmit();
-                    }
-                  }}
+                <Button 
+                  onClick={handleTokenSubmit}
+                  className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 px-6"
                 >
-                  🚀 Load Map
-                </div>
+                  <Activity className="w-4 h-4 mr-2" />
+                  Activate
+                </Button>
               </div>
-              <p className="text-xs text-blue-600 mt-2">
-                💡 Your token is only stored locally in your browser and never sent to our servers.
+              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-2">
+                <span className="w-2 h-2 bg-success rounded-full"></span>
+                Your token is stored securely in your browser only
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h4 className="font-medium mb-2">Monitoring Stations</h4>
-                <div className="space-y-2">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-primary" />
+                  Monitoring Stations
+                </h4>
+                <div className="space-y-3">
                   {monitoringStations.slice(0, 4).map(station => (
-                    <div key={station.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(station.status)}
-                        <span className="text-sm font-medium">{station.name}</span>
+                    <div key={station.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border border-border/50">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${
+                          station.status === 'active' ? 'bg-success animate-pulse' :
+                          station.status === 'warning' ? 'bg-warning animate-pulse' : 'bg-destructive animate-pulse'
+                        }`}></div>
+                        <div>
+                          <span className="text-sm font-medium">{station.name}</span>
+                          <div className="text-xs text-muted-foreground">
+                            {station.oxygenLevel} mg/L O₂ • {station.temperature}°C
+                          </div>
+                        </div>
                       </div>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant={station.status === 'active' ? 'secondary' : station.status === 'warning' ? 'outline' : 'destructive'} className="text-xs">
                         {station.status}
                       </Badge>
                     </div>
@@ -321,27 +446,22 @@ const BalticSeaMap = () => {
                 </div>
               </div>
               
-              <div>
-                <h4 className="font-medium mb-2">Network Status</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Active Stations:</span>
-                    <span className="font-medium text-green-600">
-                      {monitoringStations.filter(s => s.status === 'active').length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Warning Status:</span>
-                    <span className="font-medium text-yellow-600">
-                      {monitoringStations.filter(s => s.status === 'warning').length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Critical Status:</span>
-                    <span className="font-medium text-red-600">
-                      {monitoringStations.filter(s => s.status === 'critical').length}
-                    </span>
-                  </div>
+              <div className="space-y-4">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-primary" />
+                  Network Overview
+                </h4>
+                <div className="grid grid-cols-1 gap-3">
+                  {[
+                    { label: 'Active Stations', count: monitoringStations.filter(s => s.status === 'active').length, color: 'text-success', bg: 'bg-success/10' },
+                    { label: 'Warning Status', count: monitoringStations.filter(s => s.status === 'warning').length, color: 'text-warning', bg: 'bg-warning/10' },
+                    { label: 'Critical Status', count: monitoringStations.filter(s => s.status === 'critical').length, color: 'text-destructive', bg: 'bg-destructive/10' }
+                  ].map(stat => (
+                    <div key={stat.label} className={`flex items-center justify-between p-3 rounded-lg ${stat.bg} border border-border/30`}>
+                      <span className="text-sm font-medium">{stat.label}</span>
+                      <span className={`text-lg font-bold ${stat.color}`}>{stat.count}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -350,18 +470,44 @@ const BalticSeaMap = () => {
         
         <div 
           ref={mapContainer} 
-          className={`h-96 rounded-lg overflow-hidden relative ${!isMapReady ? 'bg-gray-100' : ''}`}
+          className={`${isMapReady ? 'h-[500px]' : 'h-64'} rounded-b-lg overflow-hidden relative ${!isMapReady ? 'bg-gradient-to-br from-muted/30 to-muted/60' : ''}`}
           style={{
             width: '100%',
-            height: '384px',
             position: 'relative',
             zIndex: 1
           }}
-        />
+        >
+          {!isMapReady && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center p-8">
+                <Waves className="w-16 h-16 text-primary/30 mx-auto mb-4 animate-pulse" />
+                <p className="text-muted-foreground">
+                  {isLoading ? 'Loading...' : 'Enter your Mapbox token to view the enhanced 3D monitoring network'}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
         
         {isMapReady && (
-          <div className="mt-4 text-sm text-muted-foreground">
-            <p>Click on station markers for detailed information. Use controls to navigate the map.</p>
+          <div className="p-4 bg-gradient-to-r from-muted/30 to-muted/50 border-t">
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-success rounded-full animate-pulse"></div>
+                  <span>Active (Good)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-warning rounded-full animate-pulse"></div>
+                  <span>Warning</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-destructive rounded-full animate-pulse"></div>
+                  <span>Critical</span>
+                </div>
+              </div>
+              <span className="text-muted-foreground">Click markers for detailed analysis • Use controls to navigate</span>
+            </div>
           </div>
         )}
       </CardContent>
