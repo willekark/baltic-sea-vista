@@ -213,12 +213,26 @@ const DataExplorer: React.FC<DataExplorerProps> = ({ marineData }) => {
                           </div>
                         </div>
                         
-                        <div className="flex justify-between text-xs text-gray-500">
-                          <span>Updated: 2m ago</span>
-                          <Button variant="ghost" size="sm" className="h-6 px-2">
-                            Details →
-                          </Button>
-                        </div>
+                         <div className="flex justify-between text-xs text-gray-500">
+                           <span>Updated: 2m ago</span>
+                           <Button 
+                             variant="ghost" 
+                             size="sm" 
+                             className="h-6 px-2 hover:text-primary"
+                             onClick={() => {
+                               // For now, scroll to dashboard section for detailed analytics
+                               const dashboardSection = document.getElementById('dashboard-section');
+                               if (dashboardSection) {
+                                 dashboardSection.scrollIntoView({ 
+                                   behavior: 'smooth',
+                                   block: 'start'
+                                 });
+                               }
+                             }}
+                           >
+                             Details →
+                           </Button>
+                         </div>
                       </div>
                     </CardContent>
                   </Card>
