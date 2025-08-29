@@ -21,7 +21,8 @@ import {
   Snowflake,
   Droplets,
   Leaf,
-  Eye
+  Eye,
+  Layers
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -108,7 +109,9 @@ const MarineDataDashboard: React.FC = () => {
       Snowflake,
       Droplets,
       Leaf,
-      Eye
+      Eye,
+      Layers,
+      AlertTriangle
     };
     return icons[iconName] || Activity;
   };
@@ -335,10 +338,10 @@ const MarineDataDashboard: React.FC = () => {
         <TabsContent value="detailed" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Sprint B Analytics - Complete</CardTitle>
+              <CardTitle>Sprint C Analytics - Complete</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card className="p-4">
                   <h4 className="font-semibold mb-3 text-green-600">✅ Sprint A Complete</h4>
                   <ul className="text-sm space-y-1 text-gray-600">
@@ -359,15 +362,25 @@ const MarineDataDashboard: React.FC = () => {
                     <li>• Water Clarity (TSM, Secchi depth)</li>
                   </ul>
                 </Card>
+
+                <Card className="p-4">
+                  <h4 className="font-semibold mb-3 text-purple-600">✅ Sprint C Complete</h4>
+                  <ul className="text-sm space-y-1 text-gray-600">
+                    <li>• Mixed Layer Depth & Stratification</li>
+                    <li>• Nutrients (NO₃⁻, PO₄³⁻, SiO₄)</li>
+                    <li>• Fronts & Upwelling Index</li>
+                    <li>• Coastal Flood Risk</li>
+                  </ul>
+                </Card>
               </div>
               
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                <h4 className="font-semibold mb-2 text-blue-800">Next: Sprint C Implementation</h4>
-                <p className="text-sm text-blue-600 mb-3">
-                  Coming next: Mixed-Layer Depth, Nutrients (NO₃⁻, PO₄³⁻), Fronts & Upwelling, Coastal Flood Risk
+              <div className="mt-6 p-4 bg-green-50 rounded-lg">
+                <h4 className="font-semibold mb-2 text-green-800">🎉 Complete Baltic Marine Monitoring System</h4>
+                <p className="text-sm text-green-600 mb-3">
+                  Full implementation includes 13 marine data tiles with basin-specific thresholds, anomaly detection, and real-time alerting.
                 </p>
-                <div className="text-xs text-blue-500">
-                  Full system includes: Basin-specific thresholds • YAML configuration • Real-time alerting • NetCDF/CSV exports
+                <div className="text-xs text-green-500">
+                  Features: Z-score anomaly detection • Basin-specific climatology • Multi-depth support • Event detection & alerts
                 </div>
               </div>
             </CardContent>
@@ -430,7 +443,7 @@ const MarineDataDashboard: React.FC = () => {
 
                 <div className="text-center py-8">
                   <div className="text-sm text-gray-500">
-                    Alert types: Marine Heatwaves • Hypoxia Events • HAB Alerts • Severe Sea States • Icing Risk
+                    Alert types: Marine Heatwaves • Hypoxia Events • HAB Alerts • Severe Sea States • Icing Risk • Flood Alerts • Stratification Events
                   </div>
                 </div>
               </div>

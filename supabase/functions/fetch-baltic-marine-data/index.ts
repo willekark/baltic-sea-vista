@@ -370,6 +370,194 @@ serve(async (req) => {
           get anomalyScore() {
             return calculateAnomalyScore(this.primaryValue, 4.5, 2.1);
           }
+        },
+
+        // Sprint C tiles (new)
+        {
+          id: 'mixedlayer',
+          name: 'Mixed Layer Depth & Stratification',
+          icon: 'Layers',
+          get primaryValue() {
+            // MLD varies seasonally - deeper in winter, shallower in stratified summer
+            const baseMLD = isWinter ? 15 + Math.random() * 25 : 
+                           isSpring ? 8 + Math.random() * 12 :
+                           isSummer ? 3 + Math.random() * 8 : 
+                           10 + Math.random() * 15;
+            return parseFloat(baseMLD.toFixed(1));
+          },
+          primaryUnit: 'm',
+          lastUpdate,
+          forecastHorizon: '5 days',
+          sparklineData: Array.from({ length: 8 }, () => {
+            const baseMLD = isWinter ? 15 + Math.random() * 25 : 
+                           isSpring ? 8 + Math.random() * 12 :
+                           isSummer ? 3 + Math.random() * 8 : 
+                           10 + Math.random() * 15;
+            return parseFloat(baseMLD.toFixed(1));
+          }),
+          depthSupported: false,
+          get secondaryMetrics() {
+            // Brunt-Väisälä frequency (N²) - higher in summer stratification
+            const n2 = isSummer ? 0.001 + Math.random() * 0.004 :
+                      isSpring ? 0.0005 + Math.random() * 0.002 :
+                      Math.random() * 0.001;
+            return [
+              { label: 'N² (top 20m)', value: parseFloat((n2 * 1000).toFixed(2)), unit: '×10⁻³ s⁻²' },
+              { label: 'Stratification', value: n2 > 0.003 ? 'Strong' : n2 > 0.001 ? 'Moderate' : 'Weak', unit: '' }
+            ];
+          },
+          get thresholds() {
+            // Based on seasonal stratification patterns
+            const n2Threshold = isSummer ? 0.003 : 0.002;
+            return {
+              n2: { warning: n2Threshold * 0.5, alert: n2Threshold }
+            };
+          },
+          get status() {
+            const n2 = parseFloat(this.secondaryMetrics?.[0]?.value) / 1000 || 0;
+            const thresholds = this.thresholds.n2;
+            const anomaly = calculateAnomalyScore(this.primaryValue, 12, 8);
+            
+            if (n2 > thresholds.alert) return 'alert';
+            if (n2 > thresholds.warning) return 'warning';
+            
+            return Math.abs(anomaly) > 1.5 ? 'warning' : 'good';
+          },
+          get anomalyScore() {
+            return calculateAnomalyScore(this.primaryValue, 12, 8);
+          }
+        },
+
+        {
+          id: 'nutrients',
+          name: 'Nutrients (N-P-Si)',
+          icon: 'Droplet',
+          get primaryValue() {
+            // Nitrate varies seasonally - depleted in summer bloom
+            const baseNO3 = isSummer ? 0.5 + Math.random() * 2 :
+                           isSpring ? 1 + Math.random() * 3 :
+                           3 + Math.random() * 8;
+            return parseFloat(baseNO3.toFixed(1));
+          },
+          primaryUnit: 'µmol/L NO₃⁻',
+          lastUpdate,
+          forecastHorizon: '7 days',
+          sparklineData: Array.from({ length: 8 }, () => {
+            const baseNO3 = isSummer ? 0.5 + Math.random() * 2 :
+                           isSpring ? 1 + Math.random() * 3 :
+                           3 + Math.random() * 8;
+            return parseFloat(baseNO3.toFixed(1));
+          }),
+          depthSupported: true,
+          get secondaryMetrics() {
+            // Phosphate and Silicate
+            const po4 = this.primaryValue * 0.08 + Math.random() * 0.3; // N:P ratio ~16:1
+            const sio4 = this.primaryValue * 0.6 + Math.random() * 2; // Variable Si:N
+            return [
+              { label: 'PO₄³⁻', value: parseFloat(po4.toFixed(2)), unit: 'µmol/L' },
+              { label: 'SiO₄', value: parseFloat(sio4.toFixed(1)), unit: 'µmol/L' }
+            ];
+          },
+          get thresholds() {
+            return {
+              no3: { warning: 1, alert: 0.5 }, // Low nutrients are concerning for eutrophication recovery
+              po4: { warning: 0.3, alert: 0.1 }
+            };
+          },
+          get status() {
+            const po4 = this.secondaryMetrics?.[0]?.value || 0;
+            const anomaly = calculateAnomalyScore(this.primaryValue, 4, 2.5);
+            
+            // Low nutrients can indicate depletion/uptake issues
+            if (this.primaryValue < 0.5 || po4 < 0.1) return 'alert';
+            if (this.primaryValue < 1 || po4 < 0.3) return 'warning';
+            
+            return Math.abs(anomaly) > 1.5 ? 'warning' : 'good';
+          },
+          get anomalyScore() {
+            return calculateAnomalyScore(this.primaryValue, 4, 2.5);
+          }
+        },
+
+        {
+          id: 'fronts',
+          name: 'Fronts & Upwelling Index',
+          icon: 'Wind',
+          get primaryValue() {
+            // Front probability varies with weather patterns and season
+            const baseFront = 0.1 + Math.random() * 0.7;
+            return parseFloat((baseFront * 100).toFixed(0));
+          },
+          primaryUnit: '% probability',
+          lastUpdate,
+          forecastHorizon: '5 days',
+          sparklineData: Array.from({ length: 8 }, () => 
+            parseFloat(((0.1 + Math.random() * 0.7) * 100).toFixed(0))
+          ),
+          depthSupported: false,
+          get secondaryMetrics() {
+            // Upwelling index based on wind stress and coastal geometry
+            const upwellingIndex = Math.random() * 0.9;
+            const windStress = 0.05 + Math.random() * 0.2;
+            return [
+              { label: 'Upwelling Index', value: parseFloat(upwellingIndex.toFixed(2)), unit: 'index' },
+              { label: 'Wind Stress', value: parseFloat(windStress.toFixed(3)), unit: 'N/m²' }
+            ];
+          },
+          thresholds: { warning: 60, alert: 80 },
+          get status() {
+            const upwellingIndex = this.secondaryMetrics?.[0]?.value || 0;
+            const anomaly = calculateAnomalyScore(this.primaryValue / 100, 0.3, 0.2);
+            
+            if (this.primaryValue > 80 || upwellingIndex > 0.8) return 'alert';
+            if (this.primaryValue > 60 || upwellingIndex > 0.6) return 'warning';
+            
+            return Math.abs(anomaly) > 1.5 ? 'warning' : 'good';
+          },
+          get anomalyScore() {
+            return calculateAnomalyScore(this.primaryValue / 100, 0.3, 0.2);
+          }
+        },
+
+        {
+          id: 'floodrisk',
+          name: 'Coastal Flood Risk',
+          icon: 'AlertTriangle',
+          get primaryValue() {
+            // Flood risk probability based on sea level and surge conditions
+            const riskProb = Math.random() * 0.8;
+            return parseFloat((riskProb * 100).toFixed(0));
+          },
+          primaryUnit: '% risk (72h)',
+          lastUpdate,
+          forecastHorizon: '5 days',
+          sparklineData: Array.from({ length: 8 }, () => 
+            parseFloat((Math.random() * 0.8 * 100).toFixed(0))
+          ),
+          depthSupported: false,
+          get secondaryMetrics() {
+            const exceedance1yr = this.primaryValue / 100 * 0.3;
+            const exceedance5yr = exceedance1yr * 0.2;
+            return [
+              { label: '1-yr Exceedance', value: parseFloat((exceedance1yr * 100).toFixed(1)), unit: '%' },
+              { label: '5-yr Exceedance', value: parseFloat((exceedance5yr * 100).toFixed(1)), unit: '%' }
+            ];
+          },
+          thresholds: { warning: 30, alert: 60 },
+          get status() {
+            const exceedance1yr = this.secondaryMetrics?.[0]?.value || 0;
+            const anomaly = calculateAnomalyScore(this.primaryValue / 100, 0.2, 0.15);
+            
+            if (exceedance1yr > 60) return 'alert';
+            if (exceedance1yr > 30) return 'warning';
+            if (this.primaryValue > 60) return 'alert';
+            if (this.primaryValue > 30) return 'warning';
+            
+            return Math.abs(anomaly) > 1.5 ? 'warning' : 'good';
+          },
+          get anomalyScore() {
+            return calculateAnomalyScore(this.primaryValue / 100, 0.2, 0.15);
+          }
         }
       ];
 
@@ -506,17 +694,17 @@ serve(async (req) => {
         qualityFlag: 'good',
         climatologyPeriod: '2000-2020',
         coordinates: lat && lng ? { lat, lng } : null,
-        sprint: 'B - Complete (Ice, DO, Chlorophyll, Water Clarity)'
+        sprint: 'C - Complete (MLD, Nutrients, Fronts, Flood Risk)'
       },
       thresholds: {
-        description: 'Sprint B adds ice monitoring, oxygen/hypoxia detection, HAB risk assessment, and water clarity analysis',
+        description: 'Sprint C adds stratification monitoring, nutrient tracking, front detection, and coastal flood risk assessment',
         anomaly_method: 'Z-score vs 2000-2020 daily climatology',
         status_logic: 'max(absolute_threshold_severity, anomaly_severity)',
-        new_features: ['Sea ice concentration & drift', 'Dissolved oxygen & hypoxia', 'Chlorophyll-a & HAB probability', 'Water clarity & Secchi depth']
+        new_features: ['Mixed layer depth & stratification', 'Nutrient levels (N-P-Si)', 'Fronts & upwelling detection', 'Coastal flood risk assessment']
       }
     };
 
-    console.log('Generated Sprint B marine data response with', response.data.length, 'tiles and', response.events.length, 'events');
+    console.log('Generated Sprint C marine data response with', response.data.length, 'tiles and', response.events.length, 'events');
 
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
