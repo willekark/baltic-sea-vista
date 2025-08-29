@@ -80,6 +80,7 @@ const AINode = ({ data }: { data: any }) => (
   </div>
 );
 
+// Move nodeTypes outside component to prevent recreation on each render
 const nodeTypes = {
   dataSource: DataSourceNode,
   processor: ProcessorNode,
@@ -348,9 +349,10 @@ const InteractiveDataViz: React.FC<DataFlowProps> = ({ marineData }) => {
                 fitView
                 fitViewOptions={{ padding: 0.1 }}
                 attributionPosition="bottom-left"
-                defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
-                minZoom={0.5}
+                defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
+                minZoom={0.4}
                 maxZoom={2}
+                key="maritime-intelligence-flow"
               >
                 <MiniMap 
                   zoomable 
