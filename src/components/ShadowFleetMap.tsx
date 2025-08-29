@@ -105,6 +105,7 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
 
   const initializeMap = (token: string) => {
     console.log('ShadowFleetMap - initializeMap called with token:', token.substring(0, 10) + '...');
+    console.log('ShadowFleetMap - Vessels to display:', allVessels.length > 0 ? allVessels.length : 'Using mock data (' + mockVessels.length + ' vessels)');
     
     if (!mapContainer.current) {
       console.error('ShadowFleetMap - No map container found!');
@@ -165,6 +166,7 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
 
         // Add all vessels with probability-based colors
         const vesselsToDisplay = allVessels.length > 0 ? allVessels : mockVessels;
+        console.log('ShadowFleetMap - Adding vessels to map:', vesselsToDisplay.length, vesselsToDisplay.map(v => `${v.name} at ${v.lat},${v.lng}`));
         
         vesselsToDisplay.forEach(vessel => {
           const probability = vessel.shadowFleetProbability || 0;
@@ -260,10 +262,12 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
             </div>
           `);
 
-          new mapboxgl.Marker(el)
+          const marker = new mapboxgl.Marker(el)
             .setLngLat([vessel.lng, vessel.lat])
             .setPopup(popup)
             .addTo(map.current!);
+          
+          console.log(`ShadowFleetMap - Added marker for ${vessel.name} at [${vessel.lng}, ${vessel.lat}] with ${probability}% risk`);
         });
 
         // Add dark zones
@@ -362,9 +366,10 @@ const ShadowFleetMap: React.FC<ShadowFleetMapProps> = ({
         });
 
         setIsMapReady(true);
+        console.log('ShadowFleetMap - Map fully loaded and ready');
         toast({
           title: "Shadow Fleet Map Loaded",
-          description: "Vessel tracking and threat detection active",
+          description: `Vessel tracking active - ${vesselsToDisplay.length} vessels displayed`,
         });
       });
 
