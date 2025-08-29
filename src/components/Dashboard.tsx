@@ -12,9 +12,11 @@ import DataExplorer from "./DataExplorer";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [indicators, setIndicators] = useState([
     {
       title: "Oxygen Levels",
@@ -201,7 +203,7 @@ const Dashboard = () => {
             <h3 className="text-xl font-bold mb-4 text-foreground">Platform Services</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button 
-                onClick={() => window.location.href = '/port-agent'}
+                onClick={() => navigate('/port-agent')}
                 className="p-4 rounded-lg border border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 text-left group"
               >
                 <div className="flex items-center gap-3 mb-2">
@@ -216,7 +218,7 @@ const Dashboard = () => {
               </button>
               
               <button 
-                onClick={() => window.location.href = '/intelligence'}
+                onClick={() => navigate('/intelligence')}
                 className="p-4 rounded-lg border border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 text-left group"
               >
                 <div className="flex items-center gap-3 mb-2">
@@ -231,7 +233,7 @@ const Dashboard = () => {
               </button>
               
               <button 
-                onClick={() => window.location.href = '/shadow-fleet'}
+                onClick={() => navigate('/shadow-fleet')}
                 className="p-4 rounded-lg border border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 text-left group"
               >
                 <div className="flex items-center gap-3 mb-2">

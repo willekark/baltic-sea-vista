@@ -146,8 +146,20 @@ const Features = () => {
                       </Link>
                     </Button>
                   ) : (
-                    <Button variant="ghost" className="group-hover:text-accent transition-colors hover:bg-primary/10">
-                      Explore Feature <ArrowRight className="ml-2 w-4 h-4" />
+                    <Button 
+                      variant="ghost" 
+                      className="group-hover:text-accent transition-colors hover:bg-primary/10"
+                      onClick={() => {
+                        const dashboardSection = document.getElementById('dashboard-section');
+                        if (dashboardSection) {
+                          dashboardSection.scrollIntoView({ 
+                            behavior: 'smooth',
+                            block: 'start'
+                          });
+                        }
+                      }}
+                    >
+                      View Dashboard <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
                   )}
                 </CardContent>

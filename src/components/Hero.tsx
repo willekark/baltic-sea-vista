@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Database, BarChart, Map, Skull, Anchor } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/baltic-sea-hero.jpg";
 
 const Hero = () => {
+  const navigate = useNavigate();
+  
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
@@ -60,7 +63,7 @@ const Hero = () => {
             variant="outline" 
             size="lg"
             className="border-primary/30 text-white hover:bg-primary/10 hover:border-primary transition-all duration-300 hover:shadow-glow"
-            onClick={() => window.location.href = '/port-agent'}
+            onClick={() => navigate('/port-agent')}
           >
             <Anchor className="w-5 h-5 mr-2" />
             Port Agent Services
@@ -70,7 +73,7 @@ const Hero = () => {
             variant="outline" 
             size="lg"
             className="border-primary/30 text-white hover:bg-primary/10 hover:border-primary transition-all duration-300 hover:shadow-glow"
-            onClick={() => window.location.href = '/shadow-fleet'}
+            onClick={() => navigate('/shadow-fleet')}
           >
             <Skull className="w-5 h-5 mr-2" />
             Shadow Fleet Tracker
