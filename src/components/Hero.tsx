@@ -62,7 +62,7 @@ const Hero = () => {
           <Button 
             variant="hero" 
             size="lg"
-            className="transition-all duration-300 hover:shadow-glow"
+            className="transition-all duration-300 hover:shadow-investment hover:scale-105"
             onClick={() => navigate('/auth')}
           >
             <Anchor className="w-5 h-5 mr-2" />
@@ -72,7 +72,7 @@ const Hero = () => {
           <Button 
             variant="hero" 
             size="lg"
-            className="transition-all duration-300 hover:shadow-glow"
+            className="transition-all duration-300 hover:shadow-investment hover:scale-105"
             onClick={() => navigate('/port-agent')}
           >
             <Anchor className="w-5 h-5 mr-2" />
@@ -82,7 +82,7 @@ const Hero = () => {
           <Button 
             variant="hero" 
             size="lg"
-            className="transition-all duration-300 hover:shadow-glow"
+            className="transition-all duration-300 hover:shadow-investment hover:scale-105"
             onClick={() => navigate('/shadow-fleet')}
           >
             <Skull className="w-5 h-5 mr-2" />
