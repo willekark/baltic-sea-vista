@@ -10,8 +10,10 @@ import {
   CheckCircle,
   Users,
   Building,
-  Landmark
+  Landmark,
+  Download
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Features = () => {
   const features = [
@@ -24,10 +26,11 @@ const Features = () => {
     },
     {
       icon: FileText,
-      title: "Report Generator",
-      description: "Automated generation of policy briefs, ESG reports, research overviews, and stakeholder communications with customizable templates.",
-      highlights: ["Policy briefs", "ESG reporting", "Custom formats"],
-      gradient: "bg-gradient-surface"
+      title: "Integrated Intelligence Reports",
+      description: "Comprehensive shipping intelligence combining route optimization with market analysis. Download trial reports or generate custom insights.",
+      highlights: ["Route optimization", "Market intelligence", "Downloadable reports"],
+      gradient: "bg-gradient-surface",
+      action: "intelligence"
     },
     {
       icon: Search,
@@ -110,9 +113,28 @@ const Features = () => {
                       </div>
                     ))}
                   </div>
-                  <Button variant="ghost" className="group-hover:text-accent transition-colors hover:bg-primary/10">
-                    Explore Feature <ArrowRight className="ml-2 w-4 h-4" />
-                  </Button>
+                  {feature.action === "intelligence" ? (
+                    <div className="flex gap-2">
+                      <Button asChild variant="ghost" className="group-hover:text-accent transition-colors hover:bg-primary/10">
+                        <Link to="/intelligence">
+                          Try Intelligence <ArrowRight className="ml-2 w-4 h-4" />
+                        </Link>
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-accent border-accent hover:bg-accent/10"
+                        onClick={() => import('@/utils/reportDownload').then(({ downloadTrialReport }) => downloadTrialReport())}
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Trial Report
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button variant="ghost" className="group-hover:text-accent transition-colors hover:bg-primary/10">
+                      Explore Feature <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             );

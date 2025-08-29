@@ -378,7 +378,11 @@ const IntegratedIntelligence = () => {
             <Button onClick={generateIntelligence} size="lg" className="bg-primary hover:bg-primary/90">
               Refresh Analysis
             </Button>
-            <Button variant="outline" size="lg">
+            <Button 
+              variant="outline" 
+              size="lg"
+              onClick={() => import('@/utils/reportDownload').then(({ downloadFullReport }) => downloadFullReport(intelligenceData))}
+            >
               Export Report
             </Button>
           </div>
