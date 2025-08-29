@@ -43,53 +43,64 @@ interface RouteOptimization {
 }
 
 interface ComprehensiveReportData {
-  operationalData: {
-    vesselBreakdown: Array<{
-      imo: string;
-      vesselClass: string;
-      fuelType: string;
-      historicalRoute: { distance: number; time: number; speed: number };
-      optimizedRoute: { distance: number; time: number; speed: number };
-      fuelConsumption: { historical: number; optimized: number; savings: number };
-    }>;
-    portCongestion: Array<{ port: string; dwellTime: number; congestionLevel: string }>;
-    weatherImpact: { iceConditions: string; seasonalVariations: string[] };
+  executiveSummary: {
+    totalSavingsOpportunity: { euro: number; percentage: number };
+    totalEmissionReductions: number;
+    routesAnalyzed: number;
+    criticalFindings: string[];
   };
-  fuelEmissionsEconomics: {
-    fuelTypes: Array<{ type: string; price: number; usage: number }>;
-    estimatedSavings: { tonnes: number; cost: number };
-    emissions: { co2Reduction: number; noxReduction: number; soxReduction: number };
-    euEtsCosts: { current: number; projected: number; savings: number };
+  fleetRouteOverview: {
+    fleetAnalyzed: Array<{ imo: string; type: string; size: number; fuelType: string }>;
+    routesAnalyzed: Array<{ route: string; frequency: string; cargoTypes: string[] }>;
+    historicalTrafficPatterns: { totalVessels: number; averageTransits: number; seasonalVariation: number };
   };
-  marketCommercialContext: {
-    freightRates: Array<{ route: string; rate: number; cargoType: string }>;
-    cargoSensitivity: { timeCritical: number; bulkFlexible: number };
-    industryBenchmarks: { averageSavings: number; peerComparison: number };
+  fuelEmissionsAnalysis: {
+    baselineConsumption: Array<{ route: string; fuelLitres: number; fuelTonnes: number }>;
+    optimizedConsumption: Array<{ route: string; projectedReduction: number }>;
+    costImpact: Array<{ route: string; vessel: string; savings: number }>;
+    emissionsImpact: { co2: number; nox: number; sox: number };
+    euEtsImpact: { carbonCreditsSaved: number; costAvoided: number };
   };
-  strategicRisk: {
-    riskAlerts: Array<{ type: string; severity: string; description: string }>;
+  operationalEfficiency: {
+    portEfficiency: Array<{ port: string; avgDwellTime: number; waitingTime: number; congestionLevel: string }>;
+    routeEfficiency: Array<{ route: string; currentDistance: number; optimizedDistance: number; timeSaving: number }>;
+    speedProfile: { slowSteaming: string; dynamicRouting: string; fuelSavings: number };
+    seasonalConditions: { iceImpact: string; weatherConditions: string[] };
+  };
+  marketFinancialImpact: {
+    freightBenchmarks: Array<{ route: string; rate: number; region: string }>;
+    savingsVsIncome: { marginUplift: number; revenueImpact: number };
+    roiAnalysis: { paybackPeriod: number; annualizedSavings: number };
     sensitivityAnalysis: Array<{ scenario: string; impact: number }>;
-    scenarioModeling: { slowSteaming: number; justInTime: number };
   };
-  financialImpact: {
-    costBenefit: Array<{ vessel: string; route: string; savings: number; roi: number }>;
-    roiCalculation: { investment: number; paybackMonths: number; ebitdaImpact: number };
-    operatingMargin: { current: number; projected: number; improvement: number };
+  strategicRiskInsights: {
+    portBottlenecks: Array<{ port: string; forecast: string; severity: string }>;
+    seasonalRisks: Array<{ risk: string; timeframe: string; mitigation: string }>;
+    regulatoryUpdates: Array<{ regulation: string; impact: string; timeline: string }>;
+    geopoliticalAlerts: Array<{ zone: string; risk: string; recommendation: string }>;
   };
   actionableRecommendations: {
-    departureWindows: Array<{ port: string; window: string; savings: string }>;
-    portSlots: Array<{ port: string; priority: string; recommendation: string }>;
-    speedOptimization: { slowSteaming: string; dynamicProfiles: string };
-    seasonalRouting: { summer: string; winter: string; recommendations: string[] };
+    next48hRecommendations: Array<{ vessel: string; route: string; action: string }>;
+    priorityPortSlots: Array<{ port: string; timeSlot: string; benefit: string }>;
+    vesselSpecificActions: Array<{ vessel: string; actionType: string; description: string }>;
+    longTermStrategies: Array<{ strategy: string; timeline: string; investment: number }>;
   };
-  benchmarkingKpis: {
-    vesselEfficiency: { current: number; fleetAverage: number; industryBenchmark: number };
-    kpis: {
-      fuelPerNauticalMile: number;
-      emissionsPerTonneMile: number;
-      routeEfficiency: number;
-      onTimePerformance: number;
-    };
+  kpisBenchmarking: {
+    fuelEfficiency: { current: number; benchmark: number; target: number };
+    portTurnaround: { current: number; benchmark: number; target: number };
+    routeEfficiency: { current: number; benchmark: number; target: number };
+    onTimePerformance: { current: number; benchmark: number; target: number };
+  };
+  implementationRoadmap: {
+    phase1: { duration: string; actions: string[]; expectedSavings: number };
+    phase2: { duration: string; actions: string[]; expectedSavings: number };
+    phase3: { duration: string; actions: string[]; expectedSavings: number };
+  };
+  appendixDataTransparency: {
+    aisDataSources: string[];
+    weatherProviders: string[];
+    methodology: string[];
+    pricingAssumptions: { fuel: string; carbon: string };
   };
 }
 
@@ -148,104 +159,165 @@ const RouteOptimizer = () => {
   };
 
   const generateComprehensiveReportData = (): ComprehensiveReportData => {
-    // Generate comprehensive data structure for export
+    // Generate comprehensive data structure for export matching the 10-section template
     return {
-      operationalData: {
-        vesselBreakdown: [
-          {
-            imo: "9234567",
-            vesselClass: "Container",
-            fuelType: "VLSFO",
-            historicalRoute: { distance: 1245, time: 48, speed: 12.5 },
-            optimizedRoute: { distance: 1180, time: 45, speed: 13.2 },
-            fuelConsumption: { historical: 145, optimized: 128, savings: 17 }
-          },
-          {
-            imo: "9345678",
-            vesselClass: "Bulk Carrier",
-            fuelType: "MGO",
-            historicalRoute: { distance: 890, time: 36, speed: 11.8 },
-            optimizedRoute: { distance: 845, time: 33, speed: 12.4 },
-            fuelConsumption: { historical: 98, optimized: 85, savings: 13 }
-          }
+      executiveSummary: {
+        totalSavingsOpportunity: { euro: 524000, percentage: 18.3 },
+        totalEmissionReductions: 2450,
+        routesAnalyzed: 24,
+        criticalFindings: [
+          "Hamburg port shows 35% higher dwell times during peak season",
+          "MV Baltic Star has 23% above-average fuel consumption on Helsinki route", 
+          "Northern corridor offers 12% fuel savings in summer months",
+          "3 vessels require immediate retrofit for EU ETS compliance"
+        ]
+      },
+      fleetRouteOverview: {
+        fleetAnalyzed: [
+          { imo: "9234567", type: "Container", size: 14500, fuelType: "VLSFO" },
+          { imo: "9345678", type: "Bulk Carrier", size: 8900, fuelType: "MGO" },
+          { imo: "9456789", type: "RoRo Ferry", size: 12200, fuelType: "LNG" },
+          { imo: "9567890", type: "Tanker", size: 18500, fuelType: "VLSFO" }
         ],
-        portCongestion: [
-          { port: "Hamburg", dwellTime: 18.5, congestionLevel: "Medium" },
-          { port: "Gdansk", dwellTime: 24.2, congestionLevel: "High" },
-          { port: "Stockholm", dwellTime: 12.1, congestionLevel: "Low" }
+        routesAnalyzed: [
+          { route: "Hamburg-Stockholm", frequency: "Daily", cargoTypes: ["Container", "RoRo"] },
+          { route: "Gdansk-Helsinki", frequency: "3x weekly", cargoTypes: ["Bulk", "General"] },
+          { route: "Copenhagen-Riga", frequency: "2x weekly", cargoTypes: ["Container", "RoRo"] },
+          { route: "Kiel-Gothenburg", frequency: "Daily", cargoTypes: ["RoRo", "Passenger"] }
         ],
-        weatherImpact: {
-          iceConditions: "Light ice conditions expected in northern Baltic",
-          seasonalVariations: ["Winter: +15% transit time", "Summer: -8% fuel consumption", "Spring: Optimal routing window"]
+        historicalTrafficPatterns: { totalVessels: 450, averageTransits: 1250, seasonalVariation: 28 }
+      },
+      fuelEmissionsAnalysis: {
+        baselineConsumption: [
+          { route: "Hamburg-Stockholm", fuelLitres: 24500, fuelTonnes: 19.6 },
+          { route: "Gdansk-Helsinki", fuelLitres: 18200, fuelTonnes: 14.6 },
+          { route: "Copenhagen-Riga", fuelLitres: 15800, fuelTonnes: 12.6 }
+        ],
+        optimizedConsumption: [
+          { route: "Hamburg-Stockholm", projectedReduction: 18.5 },
+          { route: "Gdansk-Helsinki", projectedReduction: 22.1 },
+          { route: "Copenhagen-Riga", projectedReduction: 15.7 }
+        ],
+        costImpact: [
+          { route: "Hamburg-Stockholm", vessel: "MV Baltic Star", savings: 28500 },
+          { route: "Gdansk-Helsinki", vessel: "MV Nordic Wind", savings: 18200 },
+          { route: "Copenhagen-Riga", vessel: "MV Arctic Dawn", savings: 12800 }
+        ],
+        emissionsImpact: { co2: 2450, nox: 125, sox: 85 },
+        euEtsImpact: { carbonCreditsSaved: 2450, costAvoided: 196000 }
+      },
+      operationalEfficiency: {
+        portEfficiency: [
+          { port: "Hamburg", avgDwellTime: 18.5, waitingTime: 4.2, congestionLevel: "Medium" },
+          { port: "Gdansk", avgDwellTime: 24.2, waitingTime: 8.5, congestionLevel: "High" },
+          { port: "Stockholm", avgDwellTime: 12.1, waitingTime: 2.1, congestionLevel: "Low" },
+          { port: "Helsinki", avgDwellTime: 14.8, waitingTime: 3.2, congestionLevel: "Low" }
+        ],
+        routeEfficiency: [
+          { route: "Hamburg-Stockholm", currentDistance: 1245, optimizedDistance: 1180, timeSaving: 3.2 },
+          { route: "Gdansk-Helsinki", currentDistance: 890, optimizedDistance: 845, timeSaving: 2.8 },
+          { route: "Copenhagen-Riga", currentDistance: 725, optimizedDistance: 698, timeSaving: 1.9 }
+        ],
+        speedProfile: { 
+          slowSteaming: "Reduce speed by 2 knots for 15% fuel savings", 
+          dynamicRouting: "Variable speed optimization based on real-time conditions",
+          fuelSavings: 12.5
+        },
+        seasonalConditions: { 
+          iceImpact: "Light ice conditions in northern Baltic during Q1-Q2",
+          weatherConditions: ["Winter storms increase transit time by 15%", "Summer: optimal weather window", "Spring ice breakup affects northern routes"]
         }
       },
-      fuelEmissionsEconomics: {
-        fuelTypes: [
-          { type: "VLSFO", price: 580, usage: 45 },
-          { type: "MGO", price: 720, usage: 25 },
-          { type: "LNG", price: 420, usage: 15 },
-          { type: "Biofuels", price: 890, usage: 15 }
+      marketFinancialImpact: {
+        freightBenchmarks: [
+          { route: "Hamburg-Stockholm", rate: 185, region: "Baltic-North Sea" },
+          { route: "Gdansk-Helsinki", rate: 142, region: "Intra-Baltic" },
+          { route: "Copenhagen-Riga", rate: 198, region: "Baltic-Mediterranean connection" }
         ],
-        estimatedSavings: { tonnes: 89, cost: 52400 },
-        emissions: { co2Reduction: 245, noxReduction: 12, soxReduction: 8 },
-        euEtsCosts: { current: 15800, projected: 12200, savings: 3600 }
-      },
-      marketCommercialContext: {
-        freightRates: [
-          { route: "Hamburg-Stockholm", rate: 185, cargoType: "Container" },
-          { route: "Gdansk-Helsinki", rate: 142, cargoType: "Bulk" },
-          { route: "Copenhagen-Riga", rate: 198, cargoType: "RoRo" }
-        ],
-        cargoSensitivity: { timeCritical: 75, bulkFlexible: 25 },
-        industryBenchmarks: { averageSavings: 12.5, peerComparison: 18.3 }
-      },
-      strategicRisk: {
-        riskAlerts: [
-          { type: "Port Congestion", severity: "Medium", description: "Hamburg experiencing 15% above normal delays" },
-          { type: "Weather", severity: "Low", description: "Favorable conditions for next 72 hours" },
-          { type: "Sanctions", severity: "High", description: "Monitor vessels flagged to high-risk jurisdictions" }
-        ],
+        savingsVsIncome: { marginUplift: 3.2, revenueImpact: 8.7 },
+        roiAnalysis: { paybackPeriod: 8, annualizedSavings: 785000 },
         sensitivityAnalysis: [
           { scenario: "Fuel price +20%", impact: -8.5 },
-          { scenario: "Port delays +50%", impact: -12.3 },
-          { scenario: "Carbon tax +€30", impact: -5.8 }
-        ],
-        scenarioModeling: { slowSteaming: 15.2, justInTime: 8.7 }
+          { scenario: "Carbon cost +30%", impact: -5.8 },
+          { scenario: "Port delays +50%", impact: -12.3 }
+        ]
       },
-      financialImpact: {
-        costBenefit: [
-          { vessel: "MV Baltic Star", route: "Hamburg-Stockholm", savings: 28500, roi: 245 },
-          { vessel: "MV Nordic Wind", route: "Gdansk-Helsinki", savings: 18200, roi: 189 }
+      strategicRiskInsights: {
+        portBottlenecks: [
+          { port: "Hamburg", forecast: "Peak season congestion expected", severity: "High" },
+          { port: "Gdansk", forecast: "Infrastructure upgrades causing delays", severity: "Medium" },
+          { port: "Kiel Canal", forecast: "Maintenance closure scheduled", severity: "High" }
         ],
-        roiCalculation: { investment: 125000, paybackMonths: 8, ebitdaImpact: 3.2 },
-        operatingMargin: { current: 12.8, projected: 15.4, improvement: 2.6 }
+        seasonalRisks: [
+          { risk: "Ice formation", timeframe: "Q1 2024", mitigation: "Alternative southern routing" },
+          { risk: "Storm season", timeframe: "Q4 2024", mitigation: "Enhanced weather routing" }
+        ],
+        regulatoryUpdates: [
+          { regulation: "SECA compliance", impact: "Fuel cost increase", timeline: "Immediate" },
+          { regulation: "EU ETS expansion", impact: "Carbon cost increase", timeline: "Q2 2024" },
+          { regulation: "IMO 2030 targets", impact: "Fleet modernization required", timeline: "2030" }
+        ],
+        geopoliticalAlerts: [
+          { zone: "Gulf of Finland", risk: "Military exercises", recommendation: "Monitor and reroute if necessary" },
+          { zone: "Kaliningrad", risk: "Sanctions compliance", recommendation: "Avoid sanctioned entities" }
+        ]
       },
       actionableRecommendations: {
-        departureWindows: [
-          { port: "Helsinki", window: "Depart 12-18h later", savings: "5% fuel reduction" },
-          { port: "Hamburg", window: "Early morning departure", savings: "Avoid peak congestion" }
+        next48hRecommendations: [
+          { vessel: "MV Baltic Star", route: "Hamburg-Stockholm", action: "Depart 6 hours later to avoid Hamburg congestion" },
+          { vessel: "MV Nordic Wind", route: "Gdansk-Helsinki", action: "Reduce speed to 11 knots for fuel savings" },
+          { vessel: "MV Arctic Dawn", route: "Copenhagen-Riga", action: "Use northern corridor due to favorable weather" }
         ],
-        portSlots: [
-          { port: "Gdansk", priority: "High", recommendation: "Book priority slots during peak season" },
-          { port: "Stockholm", priority: "Medium", recommendation: "Flexible timing available" }
+        priorityPortSlots: [
+          { port: "Hamburg", timeSlot: "06:00-08:00", benefit: "Avoid peak congestion, save 2.5 hours" },
+          { port: "Gdansk", timeSlot: "14:00-16:00", benefit: "Priority berth access, reduce waiting time" }
         ],
-        speedOptimization: {
-          slowSteaming: "Reduce speed by 2 knots for 15% fuel savings",
-          dynamicProfiles: "Variable speed based on weather and port availability"
+        vesselSpecificActions: [
+          { vessel: "MV Baltic Star", actionType: "Retrofit", description: "Install scrubber system for SECA compliance" },
+          { vessel: "MV Nordic Wind", actionType: "Fuel Switch", description: "Convert to LNG for emission reduction" },
+          { vessel: "MV Arctic Dawn", actionType: "Route Optimization", description: "Implement AI routing system" }
+        ],
+        longTermStrategies: [
+          { strategy: "AI routing system implementation", timeline: "3-6 months", investment: 125000 },
+          { strategy: "Fleet slow steaming program", timeline: "6-12 months", investment: 85000 },
+          { strategy: "Green corridor participation", timeline: "12-24 months", investment: 450000 }
+        ]
+      },
+      kpisBenchmarking: {
+        fuelEfficiency: { current: 2.45, benchmark: 2.8, target: 2.2 },
+        portTurnaround: { current: 15.2, benchmark: 18.5, target: 12.0 },
+        routeEfficiency: { current: 94.2, benchmark: 88.5, target: 96.5 },
+        onTimePerformance: { current: 91.5, benchmark: 89.2, target: 95.0 }
+      },
+      implementationRoadmap: {
+        phase1: { 
+          duration: "0-3 months", 
+          actions: ["Implement immediate routing optimizations", "Train crew on fuel-efficient practices", "Establish port slot management"],
+          expectedSavings: 125000
         },
-        seasonalRouting: {
-          summer: "Northern corridor via Åland Islands",
-          winter: "Southern route avoiding ice zones",
-          recommendations: ["Monitor ice reports daily", "Adjust routing 48h in advance", "Consider icebreaker escort for time-critical cargo"]
+        phase2: { 
+          duration: "3-12 months", 
+          actions: ["Deploy AI routing technology", "Install IoT sensors", "Implement slow steaming protocols"],
+          expectedSavings: 285000
+        },
+        phase3: { 
+          duration: "12-24 months", 
+          actions: ["Full autonomous routing deployment", "Fleet-wide optimization", "Green corridor integration"],
+          expectedSavings: 485000
         }
       },
-      benchmarkingKpis: {
-        vesselEfficiency: { current: 87, fleetAverage: 82, industryBenchmark: 79 },
-        kpis: {
-          fuelPerNauticalMile: 2.45,
-          emissionsPerTonneMile: 0.032,
-          routeEfficiency: 94.2,
-          onTimePerformance: 91.5
+      appendixDataTransparency: {
+        aisDataSources: ["MarineTraffic", "VesselFinder", "Exactearth", "HELCOM AIS"],
+        weatherProviders: ["MetOcean", "StormGeo", "Copernicus Marine", "ECMWF"],
+        methodology: [
+          "Historical AIS track analysis using machine learning algorithms",
+          "Weather routing optimization based on 10-year historical data",
+          "Port efficiency modeling using queuing theory and real-time data",
+          "Fuel consumption modeling validated against actual vessel data"
+        ],
+        pricingAssumptions: { 
+          fuel: "VLSFO: €580/mt, MGO: €720/mt, LNG: €420/mt (Q4 2024 avg)",
+          carbon: "EU ETS: €80/tonne CO₂ (current), €95/tonne projected (2025)" 
         }
       }
     };
@@ -726,88 +798,125 @@ const RouteOptimizer = () => {
             <p className="text-muted-foreground">Generated on {new Date().toLocaleDateString()}</p>
             <div className="flex justify-center items-center space-x-4 mt-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-success">€{reportData.fuelEmissionsEconomics.estimatedSavings.cost.toLocaleString()}</div>
-                <div className="text-xs text-muted-foreground">Total Savings</div>
+                <div className="text-2xl font-bold text-success">€{reportData.executiveSummary.totalSavingsOpportunity.euro.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground">Total Savings ({reportData.executiveSummary.totalSavingsOpportunity.percentage}%)</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-accent">{reportData.fuelEmissionsEconomics.estimatedSavings.tonnes}</div>
-                <div className="text-xs text-muted-foreground">Tonnes Saved</div>
+                <div className="text-2xl font-bold text-accent">{reportData.executiveSummary.totalEmissionReductions.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground">CO₂ Tonnes Reduced</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-warning">{reportData.benchmarkingKpis.kpis.routeEfficiency}%</div>
-                <div className="text-xs text-muted-foreground">Route Efficiency</div>
+                <div className="text-2xl font-bold text-warning">{reportData.executiveSummary.routesAnalyzed}</div>
+                <div className="text-xs text-muted-foreground">Routes Analyzed</div>
               </div>
             </div>
           </div>
 
-          {/* 1. Operational & Route Data */}
+          {/* 1. Executive Summary */}
           <section className="space-y-4">
-            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">1. Operational & Route Data</h2>
+            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">1. Executive Summary</h2>
             
-            <div className="space-y-4">
-              <h3 className="font-semibold text-accent">Vessel-Specific Breakdown</h3>
-              <div className="grid grid-cols-1 gap-3">
-                {reportData.operationalData.vesselBreakdown.map((vessel, i) => (
-                  <div key={i} className="bg-background/50 p-3 rounded border border-primary/10">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="font-medium">IMO: {vessel.imo} ({vessel.vesselClass})</span>
-                      <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded">{vessel.fuelType}</span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 text-xs">
-                      <div>
-                        <span className="text-muted-foreground">Historical:</span> {vessel.historicalRoute.distance}nm, {vessel.historicalRoute.time}h
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Optimized:</span> {vessel.optimizedRoute.distance}nm, {vessel.optimizedRoute.time}h
-                      </div>
-                      <div>
-                        <span className="text-success">Fuel Savings:</span> {vessel.fuelConsumption.savings}t
-                      </div>
-                    </div>
-                  </div>
-                ))}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="bg-background/50 p-3 rounded">
+                  <div className="text-sm font-medium text-success">Total Savings Opportunity</div>
+                  <div className="text-lg font-bold">€{reportData.executiveSummary.totalSavingsOpportunity.euro.toLocaleString()} ({reportData.executiveSummary.totalSavingsOpportunity.percentage}%)</div>
+                </div>
+                <div className="bg-background/50 p-3 rounded">
+                  <div className="text-sm font-medium text-accent">Total Emission Reductions</div>
+                  <div className="text-lg font-bold">{reportData.executiveSummary.totalEmissionReductions.toLocaleString()} tonnes CO₂</div>
+                </div>
               </div>
-
-              <h3 className="font-semibold text-accent">Port Congestion Analysis</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {reportData.operationalData.portCongestion.map((port, i) => (
-                  <div key={i} className="bg-background/50 p-2 rounded text-xs">
-                    <div className="font-medium">{port.port}</div>
-                    <div className="text-muted-foreground">Dwell: {port.dwellTime}h</div>
-                    <div className={`text-xs ${port.congestionLevel === 'High' ? 'text-destructive' : port.congestionLevel === 'Medium' ? 'text-warning' : 'text-success'}`}>
-                      {port.congestionLevel}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <h3 className="font-semibold text-accent">Weather & Ice Impact</h3>
-              <div className="bg-background/50 p-3 rounded">
-                <p className="text-xs mb-2">{reportData.operationalData.weatherImpact.iceConditions}</p>
-                <ul className="text-xs space-y-1">
-                  {reportData.operationalData.weatherImpact.seasonalVariations.map((variation, i) => (
-                    <li key={i} className="text-muted-foreground">• {variation}</li>
-                  ))}
-                </ul>
+              <div className="space-y-2">
+                <div className="bg-background/50 p-3 rounded">
+                  <div className="text-sm font-medium text-warning">Routes Analyzed & Optimized</div>
+                  <div className="text-lg font-bold">{reportData.executiveSummary.routesAnalyzed} routes</div>
+                </div>
+                <div className="bg-background/50 p-3 rounded">
+                  <div className="text-sm font-medium text-primary">Critical Findings</div>
+                  <ul className="text-xs mt-1 space-y-1">
+                    {reportData.executiveSummary.criticalFindings.slice(0, 2).map((finding, i) => (
+                      <li key={i} className="text-muted-foreground">• {finding}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           </section>
 
-          {/* 2. Fuel & Emissions Economics */}
+          {/* 2. Fleet & Route Overview */}
           <section className="space-y-4">
-            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">2. Fuel & Emissions Economics</h2>
+            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">2. Fleet & Route Overview</h2>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <h3 className="font-semibold text-accent mb-2">Fuel Type Breakdown</h3>
+                <h3 className="font-semibold text-accent mb-2">Fleet Analyzed</h3>
                 <div className="space-y-2">
-                  {reportData.fuelEmissionsEconomics.fuelTypes.map((fuel, i) => (
+                  {reportData.fleetRouteOverview.fleetAnalyzed.map((vessel, i) => (
+                    <div key={i} className="bg-background/50 p-2 rounded text-xs">
+                      <div className="flex justify-between items-start">
+                        <span className="font-medium">IMO: {vessel.imo}</span>
+                        <span className="text-xs bg-primary/20 text-primary px-1 py-0.5 rounded">{vessel.fuelType}</span>
+                      </div>
+                      <div className="text-muted-foreground">{vessel.type} • {vessel.size.toLocaleString()} DWT</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h3 className="font-semibold text-accent mb-2">Routes Analyzed</h3>
+                <div className="space-y-2">
+                  {reportData.fleetRouteOverview.routesAnalyzed.map((route, i) => (
+                    <div key={i} className="bg-background/50 p-2 rounded text-xs">
+                      <div className="font-medium">{route.route}</div>
+                      <div className="text-muted-foreground">{route.frequency} • {route.cargoTypes.join(', ')}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-background/50 p-3 rounded">
+              <h3 className="font-semibold text-accent mb-2">Historical Traffic Patterns</h3>
+              <div className="grid grid-cols-3 gap-4 text-xs">
+                <div>Total Vessels: <span className="font-bold">{reportData.fleetRouteOverview.historicalTrafficPatterns.totalVessels}</span></div>
+                <div>Average Transits: <span className="font-bold">{reportData.fleetRouteOverview.historicalTrafficPatterns.averageTransits}</span></div>
+                <div>Seasonal Variation: <span className="font-bold">{reportData.fleetRouteOverview.historicalTrafficPatterns.seasonalVariation}%</span></div>
+              </div>
+            </div>
+          </section>
+
+          {/* 3. Fuel & Emissions Analysis */}
+          <section className="space-y-4">
+            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">3. Fuel & Emissions Analysis</h2>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-semibold text-accent mb-2">Baseline vs Optimized Consumption</h3>
+                <div className="space-y-2">
+                  {reportData.fuelEmissionsAnalysis.baselineConsumption.map((baseline, i) => {
+                    const optimized = reportData.fuelEmissionsAnalysis.optimizedConsumption[i];
+                    return (
+                      <div key={i} className="bg-background/50 p-2 rounded text-xs">
+                        <div className="font-medium">{baseline.route}</div>
+                        <div className="grid grid-cols-2 gap-1 text-muted-foreground">
+                          <span>Baseline: {baseline.fuelTonnes}t</span>
+                          <span className="text-success">Reduction: {optimized?.projectedReduction}%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <h3 className="font-semibold text-accent mb-2 mt-4">Cost Impact</h3>
+                <div className="space-y-2">
+                  {reportData.fuelEmissionsAnalysis.costImpact.map((cost, i) => (
                     <div key={i} className="bg-background/50 p-2 rounded text-xs">
                       <div className="flex justify-between">
-                        <span>{fuel.type}</span>
-                        <span className="text-success">€{fuel.price}/t</span>
+                        <span>{cost.vessel}</span>
+                        <span className="text-success">€{cost.savings.toLocaleString()}</span>
                       </div>
-                      <div className="text-muted-foreground">Usage: {fuel.usage}%</div>
+                      <div className="text-muted-foreground">{cost.route}</div>
                     </div>
                   ))}
                 </div>
@@ -819,19 +928,35 @@ const RouteOptimizer = () => {
                   <div className="bg-background/50 p-2 rounded">
                     <div className="flex justify-between">
                       <span>CO₂ Reduction:</span>
-                      <span className="text-success">{reportData.fuelEmissionsEconomics.emissions.co2Reduction}t</span>
+                      <span className="text-success">{reportData.fuelEmissionsAnalysis.emissionsImpact.co2.toLocaleString()}t</span>
                     </div>
                   </div>
                   <div className="bg-background/50 p-2 rounded">
                     <div className="flex justify-between">
                       <span>NOx Reduction:</span>
-                      <span className="text-success">{reportData.fuelEmissionsEconomics.emissions.noxReduction}t</span>
+                      <span className="text-success">{reportData.fuelEmissionsAnalysis.emissionsImpact.nox}t</span>
                     </div>
                   </div>
                   <div className="bg-background/50 p-2 rounded">
                     <div className="flex justify-between">
-                      <span>EU ETS Savings:</span>
-                      <span className="text-success">€{reportData.fuelEmissionsEconomics.euEtsCosts.savings.toLocaleString()}</span>
+                      <span>SOx Reduction:</span>
+                      <span className="text-success">{reportData.fuelEmissionsAnalysis.emissionsImpact.sox}t</span>
+                    </div>
+                  </div>
+                </div>
+
+                <h3 className="font-semibold text-accent mb-2 mt-4">EU ETS Impact</h3>
+                <div className="space-y-2 text-xs">
+                  <div className="bg-background/50 p-2 rounded">
+                    <div className="flex justify-between">
+                      <span>Carbon Credits Saved:</span>
+                      <span className="text-success">{reportData.fuelEmissionsAnalysis.euEtsImpact.carbonCreditsSaved.toLocaleString()}t</span>
+                    </div>
+                  </div>
+                  <div className="bg-background/50 p-2 rounded">
+                    <div className="flex justify-between">
+                      <span>Cost Avoided:</span>
+                      <span className="text-success">€{reportData.fuelEmissionsAnalysis.euEtsImpact.costAvoided.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -839,81 +964,122 @@ const RouteOptimizer = () => {
             </div>
           </section>
 
-          {/* 3. Market & Commercial Context */}
+          {/* 4. Operational Efficiency */}
           <section className="space-y-4">
-            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">3. Market & Commercial Context</h2>
+            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">4. Operational Efficiency</h2>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <h3 className="font-semibold text-accent mb-2">Freight Rates Analysis</h3>
+                <h3 className="font-semibold text-accent mb-2">Port Efficiency Analysis</h3>
                 <div className="space-y-2">
-                  {reportData.marketCommercialContext.freightRates.map((rate, i) => (
+                  {reportData.operationalEfficiency.portEfficiency.map((port, i) => (
+                    <div key={i} className="bg-background/50 p-2 rounded text-xs">
+                      <div className="font-medium">{port.port}</div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <span className="text-muted-foreground">Dwell: {port.avgDwellTime}h</span>
+                        <span className="text-muted-foreground">Wait: {port.waitingTime}h</span>
+                      </div>
+                      <div className={`text-xs ${port.congestionLevel === 'High' ? 'text-destructive' : port.congestionLevel === 'Medium' ? 'text-warning' : 'text-success'}`}>
+                        {port.congestionLevel}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-accent mb-2">Route Efficiency Gains</h3>
+                <div className="space-y-2">
+                  {reportData.operationalEfficiency.routeEfficiency.map((route, i) => (
+                    <div key={i} className="bg-background/50 p-2 rounded text-xs">
+                      <div className="font-medium">{route.route}</div>
+                      <div className="grid grid-cols-2 gap-1 text-muted-foreground">
+                        <span>Distance: -{route.currentDistance - route.optimizedDistance}nm</span>
+                        <span className="text-success">Time saved: {route.timeSaving}h</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="font-semibold text-accent mb-2 mt-4">Speed Profile Optimization</h3>
+                <div className="bg-background/50 p-2 rounded text-xs space-y-1">
+                  <p><strong>Slow Steaming:</strong> {reportData.operationalEfficiency.speedProfile.slowSteaming}</p>
+                  <p><strong>Dynamic Routing:</strong> {reportData.operationalEfficiency.speedProfile.dynamicRouting}</p>
+                  <p className="text-success"><strong>Fuel Savings:</strong> {reportData.operationalEfficiency.speedProfile.fuelSavings}%</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-background/50 p-3 rounded">
+              <h3 className="font-semibold text-accent mb-2">Seasonal/Weather Impact</h3>
+              <div className="text-xs space-y-1">
+                <p><strong>Ice Conditions:</strong> {reportData.operationalEfficiency.seasonalConditions.iceImpact}</p>
+                <div><strong>Weather Considerations:</strong></div>
+                <ul className="ml-4 space-y-1">
+                  {reportData.operationalEfficiency.seasonalConditions.weatherConditions.map((condition, i) => (
+                    <li key={i} className="text-muted-foreground">• {condition}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          {/* 5. Market & Financial Impact */}
+          <section className="space-y-4">
+            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">5. Market & Financial Impact</h2>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-semibold text-accent mb-2">Freight Rate Analysis</h3>
+                <div className="space-y-2">
+                  {reportData.marketFinancialImpact.freightBenchmarks.map((rate, i) => (
                     <div key={i} className="bg-background/50 p-2 rounded text-xs">
                       <div className="font-medium">{rate.route}</div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{rate.cargoType}</span>
+                        <span className="text-muted-foreground">{rate.region}</span>
                         <span className="text-success">€{rate.rate}/t</span>
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
 
-              <div>
-                <h3 className="font-semibold text-accent mb-2">Industry Benchmarks</h3>
+                <h3 className="font-semibold text-accent mb-2 mt-4">Savings vs Income Impact</h3>
                 <div className="space-y-2 text-xs">
                   <div className="bg-background/50 p-2 rounded">
                     <div className="flex justify-between">
-                      <span>Industry Average Savings:</span>
-                      <span>{reportData.marketCommercialContext.industryBenchmarks.averageSavings}%</span>
+                      <span>Margin Uplift:</span>
+                      <span className="text-success">{reportData.marketFinancialImpact.savingsVsIncome.marginUplift}%</span>
                     </div>
                   </div>
                   <div className="bg-background/50 p-2 rounded">
                     <div className="flex justify-between">
-                      <span>Our Performance:</span>
-                      <span className="text-success">{reportData.marketCommercialContext.industryBenchmarks.peerComparison}%</span>
+                      <span>Revenue Impact:</span>
+                      <span className="text-success">{reportData.marketFinancialImpact.savingsVsIncome.revenueImpact}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-accent mb-2">ROI Analysis</h3>
+                <div className="space-y-2 text-xs">
+                  <div className="bg-background/50 p-2 rounded">
+                    <div className="flex justify-between">
+                      <span>Payback Period:</span>
+                      <span className="text-success">{reportData.marketFinancialImpact.roiAnalysis.paybackPeriod} months</span>
                     </div>
                   </div>
                   <div className="bg-background/50 p-2 rounded">
                     <div className="flex justify-between">
-                      <span>Time-Critical Cargo:</span>
-                      <span>{reportData.marketCommercialContext.cargoSensitivity.timeCritical}%</span>
+                      <span>Annualized Savings:</span>
+                      <span className="text-success">€{reportData.marketFinancialImpact.roiAnalysis.annualizedSavings.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </section>
 
-          {/* 4. Strategic Risk & Scenario Insights */}
-          <section className="space-y-4">
-            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">4. Strategic Risk & Scenario Analysis</h2>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h3 className="font-semibold text-accent mb-2">Risk Alerts</h3>
+                <h3 className="font-semibold text-accent mb-2 mt-4">Sensitivity Analysis</h3>
                 <div className="space-y-2">
-                  {reportData.strategicRisk.riskAlerts.map((alert, i) => (
-                    <div key={i} className="bg-background/50 p-2 rounded text-xs">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium">{alert.type}</span>
-                        <span className={`px-2 py-1 rounded text-xs ${
-                          alert.severity === 'High' ? 'bg-destructive/20 text-destructive' :
-                          alert.severity === 'Medium' ? 'bg-warning/20 text-warning' : 'bg-success/20 text-success'
-                        }`}>
-                          {alert.severity}
-                        </span>
-                      </div>
-                      <p className="text-muted-foreground">{alert.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-accent mb-2">Sensitivity Analysis</h3>
-                <div className="space-y-2">
-                  {reportData.strategicRisk.sensitivityAnalysis.map((scenario, i) => (
+                  {reportData.marketFinancialImpact.sensitivityAnalysis.map((scenario, i) => (
                     <div key={i} className="bg-background/50 p-2 rounded text-xs">
                       <div className="flex justify-between">
                         <span>{scenario.scenario}</span>
@@ -926,97 +1092,40 @@ const RouteOptimizer = () => {
             </div>
           </section>
 
-          {/* 5. Financial Impact & ROI */}
+          {/* 6. Strategic Risk Insights */}
           <section className="space-y-4">
-            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">5. Financial Impact & ROI</h2>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h3 className="font-semibold text-accent mb-2">Cost-Benefit Analysis</h3>
-                <div className="space-y-2">
-                  {reportData.financialImpact.costBenefit.map((item, i) => (
-                    <div key={i} className="bg-background/50 p-2 rounded text-xs">
-                      <div className="font-medium">{item.vessel}</div>
-                      <div className="text-muted-foreground">{item.route}</div>
-                      <div className="flex justify-between">
-                        <span>Savings:</span>
-                        <span className="text-success">€{item.savings.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>ROI:</span>
-                        <span className="text-success">{item.roi}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-accent mb-2">Overall ROI Calculation</h3>
-                <div className="space-y-2 text-xs">
-                  <div className="bg-background/50 p-2 rounded">
-                    <div className="flex justify-between">
-                      <span>Investment Required:</span>
-                      <span>€{reportData.financialImpact.roiCalculation.investment.toLocaleString()}</span>
-                    </div>
-                  </div>
-                  <div className="bg-background/50 p-2 rounded">
-                    <div className="flex justify-between">
-                      <span>Payback Period:</span>
-                      <span className="text-success">{reportData.financialImpact.roiCalculation.paybackMonths} months</span>
-                    </div>
-                  </div>
-                  <div className="bg-background/50 p-2 rounded">
-                    <div className="flex justify-between">
-                      <span>EBITDA Impact:</span>
-                      <span className="text-success">+{reportData.financialImpact.roiCalculation.ebitdaImpact}%</span>
-                    </div>
-                  </div>
-                  <div className="bg-background/50 p-2 rounded">
-                    <div className="flex justify-between">
-                      <span>Operating Margin Improvement:</span>
-                      <span className="text-success">+{reportData.financialImpact.operatingMargin.improvement}%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* 6. Actionable Recommendations */}
-          <section className="space-y-4">
-            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">6. Actionable Recommendations</h2>
+            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">6. Strategic Risk Insights</h2>
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-3">
                 <div>
-                  <h3 className="font-semibold text-accent mb-2">Departure Windows</h3>
+                  <h3 className="font-semibold text-accent mb-2">Port Bottlenecks</h3>
                   <div className="space-y-2">
-                    {reportData.actionableRecommendations.departureWindows.map((window, i) => (
+                    {reportData.strategicRiskInsights.portBottlenecks.map((bottleneck, i) => (
                       <div key={i} className="bg-background/50 p-2 rounded text-xs">
-                        <div className="font-medium">{window.port}</div>
-                        <div className="text-muted-foreground">{window.window}</div>
-                        <div className="text-success">{window.savings}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-accent mb-2">Port Slot Strategy</h3>
-                  <div className="space-y-2">
-                    {reportData.actionableRecommendations.portSlots.map((slot, i) => (
-                      <div key={i} className="bg-background/50 p-2 rounded text-xs">
-                        <div className="flex justify-between">
-                          <span className="font-medium">{slot.port}</span>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium">{bottleneck.port}</span>
                           <span className={`px-1 rounded text-xs ${
-                            slot.priority === 'High' ? 'bg-destructive/20 text-destructive' : 
-                            slot.priority === 'Medium' ? 'bg-warning/20 text-warning' : 'bg-success/20 text-success'
+                            bottleneck.severity === 'High' ? 'bg-destructive/20 text-destructive' : 
+                            bottleneck.severity === 'Medium' ? 'bg-warning/20 text-warning' : 'bg-success/20 text-success'
                           }`}>
-                            {slot.priority}
+                            {bottleneck.severity}
                           </span>
                         </div>
-                        <div className="text-muted-foreground">{slot.recommendation}</div>
+                        <p className="text-muted-foreground">{bottleneck.forecast}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-accent mb-2">Seasonal Risks</h3>
+                  <div className="space-y-2">
+                    {reportData.strategicRiskInsights.seasonalRisks.map((risk, i) => (
+                      <div key={i} className="bg-background/50 p-2 rounded text-xs">
+                        <div className="font-medium">{risk.risk}</div>
+                        <div className="text-muted-foreground">{risk.timeframe}</div>
+                        <div className="text-success">{risk.mitigation}</div>
                       </div>
                     ))}
                   </div>
@@ -1025,87 +1134,238 @@ const RouteOptimizer = () => {
 
               <div className="space-y-3">
                 <div>
-                  <h3 className="font-semibold text-accent mb-2">Speed Optimization</h3>
-                  <div className="bg-background/50 p-2 rounded text-xs space-y-1">
-                    <p><strong>Slow Steaming:</strong> {reportData.actionableRecommendations.speedOptimization.slowSteaming}</p>
-                    <p><strong>Dynamic Profiles:</strong> {reportData.actionableRecommendations.speedOptimization.dynamicProfiles}</p>
+                  <h3 className="font-semibold text-accent mb-2">Regulatory Updates</h3>
+                  <div className="space-y-2">
+                    {reportData.strategicRiskInsights.regulatoryUpdates.map((update, i) => (
+                      <div key={i} className="bg-background/50 p-2 rounded text-xs">
+                        <div className="font-medium">{update.regulation}</div>
+                        <div className="text-muted-foreground">{update.impact}</div>
+                        <div className="text-warning">{update.timeline}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-accent mb-2">Seasonal Routing</h3>
-                  <div className="bg-background/50 p-2 rounded text-xs space-y-2">
-                    <div><strong>Summer:</strong> {reportData.actionableRecommendations.seasonalRouting.summer}</div>
-                    <div><strong>Winter:</strong> {reportData.actionableRecommendations.seasonalRouting.winter}</div>
-                    <div>
-                      <strong>Key Recommendations:</strong>
-                      <ul className="mt-1 space-y-1">
-                        {reportData.actionableRecommendations.seasonalRouting.recommendations.map((rec, i) => (
-                          <li key={i} className="text-muted-foreground">• {rec}</li>
-                        ))}
-                      </ul>
-                    </div>
+                  <h3 className="font-semibold text-accent mb-2">Geopolitical Alerts</h3>
+                  <div className="space-y-2">
+                    {reportData.strategicRiskInsights.geopoliticalAlerts.map((alert, i) => (
+                      <div key={i} className="bg-background/50 p-2 rounded text-xs">
+                        <div className="font-medium">{alert.zone}</div>
+                        <div className="text-destructive">{alert.risk}</div>
+                        <div className="text-muted-foreground">{alert.recommendation}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* 7. Benchmarking & KPIs */}
+          {/* 7. Actionable Recommendations */}
           <section className="space-y-4">
-            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">7. Benchmarking & KPIs</h2>
+            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">7. Actionable Recommendations</h2>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div>
+                  <h3 className="font-semibold text-accent mb-2">Next 48h Actions</h3>
+                  <div className="space-y-2">
+                    {reportData.actionableRecommendations.next48hRecommendations.map((rec, i) => (
+                      <div key={i} className="bg-background/50 p-2 rounded text-xs">
+                        <div className="font-medium">{rec.vessel}</div>
+                        <div className="text-muted-foreground">{rec.route}</div>
+                        <div className="text-success">{rec.action}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-accent mb-2">Priority Port Slots</h3>
+                  <div className="space-y-2">
+                    {reportData.actionableRecommendations.priorityPortSlots.map((slot, i) => (
+                      <div key={i} className="bg-background/50 p-2 rounded text-xs">
+                        <div className="font-medium">{slot.port}</div>
+                        <div className="text-muted-foreground">{slot.timeSlot}</div>
+                        <div className="text-success">{slot.benefit}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <h3 className="font-semibold text-accent mb-2">Vessel-Specific Actions</h3>
+                  <div className="space-y-2">
+                    {reportData.actionableRecommendations.vesselSpecificActions.map((action, i) => (
+                      <div key={i} className="bg-background/50 p-2 rounded text-xs">
+                        <div className="font-medium">{action.vessel}</div>
+                        <div className="text-warning">{action.actionType}</div>
+                        <div className="text-muted-foreground">{action.description}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-accent mb-2">Long-term Strategies</h3>
+                  <div className="space-y-2">
+                    {reportData.actionableRecommendations.longTermStrategies.map((strategy, i) => (
+                      <div key={i} className="bg-background/50 p-2 rounded text-xs">
+                        <div className="font-medium">{strategy.strategy}</div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{strategy.timeline}</span>
+                          <span className="text-success">€{strategy.investment.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 8. KPIs & Benchmarking */}
+          <section className="space-y-4">
+            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">8. KPIs & Benchmarking</h2>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <h3 className="font-semibold text-accent mb-2">Vessel Efficiency Comparison</h3>
+                <h3 className="font-semibold text-accent mb-2">Performance Metrics</h3>
                 <div className="space-y-2 text-xs">
                   <div className="bg-background/50 p-2 rounded">
                     <div className="flex justify-between">
-                      <span>Current Performance:</span>
-                      <span className="text-success">{reportData.benchmarkingKpis.vesselEfficiency.current}%</span>
+                      <span>Fuel Efficiency:</span>
+                      <span className="text-success">{reportData.kpisBenchmarking.fuelEfficiency.current} t/nm</span>
                     </div>
+                    <div className="text-muted-foreground">Target: {reportData.kpisBenchmarking.fuelEfficiency.target} t/nm</div>
                   </div>
                   <div className="bg-background/50 p-2 rounded">
                     <div className="flex justify-between">
-                      <span>Fleet Average:</span>
-                      <span>{reportData.benchmarkingKpis.vesselEfficiency.fleetAverage}%</span>
+                      <span>Port Turnaround:</span>
+                      <span className="text-success">{reportData.kpisBenchmarking.portTurnaround.current}h</span>
                     </div>
-                  </div>
-                  <div className="bg-background/50 p-2 rounded">
-                    <div className="flex justify-between">
-                      <span>Industry Benchmark:</span>
-                      <span>{reportData.benchmarkingKpis.vesselEfficiency.industryBenchmark}%</span>
-                    </div>
+                    <div className="text-muted-foreground">Target: {reportData.kpisBenchmarking.portTurnaround.target}h</div>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="font-semibold text-accent mb-2">Key Performance Indicators</h3>
+                <h3 className="font-semibold text-accent mb-2">Benchmark Comparison</h3>
                 <div className="space-y-2 text-xs">
-                  <div className="bg-background/50 p-2 rounded">
-                    <div className="flex justify-between">
-                      <span>Fuel per Nautical Mile:</span>
-                      <span>{reportData.benchmarkingKpis.kpis.fuelPerNauticalMile} t/nm</span>
-                    </div>
-                  </div>
-                  <div className="bg-background/50 p-2 rounded">
-                    <div className="flex justify-between">
-                      <span>Emissions per Tonne-Mile:</span>
-                      <span>{reportData.benchmarkingKpis.kpis.emissionsPerTonneMile} t CO₂/t·nm</span>
-                    </div>
-                  </div>
                   <div className="bg-background/50 p-2 rounded">
                     <div className="flex justify-between">
                       <span>Route Efficiency:</span>
-                      <span className="text-success">{reportData.benchmarkingKpis.kpis.routeEfficiency}%</span>
+                      <span className="text-success">{reportData.kpisBenchmarking.routeEfficiency.current}%</span>
                     </div>
+                    <div className="text-muted-foreground">Benchmark: {reportData.kpisBenchmarking.routeEfficiency.benchmark}%</div>
                   </div>
                   <div className="bg-background/50 p-2 rounded">
                     <div className="flex justify-between">
                       <span>On-Time Performance:</span>
-                      <span className="text-success">{reportData.benchmarkingKpis.kpis.onTimePerformance}%</span>
+                      <span className="text-success">{reportData.kpisBenchmarking.onTimePerformance.current}%</span>
                     </div>
+                    <div className="text-muted-foreground">Benchmark: {reportData.kpisBenchmarking.onTimePerformance.benchmark}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 9. Implementation Roadmap */}
+          <section className="space-y-4">
+            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">9. Implementation Roadmap</h2>
+            
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <h3 className="font-semibold text-success mb-2">Phase 1: Quick Wins</h3>
+                <div className="bg-background/50 p-3 rounded text-xs">
+                  <div className="font-medium mb-2">{reportData.implementationRoadmap.phase1.duration}</div>
+                  <div className="space-y-1 mb-2">
+                    {reportData.implementationRoadmap.phase1.actions.map((action, i) => (
+                      <div key={i} className="text-muted-foreground">• {action}</div>
+                    ))}
+                  </div>
+                  <div className="text-success font-bold">Expected Savings: €{reportData.implementationRoadmap.phase1.expectedSavings.toLocaleString()}</div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-warning mb-2">Phase 2: Technology Integration</h3>
+                <div className="bg-background/50 p-3 rounded text-xs">
+                  <div className="font-medium mb-2">{reportData.implementationRoadmap.phase2.duration}</div>
+                  <div className="space-y-1 mb-2">
+                    {reportData.implementationRoadmap.phase2.actions.map((action, i) => (
+                      <div key={i} className="text-muted-foreground">• {action}</div>
+                    ))}
+                  </div>
+                  <div className="text-warning font-bold">Expected Savings: €{reportData.implementationRoadmap.phase2.expectedSavings.toLocaleString()}</div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-accent mb-2">Phase 3: Advanced Optimization</h3>
+                <div className="bg-background/50 p-3 rounded text-xs">
+                  <div className="font-medium mb-2">{reportData.implementationRoadmap.phase3.duration}</div>
+                  <div className="space-y-1 mb-2">
+                    {reportData.implementationRoadmap.phase3.actions.map((action, i) => (
+                      <div key={i} className="text-muted-foreground">• {action}</div>
+                    ))}
+                  </div>
+                  <div className="text-accent font-bold">Expected Savings: €{reportData.implementationRoadmap.phase3.expectedSavings.toLocaleString()}</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 10. Appendix / Data Transparency */}
+          <section className="space-y-4">
+            <h2 className="text-xl font-bold text-primary border-b border-primary/20 pb-2">10. Appendix / Data Transparency</h2>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div>
+                  <h3 className="font-semibold text-accent mb-2">AIS Data Sources</h3>
+                  <div className="bg-background/50 p-2 rounded text-xs">
+                    <ul className="space-y-1">
+                      {reportData.appendixDataTransparency.aisDataSources.map((source, i) => (
+                        <li key={i} className="text-muted-foreground">• {source}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-accent mb-2">Weather Data Providers</h3>
+                  <div className="bg-background/50 p-2 rounded text-xs">
+                    <ul className="space-y-1">
+                      {reportData.appendixDataTransparency.weatherProviders.map((provider, i) => (
+                        <li key={i} className="text-muted-foreground">• {provider}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <h3 className="font-semibold text-accent mb-2">Methodology</h3>
+                  <div className="bg-background/50 p-2 rounded text-xs">
+                    <ul className="space-y-1">
+                      {reportData.appendixDataTransparency.methodology.map((method, i) => (
+                        <li key={i} className="text-muted-foreground">• {method}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-accent mb-2">Pricing Assumptions</h3>
+                  <div className="bg-background/50 p-2 rounded text-xs space-y-1">
+                    <div><strong>Fuel Pricing:</strong> {reportData.appendixDataTransparency.pricingAssumptions.fuel}</div>
+                    <div><strong>Carbon Pricing:</strong> {reportData.appendixDataTransparency.pricingAssumptions.carbon}</div>
                   </div>
                 </div>
               </div>
