@@ -399,6 +399,99 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_bidding_opportunities: {
+        Row: {
+          bid_deadline: string
+          bid_requirements: Json | null
+          cargo_type: string | null
+          cargo_volume_tons: number | null
+          competitive_score: number | null
+          contact_info: Json | null
+          contract_description: string | null
+          contract_end_date: string | null
+          contract_start_date: string | null
+          contract_status: string | null
+          contract_title: string
+          contract_type: string
+          contract_value_eur: number | null
+          created_at: string | null
+          estimated_value_eur: number | null
+          evaluation_criteria: Json | null
+          id: string
+          issuing_organization: string
+          recommended_bid_strategy: string | null
+          region: string | null
+          regulatory_requirements: Json | null
+          route_destination: string | null
+          route_origin: string | null
+          source_url: string | null
+          terms_conditions: string | null
+          updated_at: string | null
+          vessel_requirements: Json | null
+          win_probability: number | null
+        }
+        Insert: {
+          bid_deadline: string
+          bid_requirements?: Json | null
+          cargo_type?: string | null
+          cargo_volume_tons?: number | null
+          competitive_score?: number | null
+          contact_info?: Json | null
+          contract_description?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          contract_status?: string | null
+          contract_title: string
+          contract_type: string
+          contract_value_eur?: number | null
+          created_at?: string | null
+          estimated_value_eur?: number | null
+          evaluation_criteria?: Json | null
+          id?: string
+          issuing_organization: string
+          recommended_bid_strategy?: string | null
+          region?: string | null
+          regulatory_requirements?: Json | null
+          route_destination?: string | null
+          route_origin?: string | null
+          source_url?: string | null
+          terms_conditions?: string | null
+          updated_at?: string | null
+          vessel_requirements?: Json | null
+          win_probability?: number | null
+        }
+        Update: {
+          bid_deadline?: string
+          bid_requirements?: Json | null
+          cargo_type?: string | null
+          cargo_volume_tons?: number | null
+          competitive_score?: number | null
+          contact_info?: Json | null
+          contract_description?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          contract_status?: string | null
+          contract_title?: string
+          contract_type?: string
+          contract_value_eur?: number | null
+          created_at?: string | null
+          estimated_value_eur?: number | null
+          evaluation_criteria?: Json | null
+          id?: string
+          issuing_organization?: string
+          recommended_bid_strategy?: string | null
+          region?: string | null
+          regulatory_requirements?: Json | null
+          route_destination?: string | null
+          route_origin?: string | null
+          source_url?: string | null
+          terms_conditions?: string | null
+          updated_at?: string | null
+          vessel_requirements?: Json | null
+          win_probability?: number | null
+        }
+        Relationships: []
+      }
       data_summaries: {
         Row: {
           calculation_date: string

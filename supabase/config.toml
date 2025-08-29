@@ -49,6 +49,9 @@ verify_jwt = false
 [functions.co2-emissions-collector]
 verify_jwt = false
 
+[functions.contract-bidding-analyzer]
+verify_jwt = false
+
 [functions.environmental-forecasting]
 verify_jwt = false
 

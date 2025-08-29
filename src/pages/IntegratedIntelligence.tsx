@@ -28,6 +28,7 @@ import {
   ImplementationRoadmap 
 } from '@/components/ReportTemplate';
 import ArbitrageOpportunities from '@/components/ArbitrageOpportunities';
+import ContractBidding from '@/components/ContractBidding';
 import { supabase } from '@/integrations/supabase/client';
 
 const IntegratedIntelligence = () => {
@@ -126,11 +127,12 @@ const IntegratedIntelligence = () => {
 
           {/* Tabbed Analysis */}
           <Tabs defaultValue="optimization" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 bg-white/50 dark:bg-slate-800/50">
+            <TabsList className="grid w-full grid-cols-6 bg-white/50 dark:bg-slate-800/50">
               <TabsTrigger value="optimization">Route Optimization</TabsTrigger>
               <TabsTrigger value="market">Market Intelligence</TabsTrigger>
               <TabsTrigger value="financial">Financial Impact</TabsTrigger>
               <TabsTrigger value="arbitrage">Arbitrage Opportunities</TabsTrigger>
+              <TabsTrigger value="contracts">Contract Bidding</TabsTrigger>
               <TabsTrigger value="implementation">Implementation</TabsTrigger>
             </TabsList>
 
@@ -383,6 +385,17 @@ const IntegratedIntelligence = () => {
               />
               
               <ArbitrageOpportunities />
+            </TabsContent>
+
+            <TabsContent value="contracts" className="space-y-6">
+              <SectionHeader
+                title="Contract Bidding Opportunities"
+                subtitle="Open sourced contracts available for bidding in the Baltic region"
+                icon={Target}
+                number={6}
+              />
+              
+              <ContractBidding />
             </TabsContent>
           </Tabs>
 
