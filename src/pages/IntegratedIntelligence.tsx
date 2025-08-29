@@ -60,12 +60,12 @@ const IntegratedIntelligence = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
               <Compass className="w-12 h-12 mx-auto mb-4 animate-spin text-primary" />
-              <h2 className="text-xl font-semibold text-primary mb-2">Generating Intelligence Report</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-2">Generating Intelligence Report</h2>
               <p className="text-muted-foreground">Analyzing routes, market data, and optimization opportunities...</p>
             </div>
           </div>
@@ -76,11 +76,11 @@ const IntegratedIntelligence = () => {
 
   if (!intelligenceData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
             <Ship className="w-16 h-16 mx-auto mb-6 text-primary" />
-            <h1 className="text-3xl font-bold text-primary mb-4">Integrated Shipping Intelligence</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-4">Integrated Shipping Intelligence</h1>
             <p className="text-muted-foreground mb-6">Generate comprehensive market and route optimization insights</p>
             <Button onClick={generateIntelligence} size="lg">
               Generate Intelligence Report
@@ -92,7 +92,7 @@ const IntegratedIntelligence = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto">
         {/* Report Header */}
         <ReportHeader
