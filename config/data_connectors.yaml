@@ -1,0 +1,190 @@
+# Baltic Data Hub - Eastern Sweden Data Connectors Configuration
+# Open data sources for Stockholm, Norrköping, Nyköping ecological reporting
+
+metadata:
+  version: "1.0"
+  updated: "2025-08-30"
+  timezone: "Europe/Stockholm"
+  description: "Data connector configuration for Baltic Sea ecological monitoring"
+  region: "Eastern Sweden"
+
+# Target municipalities
+target_municipalities:
+  stockholm:
+    name: "Stockholm Municipality"
+    code: "SE-0180"
+    coordinates: [59.3293, 18.0686]
+    basin: "baltic_proper"
+    population: 975551
+  norrkoping:
+    name: "Norrköping Municipality"  
+    code: "SE-0581"
+    coordinates: [58.5877, 16.1924]
+    basin: "baltic_proper"
+    population: 143171
+  nykoping:
+    name: "Nyköping Municipality"
+    code: "SE-0480"
+    coordinates: [58.7530, 17.0082]
+    basin: "baltic_proper"
+    population: 58411
+
+# Data source connectors
+connectors:
+  # Marine monitoring (SMHI SHARK)
+  smhi_shark:
+    name: "SMHI SHARKdata"
+    base_url: "https://sharkdata.smhi.se/datasets"
+    api_endpoint: "https://sharkdata.smhi.se/api/v1"
+    license: "CC BY 4.0"
+    update_frequency: "daily"
+    retry_config:
+      max_attempts: 3
+      backoff_seconds: 5
+    data_types:
+      - "nutrients" # N, P concentrations
+      - "oxygen" # DO measurements
+      - "chlorophyll" # Chl-a
+      - "temperature_salinity" # T/S profiles
+      - "biology" # Species observations
+    parameters:
+      bbox: "16.0,58.0,18.5,60.0" # Eastern Sweden coastal waters
+      start_date: "2020-01-01"
+      
+  # SMHI Algae situation
+  smhi_algae:
+    name: "SMHI Algae Situation"
+    base_url: "https://opendata-download-algae.smhi.se/api/version/1.0"
+    license: "CC BY 4.0"
+    update_frequency: "daily"
+    season_months: [6, 7, 8, 9] # June-September
+    endpoints:
+      daily_text: "/year/{year}/month/{month}/day/{day}/data/Baltic_algae_map.txt"
+      situation_map: "/year/{year}/month/{month}/day/{day}/data/Baltic_algae_map.png"
+
+  # CMEMS Baltic Sea
+  cmems_baltic:
+    name: "Copernicus Marine - Baltic Sea"
+    base_url: "https://my.cmems-du.eu/thredds/dodsC"
+    license: "Copernicus Marine Service"
+    update_frequency: "daily" 
+    datasets:
+      biogeochemistry: "cmems_mod_bal_bgc_my_P1D-m"
+      physics: "cmems_mod_bal_phy_my_P1D-m"
+    variables:
+      - "chl" # Chlorophyll-a
+      - "o2" # Dissolved oxygen
+      - "no3" # Nitrate
+      - "po4" # Phosphate
+      - "sst" # Sea surface temperature
+
+  # EEA Bathing Water
+  eea_bathing:
+    name: "EEA Bathing Water Quality"
+    base_url: "https://www.eea.europa.eu/data-and-maps/data/bathing-water-directive-status-waters-2021"
+    api_endpoint: "https://discomap.eea.europa.eu/arcgis/rest/services/Bio/EEA_ref_grids/MapServer"
+    license: "EEA Standard re-use policy"
+    update_frequency: "weekly"
+    country_codes: ["SE", "FI"]
+    quality_classes: ["Excellent", "Good", "Sufficient", "Poor"]
+
+  # UWWTD (Urban Wastewater Treatment)
+  uwwtd:
+    name: "Urban Wastewater Treatment Directive"
+    base_url: "https://www.eea.europa.eu/data-and-maps/data/urban-waste-water-treatment-directive-7"
+    api_endpoint: "https://discomap.eea.europa.eu/arcgis/rest/services/WaterQuality/UWWTD_2020/MapServer"
+    license: "EEA Standard re-use policy" 
+    update_frequency: "weekly"
+    compliance_levels: ["compliant", "not_compliant", "not_relevant"]
+    treatment_levels: ["primary", "secondary", "tertiary"]
+
+  # HELCOM Map & Data Service
+  helcom_mads:
+    name: "HELCOM Map & Data Service"
+    base_url: "https://maps.helcom.fi/arcgis/rest/services"
+    license: "HELCOM"
+    update_frequency: "monthly"
+    services:
+      protected_areas: "/HELCOM/ProtectedAreas/MapServer"
+      eutrophication: "/HELCOM/EutrophicationAssessment/MapServer"
+      indicators: "/HELCOM/Indicators/MapServer"
+
+  # EMODnet Chemistry  
+  emodnet_chemistry:
+    name: "EMODnet Chemistry"
+    base_url: "https://erddap.emodnet-chemistry.eu/erddap"
+    license: "EMODnet licence"
+    update_frequency: "monthly"
+    datasets:
+      eutrophication_baltic: "EUT_BALTIC_PROFILES_2024"
+      nutrients: "NUT_BALTIC_TIMESERIES_2024" 
+    bbox: "10.0,53.0,30.0,66.0" # Baltic Sea extent
+
+  # MSB Flood Portal
+  msb_flood:
+    name: "MSB Översvämningsportalen"
+    base_url: "https://gisapp.msb.se/apps/oversvamning"
+    wms_endpoint: "https://gisapp.msb.se/arcgis/services/Oversvamning/MapServer/WMSServer"
+    license: "CC0"
+    update_frequency: "monthly"
+    scenarios: ["1m", "2m", "3m", "4m", "5m"] # Sea level rise scenarios
+
+  # SCB Boundaries
+  scb_boundaries:
+    name: "SCB Municipality Boundaries"
+    base_url: "https://www.scb.se/hitta-statistik/regional-statistik-och-kartor/geodata"
+    download_url: "https://www.scb.se/contentassets/3443fea10de8467bbaa0479d842ba2b3/ko_2022.zip"
+    license: "CC0" 
+    update_frequency: "yearly"
+    coordinate_system: "SWEREF99 TM / EPSG:3006"
+
+# Processing pipelines
+processing:
+  eutrophication_indicators:
+    inputs: ["smhi_shark.nutrients", "cmems_baltic.chl", "smhi_algae"]
+    outputs: ["chl_a_anomaly", "nutrient_load", "bloom_days_per_season"]
+    
+  oxygen_stress:
+    inputs: ["smhi_shark.oxygen", "cmems_baltic.o2"]
+    outputs: ["hypoxia_days_per_quarter", "do_trend_3y"]
+    
+  bathing_performance:
+    inputs: ["eea_bathing"]
+    outputs: ["excellent_sites_pct", "quality_trend_3y"]
+    
+  wastewater_pressure:
+    inputs: ["uwwtd"]
+    outputs: ["treatment_compliance_pct", "tertiary_np_coverage"]
+    
+  protected_waters:
+    inputs: ["helcom_mads.protected_areas", "scb_boundaries"]
+    outputs: ["mpa_coverage_pct", "natura2000_overlap"]
+    
+  flood_exposure:
+    inputs: ["msb_flood", "scb_boundaries"]
+    outputs: ["flood_risk_area_pct", "assets_exposed_count"]
+
+# Quality assurance
+qa_rules:
+  data_freshness:
+    max_age_days: 30
+    critical_age_days: 90
+    
+  spatial_coverage:
+    min_coverage_pct: 60
+    target_coverage_pct: 80
+    
+  temporal_coverage:
+    min_years: 3
+    target_years: 5
+    
+  source_reliability:
+    trusted_sources: ["smhi", "eea", "helcom", "scb"]
+    verification_required: ["cmems", "emodnet"]
+
+# Caching strategy
+cache:
+  raw_data_retention_days: 90
+  processed_data_retention_days: 365
+  tile_cache_hours: 24
+  api_response_cache_minutes: 15

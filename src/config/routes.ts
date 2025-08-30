@@ -39,6 +39,11 @@ export const ROUTE_CANON = {
     anchors: ["scorecard", "drivers", "ctas", "exports", "map"],
     description: "Automated ecological scorecards and sustainability reporting"
   },
+  "/pilot-east-sweden": {
+    title: "Baltic Data Hub - Eastern Sweden Pilot",
+    anchors: ["kpis", "map", "evidence", "provenance"],
+    description: "Pilot ecological monitoring for Stockholm, Norrköping, and Nyköping"
+  },
   "/auth": { 
     title: "Authentication",
     anchors: [],

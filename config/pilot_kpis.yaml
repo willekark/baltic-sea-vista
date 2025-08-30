@@ -1,0 +1,182 @@
+# Baltic Data Hub - Pilot KPI Configuration for Eastern Sweden
+# Defines the specific KPIs for Stockholm, Norrköping, Nyköping pilot
+
+metadata:
+  version: "1.0"
+  updated: "2025-08-30"
+  description: "Pilot KPI definitions for Eastern Sweden municipalities"
+  
+# Municipality-specific KPIs
+municipality_kpis:
+  # Bathing water performance
+  bathing_performance:
+    title: "Bathing Water Quality"
+    description: "Percentage of bathing sites with excellent/good ratings"
+    unit: "percent"
+    calculation: "count(excellent + good) / count(total_sites) * 100"
+    data_sources: ["eea_bathing"]
+    update_frequency: "seasonal"
+    thresholds:
+      excellent: 90
+      good: 75
+      warning: 50
+      alert: 25
+    
+  # Eutrophication signals  
+  eutrophication_pressure:
+    title: "Eutrophication Pressure Index"
+    description: "Combined chlorophyll-a anomaly and bloom frequency"
+    unit: "index_0_100"
+    calculation: "weighted_avg(chl_a_zscore, bloom_frequency)"
+    data_sources: ["smhi_shark", "smhi_algae", "cmems_baltic"]
+    update_frequency: "monthly"
+    components:
+      chl_a_anomaly:
+        weight: 0.6
+        baseline_years: "2015-2020"
+      bloom_days_per_season:
+        weight: 0.4
+        season_months: [6, 7, 8, 9]
+        
+  # Oxygen stress
+  oxygen_stress:
+    title: "Hypoxia Risk Level" 
+    description: "Frequency of low oxygen events"
+    unit: "days_per_quarter"
+    calculation: "count(DO < 2_mg_L) per quarter"
+    data_sources: ["smhi_shark", "cmems_baltic"]
+    update_frequency: "quarterly"
+    thresholds:
+      low: 5
+      moderate: 15
+      high: 30
+      critical: 50
+
+  # Wastewater treatment performance
+  wastewater_compliance:
+    title: "Wastewater Treatment Performance"
+    description: "UWWTD compliance and tertiary treatment coverage"
+    unit: "percent"
+    calculation: "compliance_rate + tertiary_bonus"
+    data_sources: ["uwwtd"]
+    update_frequency: "yearly"
+    components:
+      compliance_rate:
+        weight: 0.7
+        target: 95
+      tertiary_np_coverage:
+        weight: 0.3
+        target: 80
+
+  # Protected waters coverage
+  protected_waters:
+    title: "Marine Protection Coverage"
+    description: "Percentage of municipal waters in protected areas"
+    unit: "percent"
+    calculation: "area(mpa_overlap) / area(municipal_waters) * 100"
+    data_sources: ["helcom_mads", "scb_boundaries"]
+    update_frequency: "yearly"
+    thresholds:
+      excellent: 30
+      good: 20
+      adequate: 10
+      insufficient: 5
+
+  # Climate resilience
+  flood_resilience:
+    title: "Coastal Flood Resilience" 
+    description: "Exposure to sea level rise scenarios"
+    unit: "risk_index"
+    calculation: "weighted_risk(scenarios_1m_to_5m)"
+    data_sources: ["msb_flood"]
+    update_frequency: "yearly"
+    scenarios:
+      - name: "1m_slr"
+        weight: 0.4
+        probability: 0.8
+      - name: "2m_slr" 
+        weight: 0.3
+        probability: 0.5
+      - name: "5m_slr"
+        weight: 0.3
+        probability: 0.1
+
+# Water body specific KPIs (VISS water bodies)
+waterbody_kpis:
+  nutrient_status:
+    title: "Nutrient Status"
+    description: "N/P concentrations vs reference conditions"
+    unit: "ratio_to_reference"
+    data_sources: ["smhi_shark", "emodnet_chemistry"]
+    
+  ecological_status:
+    title: "WFD Ecological Status"
+    description: "Overall ecological classification"
+    unit: "classification"
+    classes: ["High", "Good", "Moderate", "Poor", "Bad"]
+    data_sources: ["smhi_shark", "emodnet_chemistry"]
+
+# Aggregated regional KPIs
+regional_kpis:
+  baltic_sea_health:
+    title: "Baltic Sea Health Index"
+    description: "Composite health indicator for Baltic Proper"
+    unit: "index_0_100"
+    calculation: "weighted_avg(all_municipality_scores)"
+    
+  trend_direction:
+    title: "3-Year Trend Direction"
+    description: "Overall improvement/decline trend"
+    unit: "trend"
+    values: ["improving", "stable", "declining"]
+    calculation: "trend_analysis(3_year_window)"
+
+# Evidence metrics (supporting data)
+evidence_metrics:
+  temperature_anomaly:
+    title: "Sea Surface Temperature Anomaly"
+    data_sources: ["cmems_baltic"]
+    
+  precipitation_runoff:
+    title: "Precipitation-driven Nutrient Runoff"
+    data_sources: ["smhi_weather", "smhi_hydro"]
+    
+  shipping_pressure:
+    title: "Shipping Traffic Density"
+    data_sources: ["ais_tracking"]
+    
+  coastal_development:
+    title: "Coastal Development Pressure"
+    data_sources: ["scb_land_use", "lantmateriet"]
+
+# Temporal aggregation rules
+temporal_aggregation:
+  seasonal:
+    spring: [3, 4, 5]
+    summer: [6, 7, 8] 
+    autumn: [9, 10, 11]
+    winter: [12, 1, 2]
+    
+  bloom_season:
+    early_summer: [6, 7]
+    late_summer: [8, 9]
+    
+  hypoxia_season:
+    critical_period: [8, 9, 10] # Post-bloom oxygen depletion
+
+# Data quality flags
+quality_flags:
+  excellent:
+    data_age_days: 7
+    spatial_coverage: 0.9
+    measurement_frequency: "weekly"
+    
+  good:
+    data_age_days: 30
+    spatial_coverage: 0.7
+    measurement_frequency: "monthly"
+    
+  poor:
+    data_age_days: 90
+    spatial_coverage: 0.4
+    measurement_frequency: "seasonal"
