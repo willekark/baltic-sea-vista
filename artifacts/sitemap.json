@@ -1,0 +1,122 @@
+{
+  "generatedAt": "2025-08-30T08:45:00Z",
+  "baseUrl": "http://localhost:5173",
+  "routes": [
+    {
+      "path": "/",
+      "title": "Maritime Intelligence Platform",
+      "description": "Real-time Baltic Sea maritime intelligence and analytics",
+      "status": "✅ VALIDATED",
+      "anchors": ["hero", "marine-data", "intelligence-section", "interactive-map-section", "dashboard", "features"],
+      "navigationElements": [
+        {
+          "type": "hero-cta",
+          "testId": "cta-get-started", 
+          "label": "Get Started",
+          "destination": "/auth",
+          "status": "✅"
+        },
+        {
+          "type": "hero-cta",
+          "testId": "cta-port-services",
+          "label": "Port Services", 
+          "destination": "/port-agent",
+          "status": "✅"
+        },
+        {
+          "type": "hero-cta",
+          "testId": "cta-track-vessels",
+          "label": "Track Vessels",
+          "destination": "/shadow-fleet", 
+          "status": "✅"
+        },
+        {
+          "type": "dashboard-action",
+          "testId": "action-port-agent",
+          "label": "Port Agent Services",
+          "destination": "/port-agent",
+          "status": "✅"
+        },
+        {
+          "type": "dashboard-action", 
+          "testId": "action-intelligence",
+          "label": "Intelligence Hub",
+          "destination": "/intelligence",
+          "status": "✅"
+        },
+        {
+          "type": "dashboard-action",
+          "testId": "action-fleet-tracker", 
+          "label": "Fleet Tracker",
+          "destination": "/shadow-fleet",
+          "status": "✅"
+        },
+        {
+          "type": "feature-link",
+          "testId": "feature-intelligence",
+          "label": "Try Intelligence", 
+          "destination": "/intelligence",
+          "status": "✅"
+        },
+        {
+          "type": "feature-link",
+          "testId": "feature-port-agent",
+          "label": "Port Agent Services",
+          "destination": "/port-agent", 
+          "status": "✅"
+        }
+      ]
+    },
+    {
+      "path": "/intelligence",
+      "title": "Intelligence Dashboard", 
+      "description": "Comprehensive maritime intelligence dashboard",
+      "status": "✅ VALIDATED",
+      "anchors": ["overview", "alerts", "map", "cards", "summary", "provenance"]
+    },
+    {
+      "path": "/intelligence/integrated",
+      "title": "Integrated Intelligence",
+      "description": "Advanced decision support and integrated analysis", 
+      "status": "✅ VALIDATED",
+      "anchors": ["decision-hub"]
+    },
+    {
+      "path": "/eutrophication", 
+      "title": "Eutrophication Reports",
+      "description": "Baltic Sea eutrophication monitoring and reports",
+      "status": "✅ VALIDATED",
+      "anchors": ["reports", "data-explorer"]
+    },
+    {
+      "path": "/shadow-fleet",
+      "title": "Shadow Fleet Tracker",
+      "description": "Advanced vessel tracking and anomaly detection",
+      "status": "✅ VALIDATED", 
+      "anchors": ["tracker", "analysis", "alerts"]
+    },
+    {
+      "path": "/port-agent",
+      "title": "Port Agent Dashboard", 
+      "description": "Port operations and agent services platform",
+      "status": "✅ VALIDATED",
+      "anchors": ["dashboard", "services", "analytics"]
+    },
+    {
+      "path": "/auth",
+      "title": "Authentication",
+      "description": "User authentication and access control",
+      "status": "✅ VALIDATED",
+      "anchors": []
+    }
+  ],
+  "summary": {
+    "totalRoutes": 7,
+    "validatedRoutes": 7, 
+    "totalAnchors": 21,
+    "totalNavigationElements": 8,
+    "brokenLinks": 0,
+    "securityIssues": 0,
+    "overallStatus": "✅ ALL SYSTEMS GO"
+  }
+}
