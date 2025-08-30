@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
+import InteractiveMaritimeMap from './InteractiveMaritimeMap';
 import { 
   Map,
   Clock,
@@ -310,17 +311,8 @@ const DecisionHub = () => {
           </div>
 
           {/* Map Canvas */}
-          <div className="flex-1 relative bg-slate-100">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <Map className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold text-muted-foreground mb-2">Interactive Map Canvas</h3>
-                <p className="text-sm text-muted-foreground mb-4">Fast tile layers with currents, waves, SST, ice, and more</p>
-                <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
-                  <span>Selected layers: {selectedLayers.join(', ')}</span>
-                </div>
-              </div>
-            </div>
+          <div className="flex-1 relative">
+            <InteractiveMaritimeMap />
 
             {/* Time Slider */}
             <div className="absolute bottom-4 left-4 right-4 bg-card/90 backdrop-blur-sm border border-border rounded-lg p-4">
