@@ -15,6 +15,8 @@ import {
   Anchor
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { FEATURES_NAV } from "@/config/nav";
+import { scrollToHash } from "@/utils/navigation";
 
 const Features = () => {
   const features = [

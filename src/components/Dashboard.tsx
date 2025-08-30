@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { DASHBOARD_ACTIONS } from "@/config/nav";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -130,7 +131,7 @@ const Dashboard = () => {
   };
 
   return (
-    <section id="dashboard-section" className="py-24 bg-gradient-tech min-h-screen">
+    <section id="dashboard" className="py-24 bg-gradient-tech min-h-screen">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <Badge variant="outline" className="mb-4 bg-gradient-investment text-black font-medium border-primary/20">
@@ -202,50 +203,25 @@ const Dashboard = () => {
           <div className="bg-gradient-dark-panel rounded-2xl p-6 shadow-panel border border-primary/20">
             <h3 className="text-xl font-bold mb-4 text-foreground">Platform Services</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button 
-                onClick={() => navigate('/port-agent')}
-                className="p-4 rounded-lg border border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 text-left group"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14m-7 7V5" />
-                    </svg>
+              {DASHBOARD_ACTIONS.map((action) => (
+                <button 
+                  key={action.testId}
+                  onClick={() => navigate(action.href)}
+                  className="p-4 rounded-lg border border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 text-left group"
+                  data-testid={action.testId}
+                  aria-label={action.description}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14m-7 7V5" />
+                      </svg>
+                    </div>
+                    <span className="font-medium text-foreground">{action.label}</span>
                   </div>
-                  <span className="font-medium text-foreground">Port Agent Services</span>
-                </div>
-                <p className="text-sm text-muted-foreground">Comprehensive port operations management</p>
-              </button>
-              
-              <button 
-                onClick={() => navigate('/intelligence')}
-                className="p-4 rounded-lg border border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 text-left group"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                  <span className="font-medium text-foreground">Intelligence Hub</span>
-                </div>
-                <p className="text-sm text-muted-foreground">AI-powered maritime intelligence and analytics</p>
-              </button>
-              
-              <button 
-                onClick={() => navigate('/shadow-fleet')}
-                className="p-4 rounded-lg border border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 text-left group"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                  <span className="font-medium text-foreground">Security Monitoring</span>
-                </div>
-                <p className="text-sm text-muted-foreground">Shadow fleet detection and threat analysis</p>
-              </button>
+                  <p className="text-sm text-muted-foreground">{action.description}</p>
+                </button>
+              ))}
             </div>
           </div>
         </div>

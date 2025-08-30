@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Database, BarChart, Map, Skull, Anchor } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/baltic-sea-hero.jpg";
+import { HERO_CTAS } from "@/config/nav";
+import { scrollToHash } from "@/utils/navigation";
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -44,53 +46,32 @@ const Hero = () => {
             variant="secondary" 
             size="lg" 
             className="group transition-all duration-300 hover:shadow-investment bg-gradient-investment text-black font-semibold hover:scale-105"
-            onClick={() => {
-              const dashboardSection = document.getElementById('dashboard-section');
-              if (dashboardSection) {
-                dashboardSection.scrollIntoView({ 
-                  behavior: 'smooth',
-                  block: 'start'
-                });
-              }
-            }}
+            onClick={() => scrollToHash('dashboard', 80)}
           >
             <BarChart className="w-5 h-5 mr-2" />
             Intelligence Dashboard
             <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </Button>
           
-          <Button 
-            variant="hero" 
-            size="lg"
-            className="group transition-all duration-300 hover:shadow-investment hover:scale-105"
-            onClick={() => navigate('/auth')}
-          >
-            <Anchor className="w-5 h-5 mr-2" />
-            Access Marketplace
-            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-          </Button>
-          
-          <Button 
-            variant="hero" 
-            size="lg"
-            className="group transition-all duration-300 hover:shadow-investment hover:scale-105"
-            onClick={() => navigate('/port-agent')}
-          >
-            <Anchor className="w-5 h-5 mr-2" />
-            Port Agent Services
-            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-          </Button>
-          
-          <Button 
-            variant="hero" 
-            size="lg"
-            className="group transition-all duration-300 hover:shadow-investment hover:scale-105"
-            onClick={() => navigate('/shadow-fleet')}
-          >
-            <Skull className="w-5 h-5 mr-2" />
-            Shadow Fleet Tracker
-            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-          </Button>
+          {HERO_CTAS.map((cta) => {
+            const IconComponent = cta.label === "Get Started" ? Anchor : 
+                                 cta.label === "Port Services" ? Anchor : Skull;
+            return (
+              <Button 
+                key={cta.testId}
+                variant="hero" 
+                size="lg"
+                className="group transition-all duration-300 hover:shadow-investment hover:scale-105"
+                onClick={() => navigate(cta.href)}
+                data-testid={cta.testId}
+                aria-label={cta.description}
+              >
+                <IconComponent className="w-5 h-5 mr-2" />
+                {cta.label}
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            );
+          })}
         </div>
         
         {/* Key Features */}

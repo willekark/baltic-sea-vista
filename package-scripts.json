@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "validate:links": "npm run crawl && npm run validate:nav",
+    "crawl": "BASE_URL=http://localhost:5173 npx tsx scripts/crawl.ts",
+    "crawl:prod": "BASE_URL=${PROD_URL:-https://your-domain.com} npx tsx scripts/crawl.ts",
+    "validate:nav": "npx tsx -e \"import { validateNavigation } from './src/config/nav.js'; const result = validateNavigation(); console.log(result); process.exit(result.valid ? 0 : 1);\"",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:smoke": "playwright test e2e/smoke.spec.ts",
+    "test:navigation": "playwright test e2e/navigation.spec.ts",
+    "ci:links": "npm run crawl && npm run test:navigation && npm run test:smoke",
+    "report:links": "npx tsx -e \"console.log('\\nLink Validation Report:\\nSee artifacts/ directory for detailed CSV reports and go-live-report.md')\""
+  }
+}
