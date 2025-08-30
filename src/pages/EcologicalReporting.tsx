@@ -36,8 +36,23 @@ const EcologicalReporting = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchEcologicalData();
+    initializeData();
   }, [selectedEntity]);
+
+  const initializeData = async () => {
+    // First check if we have any data, if not seed it
+    const { data: existingMunicipalities } = await supabase
+      .from('municipalities')
+      .select('id')
+      .limit(1);
+
+    if (!existingMunicipalities?.length) {
+      console.log('No municipalities found, seeding data...');
+      await supabase.functions.invoke('seed-ecological-data');
+    }
+
+    fetchEcologicalData();
+  };
 
   const fetchEcologicalData = async () => {
     setLoading(true);
