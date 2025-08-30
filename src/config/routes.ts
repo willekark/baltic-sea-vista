@@ -35,14 +35,9 @@ export const ROUTE_CANON = {
     description: "Port operations and agent services platform"
   },
   "/ecology": { 
-    title: "Ecological Reporting",
-    anchors: ["scorecard", "drivers", "ctas", "exports", "map"],
-    description: "Automated ecological scorecards and sustainability reporting"
-  },
-  "/pilot-east-sweden": {
-    title: "Baltic Data Hub - Eastern Sweden Pilot",
-    anchors: ["kpis", "map", "evidence", "provenance"],
-    description: "Pilot ecological monitoring for Stockholm, Norrköping, and Nyköping"
+    title: "Baltic Data Hub - Ecological Reporting",
+    anchors: ["scorecard", "kpis", "ctas", "map", "evidence", "exports"],
+    description: "Automated ecological scorecards and sustainability reporting for Baltic municipalities"
   },
   "/auth": { 
     title: "Authentication",
@@ -56,7 +51,8 @@ export const ROUTE_REDIRECTS = {
   "/marine": "/", 
   "/dashboard": "/intelligence",
   "/login": "/auth",
-  "/signup": "/auth"
+  "/signup": "/auth",
+  "/pilot-east-sweden": "/ecology"
 } as const;
 
 // Type helpers
