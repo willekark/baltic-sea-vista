@@ -79,6 +79,7 @@ const InteractiveMaritimeMap = () => {
   // Fetch real-time marine data
   const fetchMarineData = async () => {
     try {
+      console.log('Fetching marine data...');
       const { data, error } = await supabase.functions.invoke('fetch-baltic-marine-data', {
         body: {
           basin: 'baltic_proper',
@@ -87,9 +88,17 @@ const InteractiveMaritimeMap = () => {
         }
       });
 
-      if (error) throw error;
+      console.log('Marine data response:', { data, error });
 
-      if (data?.success && data?.data) {
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
+
+      // The function returns data directly, not wrapped in success/data
+      if (data && data.data) {
+        console.log('Processing', data.data.length, 'data points');
+        
         // Convert API data to map data points with synthetic locations
         const mapData = data.data.map((item: any, index: number) => ({
           id: item.id,
@@ -103,14 +112,33 @@ const InteractiveMaritimeMap = () => {
           location: generateBalticLocation(index, data.data.length)
         }));
 
+        console.log('Processed map data:', mapData);
         setMarineData(mapData);
         
         if (map.current && isMapReady) {
+          console.log('Updating map layers with data');
           updateMapLayers(mapData);
         }
+
+        toast({
+          title: "Data Updated",
+          description: `Loaded ${mapData.length} data points`
+        });
+      } else {
+        console.warn('No data received from API');
+        toast({
+          title: "No Data",
+          description: "No marine data available at this time",
+          variant: "destructive"
+        });
       }
     } catch (error) {
       console.error('Error fetching marine data:', error);
+      toast({
+        title: "Data Error",
+        description: "Failed to fetch marine data. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
