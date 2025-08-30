@@ -218,67 +218,69 @@ const InteractiveMaritimeMap = () => {
   const addMapLayers = () => {
     if (!map.current) return;
 
-    // Add synthetic current vectors
+    // Add all data sources
     map.current.addSource('currents', {
       type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: []
-      }
+      data: { type: 'FeatureCollection', features: [] }
     });
 
-    // Add wave data as heatmap
     map.current.addSource('waves', {
       type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: []
-      }
+      data: { type: 'FeatureCollection', features: [] }
     });
 
-    // Add wind vectors
     map.current.addSource('wind', {
       type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: []
-      }
+      data: { type: 'FeatureCollection', features: [] }
     });
 
-    // Add vessel traffic points
     map.current.addSource('vessels', {
       type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: []
-      }
+      data: { type: 'FeatureCollection', features: [] }
     });
 
-    // Add infrastructure points
+    map.current.addSource('sst', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] }
+    });
+
+    map.current.addSource('oxygen', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] }
+    });
+
+    map.current.addSource('chlorophyll', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] }
+    });
+
     map.current.addSource('infrastructure', {
       type: 'geojson',
       data: generateInfrastructureData()
     });
 
+    // Add all map layers
+    
     // Current vectors layer
     map.current.addLayer({
-      id: 'current-vectors',
+      id: 'currents',
       type: 'line',
       source: 'currents',
       paint: {
         'line-color': '#3b82f6',
         'line-width': 3,
         'line-opacity': 0.7
-      }
+      },
+      layout: { 'visibility': 'visible' }
     });
 
     // Wave heatmap layer
     map.current.addLayer({
-      id: 'wave-heatmap',
+      id: 'waves',
       type: 'heatmap',
       source: 'waves',
       paint: {
-        'heatmap-weight': ['get', 'intensity'],
+        'heatmap-weight': ['case', ['has', 'intensity'], ['get', 'intensity'], 1],
         'heatmap-intensity': 1,
         'heatmap-color': [
           'interpolate',
@@ -293,38 +295,116 @@ const InteractiveMaritimeMap = () => {
         ],
         'heatmap-radius': 30,
         'heatmap-opacity': 0.6
-      }
+      },
+      layout: { 'visibility': 'visible' }
     });
 
     // Wind vectors layer
     map.current.addLayer({
-      id: 'wind-vectors',
+      id: 'wind',
       type: 'line',
       source: 'wind',
       paint: {
         'line-color': '#10b981',
         'line-width': 2,
         'line-opacity': 0.5
-      }
+      },
+      layout: { 'visibility': 'visible' }
+    });
+
+    // Sea Surface Temperature heatmap
+    map.current.addLayer({
+      id: 'sst',
+      type: 'heatmap',
+      source: 'sst',
+      paint: {
+        'heatmap-weight': ['case', ['has', 'temperature'], ['get', 'temperature'], 1],
+        'heatmap-intensity': 0.8,
+        'heatmap-color': [
+          'interpolate',
+          ['linear'],
+          ['heatmap-density'],
+          0, 'rgba(245, 158, 11, 0)',
+          0.2, 'rgba(245, 158, 11, 0.3)',
+          0.4, 'rgba(239, 68, 68, 0.5)',
+          0.6, 'rgba(220, 38, 38, 0.7)',
+          0.8, 'rgba(185, 28, 28, 0.8)',
+          1, 'rgba(153, 27, 27, 0.9)'
+        ],
+        'heatmap-radius': 25,
+        'heatmap-opacity': 0.6
+      },
+      layout: { 'visibility': 'none' }
+    });
+
+    // Dissolved Oxygen layer
+    map.current.addLayer({
+      id: 'oxygen',
+      type: 'heatmap',
+      source: 'oxygen',
+      paint: {
+        'heatmap-weight': ['case', ['has', 'oxygen'], ['get', 'oxygen'], 1],
+        'heatmap-intensity': 0.7,
+        'heatmap-color': [
+          'interpolate',
+          ['linear'],
+          ['heatmap-density'],
+          0, 'rgba(139, 92, 246, 0)',
+          0.2, 'rgba(139, 92, 246, 0.3)',
+          0.4, 'rgba(124, 58, 237, 0.5)',
+          0.6, 'rgba(109, 40, 217, 0.7)',
+          0.8, 'rgba(91, 33, 182, 0.8)',
+          1, 'rgba(76, 29, 149, 0.9)'
+        ],
+        'heatmap-radius': 20,
+        'heatmap-opacity': 0.5
+      },
+      layout: { 'visibility': 'none' }
+    });
+
+    // Chlorophyll-a layer
+    map.current.addLayer({
+      id: 'chlorophyll',
+      type: 'heatmap',
+      source: 'chlorophyll',
+      paint: {
+        'heatmap-weight': ['case', ['has', 'chlorophyll'], ['get', 'chlorophyll'], 1],
+        'heatmap-intensity': 0.6,
+        'heatmap-color': [
+          'interpolate',
+          ['linear'],
+          ['heatmap-density'],
+          0, 'rgba(34, 197, 94, 0)',
+          0.2, 'rgba(34, 197, 94, 0.3)',
+          0.4, 'rgba(22, 163, 74, 0.5)',
+          0.6, 'rgba(21, 128, 61, 0.7)',
+          0.8, 'rgba(20, 83, 45, 0.8)',
+          1, 'rgba(22, 101, 52, 0.9)'
+        ],
+        'heatmap-radius': 18,
+        'heatmap-opacity': 0.5
+      },
+      layout: { 'visibility': 'none' }
     });
 
     // Vessel traffic layer
     map.current.addLayer({
-      id: 'vessel-traffic',
+      id: 'shipping',
       type: 'circle',
       source: 'vessels',
       paint: {
-        'circle-radius': ['interpolate', ['linear'], ['get', 'intensity'], 1, 4, 10, 12],
+        'circle-radius': ['case', ['has', 'intensity'], ['interpolate', ['linear'], ['get', 'intensity'], 1, 4, 10, 12], 6],
         'circle-color': '#ef4444',
         'circle-opacity': 0.8,
         'circle-stroke-width': 1,
         'circle-stroke-color': '#ffffff'
-      }
+      },
+      layout: { 'visibility': 'visible' }
     });
 
     // Infrastructure layer
     map.current.addLayer({
-      id: 'infrastructure-points',
+      id: 'infrastructure',
       type: 'symbol',
       source: 'infrastructure',
       layout: {
@@ -334,7 +414,8 @@ const InteractiveMaritimeMap = () => {
         'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
         'text-size': 12,
         'text-offset': [0, 2],
-        'text-anchor': 'top'
+        'text-anchor': 'top',
+        'visibility': 'visible'
       },
       paint: {
         'icon-color': '#6b7280',
@@ -345,14 +426,14 @@ const InteractiveMaritimeMap = () => {
     });
 
     // Add click handlers
-    map.current.on('click', 'vessel-traffic', (e) => {
+    map.current.on('click', 'shipping', (e) => {
       if (e.features && e.features[0]) {
         const feature = e.features[0];
         showPopup(e.lngLat, feature.properties);
       }
     });
 
-    map.current.on('click', 'infrastructure-points', (e) => {
+    map.current.on('click', 'infrastructure', (e) => {
       if (e.features && e.features[0]) {
         const feature = e.features[0];
         showPopup(e.lngLat, feature.properties);
@@ -392,11 +473,12 @@ const InteractiveMaritimeMap = () => {
   const updateMapLayers = (data: MarineDataPoint[]) => {
     if (!map.current) return;
 
+    console.log('Updating map layers with', data.length, 'data points');
+
     // Update current vectors
-    const currentFeatures = data
-      .filter(d => d.id === 'currents')
-      .map(d => generateCurrentVector(d))
-      .filter((f): f is GeoJSON.Feature => f !== null);
+    const currentData = data.filter(d => d.id === 'currents');
+    const currentFeatures = currentData.map(d => generateCurrentVector(d)).filter((f): f is GeoJSON.Feature => f !== null);
+    console.log('Current features:', currentFeatures.length);
 
     if (map.current.getSource('currents')) {
       (map.current.getSource('currents') as mapboxgl.GeoJSONSource).setData({
@@ -406,9 +488,9 @@ const InteractiveMaritimeMap = () => {
     }
 
     // Update wave data
-    const waveFeatures = data
-      .filter(d => d.id === 'waves')
-      .flatMap(d => generateWavePoints(d));
+    const waveData = data.filter(d => d.id === 'waves');
+    const waveFeatures = waveData.flatMap(d => generateWavePoints(d));
+    console.log('Wave features:', waveFeatures.length);
 
     if (map.current.getSource('waves')) {
       (map.current.getSource('waves') as mapboxgl.GeoJSONSource).setData({
@@ -418,10 +500,9 @@ const InteractiveMaritimeMap = () => {
     }
 
     // Update wind vectors
-    const windFeatures = data
-      .filter(d => d.id === 'wind')
-      .map(d => generateWindVector(d))
-      .filter((f): f is GeoJSON.Feature => f !== null);
+    const windData = data.filter(d => d.id === 'wind');
+    const windFeatures = windData.map(d => generateWindVector(d)).filter((f): f is GeoJSON.Feature => f !== null);
+    console.log('Wind features:', windFeatures.length);
 
     if (map.current.getSource('wind')) {
       (map.current.getSource('wind') as mapboxgl.GeoJSONSource).setData({
@@ -430,8 +511,45 @@ const InteractiveMaritimeMap = () => {
       });
     }
 
+    // Update SST data
+    const sstData = data.filter(d => d.id === 'sst' || d.id === 'temperature');
+    const sstFeatures = sstData.flatMap(d => generateTemperaturePoints(d));
+    console.log('SST features:', sstFeatures.length);
+
+    if (map.current.getSource('sst')) {
+      (map.current.getSource('sst') as mapboxgl.GeoJSONSource).setData({
+        type: 'FeatureCollection',
+        features: sstFeatures
+      });
+    }
+
+    // Update oxygen data
+    const oxygenData = data.filter(d => d.id === 'oxygen' || d.id === 'dissolved_oxygen');
+    const oxygenFeatures = oxygenData.flatMap(d => generateOxygenPoints(d));
+    console.log('Oxygen features:', oxygenFeatures.length);
+
+    if (map.current.getSource('oxygen')) {
+      (map.current.getSource('oxygen') as mapboxgl.GeoJSONSource).setData({
+        type: 'FeatureCollection',
+        features: oxygenFeatures
+      });
+    }
+
+    // Update chlorophyll data
+    const chlorophyllData = data.filter(d => d.id === 'chlorophyll' || d.id === 'chlorophyll_a');
+    const chlorophyllFeatures = chlorophyllData.flatMap(d => generateChlorophyllPoints(d));
+    console.log('Chlorophyll features:', chlorophyllFeatures.length);
+
+    if (map.current.getSource('chlorophyll')) {
+      (map.current.getSource('chlorophyll') as mapboxgl.GeoJSONSource).setData({
+        type: 'FeatureCollection',
+        features: chlorophyllFeatures
+      });
+    }
+
     // Update vessel traffic (synthetic data based on shipping intensity)
-    const vesselFeatures = generateVesselTraffic();
+    const vesselFeatures = generateVesselTraffic(data);
+    console.log('Vessel features:', vesselFeatures.length);
 
     if (map.current.getSource('vessels')) {
       (map.current.getSource('vessels') as mapboxgl.GeoJSONSource).setData({
@@ -530,8 +648,89 @@ const InteractiveMaritimeMap = () => {
     };
   };
 
+  // Generate temperature points for heatmap
+  const generateTemperaturePoints = (dataPoint: MarineDataPoint): GeoJSON.Feature[] => {
+    if (!dataPoint.location) return [];
+
+    const points: GeoJSON.Feature[] = [];
+    const baseIntensity = Math.max(0.1, Math.min(1.0, dataPoint.primaryValue / 25)); // Normalize temperature
+
+    for (let i = 0; i < 8; i++) {
+      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 0.8;
+      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 0.8;
+      
+      points.push({
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [offsetLng, offsetLat]
+        },
+        properties: {
+          temperature: baseIntensity * (0.5 + Math.random() * 0.5),
+          value: dataPoint.primaryValue
+        }
+      });
+    }
+
+    return points;
+  };
+
+  // Generate oxygen points for heatmap
+  const generateOxygenPoints = (dataPoint: MarineDataPoint): GeoJSON.Feature[] => {
+    if (!dataPoint.location) return [];
+
+    const points: GeoJSON.Feature[] = [];
+    const baseIntensity = Math.max(0.1, Math.min(1.0, dataPoint.primaryValue / 12)); // Normalize oxygen
+
+    for (let i = 0; i < 6; i++) {
+      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 0.6;
+      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 0.6;
+      
+      points.push({
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [offsetLng, offsetLat]
+        },
+        properties: {
+          oxygen: baseIntensity * (0.5 + Math.random() * 0.5),
+          value: dataPoint.primaryValue
+        }
+      });
+    }
+
+    return points;
+  };
+
+  // Generate chlorophyll points for heatmap
+  const generateChlorophyllPoints = (dataPoint: MarineDataPoint): GeoJSON.Feature[] => {
+    if (!dataPoint.location) return [];
+
+    const points: GeoJSON.Feature[] = [];
+    const baseIntensity = Math.max(0.1, Math.min(1.0, dataPoint.primaryValue / 20)); // Normalize chlorophyll
+
+    for (let i = 0; i < 7; i++) {
+      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 0.7;
+      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 0.7;
+      
+      points.push({
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [offsetLng, offsetLat]
+        },
+        properties: {
+          chlorophyll: baseIntensity * (0.5 + Math.random() * 0.5),
+          value: dataPoint.primaryValue
+        }
+      });
+    }
+
+    return points;
+  };
+
   // Generate synthetic vessel traffic
-  const generateVesselTraffic = (): GeoJSON.Feature[] => {
+  const generateVesselTraffic = (data?: MarineDataPoint[]): GeoJSON.Feature[] => {
     const vessels: GeoJSON.Feature[] = [];
     const shippingLanes = [
       { start: [18.0686, 59.3293], end: [24.9384, 60.1699] }, // Stockholm-Helsinki
@@ -584,32 +783,27 @@ const InteractiveMaritimeMap = () => {
 
   // Toggle layer visibility
   const toggleLayer = (layerId: string) => {
-    setLayers(prev => prev.map(layer => 
-      layer.id === layerId 
-        ? { ...layer, enabled: !layer.enabled }
-        : layer
-    ));
+    if (!map.current) return;
 
-    if (map.current) {
-      const layer = layers.find(l => l.id === layerId);
-      if (layer) {
-        const mapLayerId = getMapLayerId(layerId);
-        const visibility = layer.enabled ? 'none' : 'visible';
-        map.current.setLayoutProperty(mapLayerId, 'visibility', visibility);
-      }
+    const layer = layers.find(l => l.id === layerId);
+    if (!layer) return;
+
+    try {
+      const visibility = map.current.getLayoutProperty(layerId, 'visibility');
+      const newVisibility = visibility === 'visible' ? 'none' : 'visible';
+      
+      map.current.setLayoutProperty(layerId, 'visibility', newVisibility);
+      
+      setLayers(prevLayers =>
+        prevLayers.map(l =>
+          l.id === layerId ? { ...l, enabled: newVisibility === 'visible' } : l
+        )
+      );
+
+      console.log(`Toggled layer ${layerId} to ${newVisibility}`);
+    } catch (error) {
+      console.error(`Error toggling layer ${layerId}:`, error);
     }
-  };
-
-  // Get corresponding map layer ID
-  const getMapLayerId = (layerId: string) => {
-    const mapping: { [key: string]: string } = {
-      'currents': 'current-vectors',
-      'waves': 'wave-heatmap',
-      'wind': 'wind-vectors',
-      'shipping': 'vessel-traffic',
-      'infrastructure': 'infrastructure-points'
-    };
-    return mapping[layerId] || layerId;
   };
 
   // Start/stop animation
