@@ -469,96 +469,6 @@ const InteractiveMaritimeMap = () => {
     };
   };
 
-  // Update map layers with real data
-  const updateMapLayers = (data: MarineDataPoint[]) => {
-    if (!map.current) return;
-
-    console.log('Updating map layers with', data.length, 'data points');
-
-    // Update current vectors
-    const currentData = data.filter(d => d.id === 'currents');
-    const currentFeatures = currentData.map(d => generateCurrentVector(d)).filter((f): f is GeoJSON.Feature => f !== null);
-    console.log('Current features:', currentFeatures.length);
-
-    if (map.current.getSource('currents')) {
-      (map.current.getSource('currents') as mapboxgl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: currentFeatures
-      });
-    }
-
-    // Update wave data
-    const waveData = data.filter(d => d.id === 'waves');
-    const waveFeatures = waveData.flatMap(d => generateWavePoints(d));
-    console.log('Wave features:', waveFeatures.length);
-
-    if (map.current.getSource('waves')) {
-      (map.current.getSource('waves') as mapboxgl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: waveFeatures
-      });
-    }
-
-    // Update wind vectors
-    const windData = data.filter(d => d.id === 'wind');
-    const windFeatures = windData.map(d => generateWindVector(d)).filter((f): f is GeoJSON.Feature => f !== null);
-    console.log('Wind features:', windFeatures.length);
-
-    if (map.current.getSource('wind')) {
-      (map.current.getSource('wind') as mapboxgl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: windFeatures
-      });
-    }
-
-    // Update SST data
-    const sstData = data.filter(d => d.id === 'sst' || d.id === 'temperature');
-    const sstFeatures = sstData.flatMap(d => generateTemperaturePoints(d));
-    console.log('SST features:', sstFeatures.length);
-
-    if (map.current.getSource('sst')) {
-      (map.current.getSource('sst') as mapboxgl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: sstFeatures
-      });
-    }
-
-    // Update oxygen data
-    const oxygenData = data.filter(d => d.id === 'oxygen' || d.id === 'dissolved_oxygen');
-    const oxygenFeatures = oxygenData.flatMap(d => generateOxygenPoints(d));
-    console.log('Oxygen features:', oxygenFeatures.length);
-
-    if (map.current.getSource('oxygen')) {
-      (map.current.getSource('oxygen') as mapboxgl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: oxygenFeatures
-      });
-    }
-
-    // Update chlorophyll data
-    const chlorophyllData = data.filter(d => d.id === 'chlorophyll' || d.id === 'chlorophyll_a');
-    const chlorophyllFeatures = chlorophyllData.flatMap(d => generateChlorophyllPoints(d));
-    console.log('Chlorophyll features:', chlorophyllFeatures.length);
-
-    if (map.current.getSource('chlorophyll')) {
-      (map.current.getSource('chlorophyll') as mapboxgl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: chlorophyllFeatures
-      });
-    }
-
-    // Update vessel traffic (synthetic data based on shipping intensity)
-    const vesselFeatures = generateVesselTraffic(data);
-    console.log('Vessel features:', vesselFeatures.length);
-
-    if (map.current.getSource('vessels')) {
-      (map.current.getSource('vessels') as mapboxgl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: vesselFeatures
-      });
-    }
-  };
-
   // Generate current vector from data point
   const generateCurrentVector = (dataPoint: MarineDataPoint): GeoJSON.Feature | null => {
     if (!dataPoint.location) return null;
@@ -727,6 +637,96 @@ const InteractiveMaritimeMap = () => {
     }
 
     return points;
+  };
+
+  // Update map layers with real data
+  const updateMapLayers = (data: MarineDataPoint[]) => {
+    if (!map.current) return;
+
+    console.log('Updating map layers with', data.length, 'data points');
+
+    // Update current vectors
+    const currentData = data.filter(d => d.id === 'currents');
+    const currentFeatures = currentData.map(d => generateCurrentVector(d)).filter((f): f is GeoJSON.Feature => f !== null);
+    console.log('Current features:', currentFeatures.length);
+
+    if (map.current.getSource('currents')) {
+      (map.current.getSource('currents') as mapboxgl.GeoJSONSource).setData({
+        type: 'FeatureCollection',
+        features: currentFeatures
+      });
+    }
+
+    // Update wave data
+    const waveData = data.filter(d => d.id === 'waves');
+    const waveFeatures = waveData.flatMap(d => generateWavePoints(d));
+    console.log('Wave features:', waveFeatures.length);
+
+    if (map.current.getSource('waves')) {
+      (map.current.getSource('waves') as mapboxgl.GeoJSONSource).setData({
+        type: 'FeatureCollection',
+        features: waveFeatures
+      });
+    }
+
+    // Update wind vectors
+    const windData = data.filter(d => d.id === 'wind');
+    const windFeatures = windData.map(d => generateWindVector(d)).filter((f): f is GeoJSON.Feature => f !== null);
+    console.log('Wind features:', windFeatures.length);
+
+    if (map.current.getSource('wind')) {
+      (map.current.getSource('wind') as mapboxgl.GeoJSONSource).setData({
+        type: 'FeatureCollection',
+        features: windFeatures
+      });
+    }
+
+    // Update SST data
+    const sstData = data.filter(d => d.id === 'sst' || d.id === 'temperature');
+    const sstFeatures = sstData.flatMap(d => generateTemperaturePoints(d));
+    console.log('SST features:', sstFeatures.length);
+
+    if (map.current.getSource('sst')) {
+      (map.current.getSource('sst') as mapboxgl.GeoJSONSource).setData({
+        type: 'FeatureCollection',
+        features: sstFeatures
+      });
+    }
+
+    // Update oxygen data
+    const oxygenData = data.filter(d => d.id === 'oxygen' || d.id === 'dissolved_oxygen');
+    const oxygenFeatures = oxygenData.flatMap(d => generateOxygenPoints(d));
+    console.log('Oxygen features:', oxygenFeatures.length);
+
+    if (map.current.getSource('oxygen')) {
+      (map.current.getSource('oxygen') as mapboxgl.GeoJSONSource).setData({
+        type: 'FeatureCollection',
+        features: oxygenFeatures
+      });
+    }
+
+    // Update chlorophyll data
+    const chlorophyllData = data.filter(d => d.id === 'chlorophyll' || d.id === 'chlorophyll_a');
+    const chlorophyllFeatures = chlorophyllData.flatMap(d => generateChlorophyllPoints(d));
+    console.log('Chlorophyll features:', chlorophyllFeatures.length);
+
+    if (map.current.getSource('chlorophyll')) {
+      (map.current.getSource('chlorophyll') as mapboxgl.GeoJSONSource).setData({
+        type: 'FeatureCollection',
+        features: chlorophyllFeatures
+      });
+    }
+
+    // Update vessel traffic (synthetic data based on shipping intensity)
+    const vesselFeatures = generateVesselTraffic(data);
+    console.log('Vessel features:', vesselFeatures.length);
+
+    if (map.current.getSource('vessels')) {
+      (map.current.getSource('vessels') as mapboxgl.GeoJSONSource).setData({
+        type: 'FeatureCollection',
+        features: vesselFeatures
+      });
+    }
   };
 
   // Generate synthetic vessel traffic
