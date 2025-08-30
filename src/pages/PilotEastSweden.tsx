@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import CTARecommendationCard from '../components/CTARecommendationCard';
+import { generateCTARecommendations } from '../utils/ctaGenerator';
 import { 
   Leaf, 
   Download, 
@@ -19,7 +22,21 @@ import {
   BarChart3,
   Eye,
   FileText,
-  Layers
+  Layers,
+  Target,
+  Users,
+  Building,
+  Zap,
+  Shield,
+  Droplets,
+  Factory,
+  TreePine,
+  Waves,
+  Calendar,
+  Euro,
+  Scale,
+  BookOpen,
+  Settings
 } from "lucide-react";
 
 interface PilotKPI {
@@ -42,10 +59,48 @@ interface EvidenceMetric {
   source: string;
 }
 
+interface CTARecommendation {
+  id: string;
+  title: string;
+  category: string;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  description: string;
+  actions: {
+    short_term: string[];
+    medium_term: string[];
+    long_term: string[];
+  };
+  estimated_impact: {
+    kpi_improvement: string;
+    co2_reduction_tonnes: number;
+    cost_estimate_eur: string;
+    roi_timeline: string;
+  };
+  implementation: {
+    stakeholders: string[];
+    timeline_months: number;
+    budget_sources: string[];
+    success_metrics: string[];
+  };
+  evidence: {
+    data_sources: string[];
+    baseline_values: { [key: string]: number };
+    benchmarks: string;
+  };
+  regulatory_framework: {
+    eu_directives: string[];
+    national_legislation: string[];
+    local_permits: string[];
+  };
+  co_benefits: string[];
+  risks: string[];
+}
+
 const PilotEastSweden = () => {
   const [selectedMunicipality, setSelectedMunicipality] = useState('stockholm');
   const [kpis, setKpis] = useState<PilotKPI[]>([]);
   const [evidenceMetrics, setEvidenceMetrics] = useState<EvidenceMetric[]>([]);
+  const [ctas, setCtas] = useState<CTARecommendation[]>([]);
   const [mapLayers, setMapLayers] = useState({
     mpas: false,
     floodZones: false,
@@ -71,9 +126,11 @@ const PilotEastSweden = () => {
       // For now, we'll generate representative pilot data
       const mockKPIs = generatePilotKPIs(selectedMunicipality);
       const mockEvidence = generateEvidenceMetrics(selectedMunicipality);
+      const mockCTAs = generateCTARecommendationsLocal(selectedMunicipality, mockKPIs);
       
       setKpis(mockKPIs);
       setEvidenceMetrics(mockEvidence);
+      setCtas(mockCTAs);
     } catch (error) {
       console.error('Error fetching pilot data:', error);
     } finally {
@@ -181,6 +238,10 @@ const PilotEastSweden = () => {
     ];
   };
 
+  const generateCTARecommendationsLocal = (municipalityId: string, kpis: PilotKPI[]): CTARecommendation[] => {
+    return generateCTARecommendations(municipalityId, kpis);
+  };
+
   const generateEvidenceMetrics = (municipalityId: string): EvidenceMetric[] => {
     return [
       {
@@ -265,8 +326,9 @@ const PilotEastSweden = () => {
         </div>
 
         <Tabs defaultValue="kpis" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="kpis">KPI Dashboard</TabsTrigger>
+            <TabsTrigger value="ctas">Action Plan</TabsTrigger>
             <TabsTrigger value="map">Map Overlays</TabsTrigger>
             <TabsTrigger value="evidence">Evidence Panel</TabsTrigger>
             <TabsTrigger value="provenance">Data Provenance</TabsTrigger>
@@ -316,6 +378,47 @@ const PilotEastSweden = () => {
             )}
           </TabsContent>
 
+          {/* Call-to-Actions */}
+          <TabsContent value="ctas" className="space-y-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold">Action Plan & Recommendations</h2>
+                <p className="text-muted-foreground mt-1">
+                  Evidence-based interventions to improve ecological performance metrics
+                </p>
+              </div>
+              <Badge variant="outline" className="flex items-center gap-2">
+                <Target className="w-4 h-4" />
+                {ctas.length} Active Recommendations
+              </Badge>
+            </div>
+
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {ctas.map((recommendation) => (
+                  <CTARecommendationCard 
+                    key={recommendation.id} 
+                    recommendation={recommendation} 
+                  />
+                ))}
+                
+                {ctas.length === 0 && (
+                  <Card className="p-8">
+                    <div className="text-center text-muted-foreground">
+                      <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>No specific recommendations needed at this time.</p>
+                      <p className="text-sm mt-2">All KPIs are performing within acceptable ranges.</p>
+                    </div>
+                  </Card>
+                )}
+              </div>
+            )}
+          </TabsContent>
+
           {/* Map Overlays */}
           <TabsContent value="map" className="space-y-6">
             <Card>
@@ -344,7 +447,7 @@ const PilotEastSweden = () => {
                   <div className="text-center text-muted-foreground">
                     <MapPin className="w-12 h-12 mx-auto mb-4" />
                     <p>Interactive map would be rendered here</p>
-                    <p className="text-sm">Showing: {Object.entries(mapLayers).filter(([_, enabled]) => enabled).map(([layer]) => layer).join(', ')}</p>
+                    <p className="text-sm">Showing: {Object.entries(mapLayers).filter(([_, enabled]) => Boolean(enabled)).map(([layer]) => layer).join(', ')}</p>
                   </div>
                 </div>
               </CardContent>
