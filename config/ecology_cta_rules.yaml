@@ -1,0 +1,238 @@
+# Ecological CTA (Call-to-Action) Rules Configuration
+# Evidence-based action recommendations for Baltic Sea ecological improvement
+
+metadata:
+  version: "1.0"
+  updated: "2025-08-30"
+  description: "Actionable recommendations based on ecological performance gaps"
+
+# Rule structure: when conditions met, suggest these actions
+rules:
+  # Eutrophication & Water Quality
+  - id: "reduce_nutrient_loads"
+    priority: 1  # High priority
+    when:
+      conditions:
+        - metric: "chl_a_anomaly"
+          operator: ">"
+          value: 1.5
+        - metric: "secchi_anomaly" 
+          operator: "<"
+          value: -1.0
+      logic: "OR"  # Either condition triggers
+    then:
+      title: "Reduce Nutrient Loads"
+      description: "High chlorophyll and poor water clarity indicate excess nutrients"
+      estimated_impact: "High"
+      actions:
+        - "Upgrade municipal WWTP with tertiary N/P removal; apply for national grants"
+        - "Construct treatment wetlands and stormwater retention basins"
+        - "Strengthen agricultural buffer strips and runoff management in catchment"
+        - "Implement smart stormwater controls to reduce CSO events"
+      evidence_metrics: ["uwwtd_compliance", "bathing_excellent_pct", "nutrient_proxy"]
+      timeframe: "2-5 years"
+      
+  - id: "restore_oxygen_levels"
+    priority: 1
+    when:
+      conditions:
+        - metric: "do_hypoxia_days"
+          operator: ">"
+          value: 10
+        - metric: "hab_prob_summer"
+          operator: ">"
+          value: 0.5
+    then:
+      title: "Restore Coastal Habitats & Cut Oxygen Demand"
+      description: "Frequent hypoxia events threaten marine ecosystems"
+      estimated_impact: "High"
+      actions:
+        - "Seagrass restoration and blue-carbon projects"
+        - "Reduce organic loading from wastewater and runoff"
+        - "Create oxygen-boosting coastal wetlands"
+        - "Monitor and manage algal bloom hotspots"
+      evidence_metrics: ["do_hypoxia_days", "hab_prob_summer", "ecosystem_health"]
+      timeframe: "3-7 years"
+
+  # Wastewater & Bathing Water Quality  
+  - id: "improve_wastewater_treatment"
+    priority: 2  # Medium priority
+    when:
+      conditions:
+        - metric: "uwwtd_compliance"
+          operator: "<"
+          value: 80
+        - metric: "tertiary_np_flag"
+          operator: "="
+          value: false
+    then:
+      title: "Upgrade Wastewater Treatment"
+      description: "Non-compliant or inadequate wastewater treatment"
+      estimated_impact: "Medium"
+      actions:
+        - "Retrofit existing plants with advanced nutrient removal"
+        - "Regular maintenance and compliance monitoring"
+        - "Consider regional plant consolidation for efficiency"
+        - "Implement source separation for industrial discharges"
+      evidence_metrics: ["uwwtd_compliance", "tertiary_np_flag", "bathing_excellent_pct"]
+      timeframe: "1-3 years"
+      
+  - id: "enhance_bathing_water_quality"
+    priority: 2
+    when:
+      conditions:
+        - metric: "bathing_excellent_pct"
+          operator: "<"
+          value: 60
+    then:
+      title: "Enhance Bathing Water Quality"
+      description: "Too few bathing sites achieve 'Excellent' rating"
+      estimated_impact: "Medium"
+      actions:
+        - "Identify and control pollution sources near bathing areas"
+        - "Install UV disinfection or other advanced treatment"
+        - "Improve stormwater management in coastal catchments"
+        - "Regular monitoring and public communication"
+      evidence_metrics: ["bathing_excellent_pct", "uwwtd_compliance"]
+      timeframe: "1-2 years"
+
+  # Coastal Resilience & Adaptation
+  - id: "coastal_resilience_planning"
+    priority: 1
+    when:
+      conditions:
+        - metric: "surge_exceedance_72h"
+          operator: ">"
+          value: 0.4
+        - metric: "has_adaptation_plan"
+          operator: "="
+          value: false
+    then:
+      title: "Develop Coastal Resilience Strategy"
+      description: "High flood risk without adaptation planning"
+      estimated_impact: "High"
+      actions:
+        - "Develop municipal climate adaptation plan"
+        - "Nature-based solutions: dunes, berms, floodable parks"
+        - "Early-warning systems linked to surge forecasts"
+        - "Zoning restrictions in flood-prone areas"
+      evidence_metrics: ["surge_exceedance_72h", "has_adaptation_plan"]
+      timeframe: "1-2 years"
+      
+  - id: "implement_flood_protection"
+    priority: 2
+    when:
+      conditions:
+        - metric: "surge_exceedance_72h"
+          operator: ">"
+          value: 0.6
+    then:
+      title: "Implement Flood Protection Measures"
+      description: "Very high coastal flood risk requires immediate action"
+      estimated_impact: "High"
+      actions:
+        - "Emergency flood barriers and pump stations"
+        - "Elevate critical infrastructure"
+        - "Create tidal buffer zones and living shorelines"
+        - "Community flood preparedness programs"
+      evidence_metrics: ["surge_exceedance_72h", "coastal_hazard"]
+      timeframe: "0.5-2 years"
+
+  # Ecosystem Protection & Enhancement
+  - id: "expand_marine_protection"
+    priority: 3  # Lower priority
+    when:
+      conditions:
+        - metric: "shoreline_in_mpa_pct"
+          operator: "<"
+          value: 20
+    then:
+      title: "Expand Marine Protected Areas"
+      description: "Low marine protection coverage"
+      estimated_impact: "Medium"
+      actions:
+        - "Designate new coastal and marine protected areas"
+        - "Enhance management of existing protected areas"
+        - "Create ecological corridors connecting habitats"
+        - "Engage stakeholders in conservation planning"
+      evidence_metrics: ["shoreline_in_mpa_pct", "ecosystem_health"]
+      timeframe: "2-5 years"
+
+  # Governance & Framework Participation
+  - id: "join_sustainability_frameworks"
+    priority: 3
+    when:
+      conditions:
+        - metric: "frameworks_participation"
+          operator: "<"
+          value: 50  # Less than 2 out of 4 frameworks
+    then:
+      title: "Join International Sustainability Frameworks"
+      description: "Limited participation in global sustainability initiatives"
+      estimated_impact: "Low"
+      actions:
+        - "Join CDP Cities program for climate reporting"
+        - "Develop SECAP (Sustainable Energy & Climate Action Plan)"
+        - "Sign EU Green City Accord"
+        - "Pursue ISO 37120 sustainable city certification"
+      evidence_metrics: ["frameworks_participation", "trend_compliance"]
+      timeframe: "0.5-1 year"
+      
+  - id: "improve_trend_monitoring"
+    priority: 2
+    when:
+      conditions:
+        - metric: "helcom_trend_3y"
+          operator: "="
+          value: "declining"
+    then:
+      title: "Address Declining Environmental Trends"
+      description: "Key environmental indicators showing negative trends"
+      estimated_impact: "High"
+      actions:
+        - "Comprehensive environmental assessment"
+        - "Strengthen monitoring and data collection"
+        - "Review and update environmental policies"
+        - "Increase investment in environmental protection"
+      evidence_metrics: ["helcom_trend_3y", "overall_score"]
+      timeframe: "1-3 years"
+
+# Cross-cutting recommendations for common issues
+cross_cutting:
+  blue_finance_readiness:
+    trigger_score: 70  # Overall score above 70
+    title: "Pursue Blue Finance Opportunities"
+    description: "Strong ecological performance enables access to blue bonds and financing"
+    actions:
+      - "Develop blue bond framework and KPI tracking"
+      - "Document baseline environmental performance"
+      - "Engage with blue finance investors and rating agencies"
+      - "Create transparent reporting mechanisms"
+    
+  capacity_building:
+    trigger_conditions:
+      - low_data_quality: true
+      - limited_monitoring: true
+    title: "Strengthen Environmental Monitoring Capacity"
+    actions:
+      - "Invest in local environmental monitoring equipment"
+      - "Train staff in data collection and analysis"
+      - "Establish partnerships with research institutions"
+      - "Implement citizen science programs"
+
+# Action impact scoring
+impact_factors:
+  cost_effectiveness:
+    high: ["stormwater_controls", "monitoring_improvements", "policy_updates"]
+    medium: ["wetland_construction", "WWTP_upgrades", "adaptation_planning"]
+    low: ["seagrass_restoration", "flood_barriers", "MPA_designation"]
+    
+  implementation_speed:
+    fast: ["framework_participation", "monitoring", "planning"]
+    medium: ["policy_changes", "small_infrastructure"]
+    slow: ["major_infrastructure", "habitat_restoration"]
+    
+  co_benefits:
+    high: ["nature_based_solutions", "WWTP_upgrades", "adaptation_planning"]
+    medium: ["monitoring", "protected_areas", "stormwater"]
+    low: ["framework_participation", "specific_interventions"]

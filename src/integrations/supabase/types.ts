@@ -202,6 +202,59 @@ export type Database = {
         }
         Relationships: []
       }
+      bathing_water_sites: {
+        Row: {
+          created_at: string
+          id: string
+          location_lat: number
+          location_lng: number
+          municipality_id: string | null
+          name: string
+          site_id: string
+          status_2022: string | null
+          status_2023: string | null
+          status_2024: string | null
+          updated_at: string
+          water_body_type: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location_lat: number
+          location_lng: number
+          municipality_id?: string | null
+          name: string
+          site_id: string
+          status_2022?: string | null
+          status_2023?: string | null
+          status_2024?: string | null
+          updated_at?: string
+          water_body_type?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location_lat?: number
+          location_lng?: number
+          municipality_id?: string | null
+          name?: string
+          site_id?: string
+          status_2022?: string | null
+          status_2023?: string | null
+          status_2024?: string | null
+          updated_at?: string
+          water_body_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bathing_water_sites_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
+            referencedRelation: "municipalities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       berth_availability: {
         Row: {
           available_from: string
@@ -248,6 +301,50 @@ export type Database = {
             columns: ["port_id"]
             isOneToOne: false
             referencedRelation: "ports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_sites: {
+        Row: {
+          basin: string
+          created_at: string
+          id: string
+          location_lat: number
+          location_lng: number
+          municipality_id: string | null
+          name: string
+          site_type: string
+          updated_at: string
+        }
+        Insert: {
+          basin?: string
+          created_at?: string
+          id?: string
+          location_lat: number
+          location_lng: number
+          municipality_id?: string | null
+          name: string
+          site_type: string
+          updated_at?: string
+        }
+        Update: {
+          basin?: string
+          created_at?: string
+          id?: string
+          location_lat?: number
+          location_lng?: number
+          municipality_id?: string | null
+          name?: string
+          site_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_sites_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
+            referencedRelation: "municipalities"
             referencedColumns: ["id"]
           },
         ]
@@ -632,6 +729,168 @@ export type Database = {
         }
         Relationships: []
       }
+      ecological_ctas: {
+        Row: {
+          actions: Json
+          created_at: string
+          description: string | null
+          entity_id: string
+          entity_type: string
+          estimated_impact: string | null
+          evidence_metrics: Json | null
+          id: string
+          period_end: string
+          period_start: string
+          priority: number
+          title: string
+          trigger_rules: Json
+          triggered_by_metrics: Json
+        }
+        Insert: {
+          actions?: Json
+          created_at?: string
+          description?: string | null
+          entity_id: string
+          entity_type: string
+          estimated_impact?: string | null
+          evidence_metrics?: Json | null
+          id?: string
+          period_end: string
+          period_start: string
+          priority?: number
+          title: string
+          trigger_rules?: Json
+          triggered_by_metrics?: Json
+        }
+        Update: {
+          actions?: Json
+          created_at?: string
+          description?: string | null
+          entity_id?: string
+          entity_type?: string
+          estimated_impact?: string | null
+          evidence_metrics?: Json | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          priority?: number
+          title?: string
+          trigger_rules?: Json
+          triggered_by_metrics?: Json
+        }
+        Relationships: []
+      }
+      ecological_metrics: {
+        Row: {
+          anomaly_score: number | null
+          basin: string
+          confidence: number | null
+          created_at: string
+          data_source: string
+          entity_id: string
+          entity_type: string
+          id: string
+          last_updated: string
+          metric_name: string
+          period_end: string
+          period_start: string
+          period_type: string
+          processing_method: string | null
+          value: number
+        }
+        Insert: {
+          anomaly_score?: number | null
+          basin: string
+          confidence?: number | null
+          created_at?: string
+          data_source: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          last_updated?: string
+          metric_name: string
+          period_end: string
+          period_start: string
+          period_type: string
+          processing_method?: string | null
+          value: number
+        }
+        Update: {
+          anomaly_score?: number | null
+          basin?: string
+          confidence?: number | null
+          created_at?: string
+          data_source?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          last_updated?: string
+          metric_name?: string
+          period_end?: string
+          period_start?: string
+          period_type?: string
+          processing_method?: string | null
+          value?: number
+        }
+        Relationships: []
+      }
+      ecological_scores: {
+        Row: {
+          bathing_wastewater: number | null
+          coastal_hazard: number | null
+          computed_at: string
+          confidence: number | null
+          config_version: string
+          created_at: string
+          ecosystem_health: number | null
+          entity_id: string
+          entity_type: string
+          eutrophication_pressure: number | null
+          id: string
+          overall_score: number
+          period_end: string
+          period_start: string
+          period_type: string
+          trend_compliance: number | null
+        }
+        Insert: {
+          bathing_wastewater?: number | null
+          coastal_hazard?: number | null
+          computed_at?: string
+          confidence?: number | null
+          config_version?: string
+          created_at?: string
+          ecosystem_health?: number | null
+          entity_id: string
+          entity_type: string
+          eutrophication_pressure?: number | null
+          id?: string
+          overall_score: number
+          period_end: string
+          period_start: string
+          period_type: string
+          trend_compliance?: number | null
+        }
+        Update: {
+          bathing_wastewater?: number | null
+          coastal_hazard?: number | null
+          computed_at?: string
+          confidence?: number | null
+          config_version?: string
+          created_at?: string
+          ecosystem_health?: number | null
+          entity_id?: string
+          entity_type?: string
+          eutrophication_pressure?: number | null
+          id?: string
+          overall_score?: number
+          period_end?: string
+          period_start?: string
+          period_type?: string
+          trend_compliance?: number | null
+        }
+        Relationships: []
+      }
       emissions_anomalies: {
         Row: {
           actual_emissions: number | null
@@ -677,6 +936,51 @@ export type Database = {
           severity?: string
           status?: string | null
           vessel_id?: string | null
+        }
+        Relationships: []
+      }
+      entity_compliance_flags: {
+        Row: {
+          adaptation_plan_year: number | null
+          cdp_participant: boolean | null
+          created_at: string
+          documents: Json | null
+          entity_id: string
+          entity_type: string
+          green_city_accord: boolean | null
+          has_adaptation_plan: boolean | null
+          id: string
+          iso37120_certified: boolean | null
+          secap_participant: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          adaptation_plan_year?: number | null
+          cdp_participant?: boolean | null
+          created_at?: string
+          documents?: Json | null
+          entity_id: string
+          entity_type: string
+          green_city_accord?: boolean | null
+          has_adaptation_plan?: boolean | null
+          id?: string
+          iso37120_certified?: boolean | null
+          secap_participant?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          adaptation_plan_year?: number | null
+          cdp_participant?: boolean | null
+          created_at?: string
+          documents?: Json | null
+          entity_id?: string
+          entity_type?: string
+          green_city_accord?: boolean | null
+          has_adaptation_plan?: boolean | null
+          id?: string
+          iso37120_certified?: boolean | null
+          secap_participant?: boolean | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -872,6 +1176,42 @@ export type Database = {
           price_per_tonne?: number
           source?: string
           supplier?: string | null
+        }
+        Relationships: []
+      }
+      municipalities: {
+        Row: {
+          basin: string
+          coastal_length_km: number | null
+          country_code: string
+          created_at: string
+          geometry: Json
+          id: string
+          name: string
+          population: number | null
+          updated_at: string
+        }
+        Insert: {
+          basin?: string
+          coastal_length_km?: number | null
+          country_code?: string
+          created_at?: string
+          geometry: Json
+          id?: string
+          name: string
+          population?: number | null
+          updated_at?: string
+        }
+        Update: {
+          basin?: string
+          coastal_length_km?: number | null
+          country_code?: string
+          created_at?: string
+          geometry?: Json
+          id?: string
+          name?: string
+          population?: number | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1584,6 +1924,65 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      uwwtd_plants: {
+        Row: {
+          capacity_pe: number | null
+          compliant: boolean | null
+          created_at: string
+          discharge_to_baltic: boolean | null
+          id: string
+          last_inspection: string | null
+          location_lat: number | null
+          location_lng: number | null
+          municipality_id: string | null
+          name: string
+          plant_id: string
+          tertiary_np_removal: boolean | null
+          treatment_level: string | null
+          updated_at: string
+        }
+        Insert: {
+          capacity_pe?: number | null
+          compliant?: boolean | null
+          created_at?: string
+          discharge_to_baltic?: boolean | null
+          id?: string
+          last_inspection?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          municipality_id?: string | null
+          name: string
+          plant_id: string
+          tertiary_np_removal?: boolean | null
+          treatment_level?: string | null
+          updated_at?: string
+        }
+        Update: {
+          capacity_pe?: number | null
+          compliant?: boolean | null
+          created_at?: string
+          discharge_to_baltic?: boolean | null
+          id?: string
+          last_inspection?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          municipality_id?: string | null
+          name?: string
+          plant_id?: string
+          tertiary_np_removal?: boolean | null
+          treatment_level?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "uwwtd_plants_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
+            referencedRelation: "municipalities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vessels: {
         Row: {

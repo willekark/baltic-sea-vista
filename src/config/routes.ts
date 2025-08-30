@@ -34,6 +34,11 @@ export const ROUTE_CANON = {
     anchors: ["dashboard", "services", "analytics"],
     description: "Port operations and agent services platform"
   },
+  "/ecology": { 
+    title: "Ecological Reporting",
+    anchors: ["scorecard", "drivers", "ctas", "exports", "map"],
+    description: "Automated ecological scorecards and sustainability reporting"
+  },
   "/auth": { 
     title: "Authentication",
     anchors: [],
