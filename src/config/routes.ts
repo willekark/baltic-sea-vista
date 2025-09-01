@@ -39,6 +39,11 @@ export const ROUTE_CANON = {
     anchors: ["scorecard", "kpis", "ctas", "map", "evidence", "exports"],
     description: "Automated ecological scorecards and sustainability reporting for Baltic municipalities"
   },
+  "/investor": {
+    title: "Baltic Investor Intelligence",
+    anchors: ["overview", "macro", "esg", "infrastructure", "risk", "blue", "analytics", "portfolio"],
+    description: "Investment intelligence platform for Baltic region fund and asset managers"
+  },
   "/auth": { 
     title: "Authentication",
     anchors: [],
