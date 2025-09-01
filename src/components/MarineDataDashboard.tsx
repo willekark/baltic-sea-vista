@@ -100,18 +100,18 @@ const MarineDataDashboard: React.FC = () => {
 
   // Icon mapping
   const getIcon = (iconName: string) => {
-    const icons: Record<string, React.ElementType> = {
-      Navigation,
-      Waves, 
-      Wind,
-      Thermometer,
-      Activity,
-      Snowflake,
-      Droplets,
-      Leaf,
-      Eye,
-      Layers,
-      AlertTriangle
+    const icons: Record<string, React.ComponentType<any>> = {
+      'Navigation': Navigation,
+      'Waves': Waves,
+      'Wind': Wind,
+      'Thermometer': Thermometer,
+      'Activity': Activity,
+      'Snowflake': Snowflake,
+      'Droplets': Droplets,
+      'Leaf': Leaf,
+      'Eye': Eye,
+      'Layers': Layers,
+      'AlertTriangle': AlertTriangle
     };
     return icons[iconName] || Activity;
   };

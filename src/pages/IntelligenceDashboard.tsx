@@ -51,7 +51,7 @@ interface DashboardState {
   showBaseline: boolean;
 }
 
-const VARIABLE_ICONS = {
+const VARIABLE_ICONS: Record<string, React.ComponentType<any>> = {
   currents: Navigation,
   waves: Waves,
   wind: Wind,
@@ -304,7 +304,7 @@ const IntelligenceDashboard = () => {
                 ))
               ) : (
                 summary.map((item) => {
-                  const IconComponent = VARIABLE_ICONS[item.variable] || Activity;
+                  const IconComponent = VARIABLE_ICONS[item.variable as keyof typeof VARIABLE_ICONS] || Activity;
                   return (
                     <Card 
                       key={item.variable} 
