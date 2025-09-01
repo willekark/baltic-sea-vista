@@ -123,6 +123,94 @@ const ESGSustainabilityDashboard = () => {
       circularity: 82,
       taxonomyAlignment: 'Article 6',
       sfdrCategory: 'Article 8'
+    },
+    { 
+      name: 'Riga', 
+      overallScore: 78, 
+      waterHealth: 79, 
+      emissions: 74, 
+      biodiversity: 76, 
+      renewables: 82, 
+      circularity: 77,
+      taxonomyAlignment: 'Article 6',
+      sfdrCategory: 'Article 8'
+    },
+    { 
+      name: 'Tallinn', 
+      overallScore: 81, 
+      waterHealth: 84, 
+      emissions: 78, 
+      biodiversity: 80, 
+      renewables: 85, 
+      circularity: 79,
+      taxonomyAlignment: 'Article 6',
+      sfdrCategory: 'Article 8'
+    },
+    { 
+      name: 'Vilnius', 
+      overallScore: 75, 
+      waterHealth: 77, 
+      emissions: 71, 
+      biodiversity: 73, 
+      renewables: 79, 
+      circularity: 74,
+      taxonomyAlignment: 'Article 6',
+      sfdrCategory: 'Other'
+    },
+    { 
+      name: 'Malmö', 
+      overallScore: 88, 
+      waterHealth: 91, 
+      emissions: 86, 
+      biodiversity: 85, 
+      renewables: 89, 
+      circularity: 87,
+      taxonomyAlignment: 'Article 8',
+      sfdrCategory: 'Article 8'
+    },
+    { 
+      name: 'Aarhus', 
+      overallScore: 90, 
+      waterHealth: 92, 
+      emissions: 87, 
+      biodiversity: 89, 
+      renewables: 93, 
+      circularity: 86,
+      taxonomyAlignment: 'Article 8',
+      sfdrCategory: 'Article 8'
+    },
+    { 
+      name: 'Turku', 
+      overallScore: 84, 
+      waterHealth: 86, 
+      emissions: 81, 
+      biodiversity: 83, 
+      renewables: 87, 
+      circularity: 83,
+      taxonomyAlignment: 'Article 6',
+      sfdrCategory: 'Article 8'
+    },
+    { 
+      name: 'Gdansk', 
+      overallScore: 73, 
+      waterHealth: 75, 
+      emissions: 69, 
+      biodiversity: 71, 
+      renewables: 76, 
+      circularity: 72,
+      taxonomyAlignment: 'Article 6',
+      sfdrCategory: 'Other'
+    },
+    { 
+      name: 'Kiel', 
+      overallScore: 87, 
+      waterHealth: 89, 
+      emissions: 84, 
+      biodiversity: 86, 
+      renewables: 90, 
+      circularity: 85,
+      taxonomyAlignment: 'Article 8',
+      sfdrCategory: 'Article 8'
     }
   ];
 
