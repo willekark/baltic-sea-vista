@@ -1,6 +1,13 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
+import { 
+  validateWithDomainRules, 
+  calculateWeightedConsensus, 
+  mergeResponsesWithWeights, 
+  calculateUncertaintyScore,
+  callPerplexity
+} from './enhanced-validation.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -60,11 +67,27 @@ const ECS_CONFIG = {
   routing: {
     escalate_on_confidence_below: 0.6,
     max_fanout: 3,
-    timeout_ms: 6000
+    timeout_ms: 8000
   },
   verification: {
-    tolerance_pct: 0.01,
+    tolerance_pct: 0.005, // Tighter tolerance
     freshness_half_life_days: 365
+  },
+  // Dynamic model weighting based on task performance
+  task_weights: {
+    environmental: { claude: 0.4, perplexity: 0.3, grok: 0.2, openai: 0.1 },
+    maritime: { grok: 0.4, openai: 0.3, claude: 0.2, perplexity: 0.1 },
+    numeric: { openai: 0.5, claude: 0.3, grok: 0.15, perplexity: 0.05 },
+    qna: { claude: 0.35, grok: 0.3, openai: 0.25, perplexity: 0.1 },
+    geo: { grok: 0.4, claude: 0.3, openai: 0.2, perplexity: 0.1 },
+    summary: { claude: 0.4, grok: 0.25, openai: 0.25, perplexity: 0.1 },
+    forecast: { openai: 0.4, claude: 0.3, grok: 0.2, perplexity: 0.1 }
+  },
+  // Domain expertise validation rules
+  domain_rules: {
+    fuel_consumption_bounds: { min: 0.1, max: 100 }, // tons/day
+    speed_bounds: { min: 0, max: 30 }, // knots
+    emission_factors: { HFO: 3.114, MGO: 3.206, LNG: 2.750 } // tCO2/ton fuel
   }
 };
 
@@ -155,32 +178,75 @@ serve(async (req) => {
 async function routeQuery(request: ECSRequest, supabase: any) {
   const { task_type, query, context_ids = [] } = request;
   
-  // Retrieve relevant documents
+  // Multi-stage pipeline
+  console.log(`Starting multi-stage pipeline for task: ${task_type}`);
+  
+  // Stage 1: Document retrieval with enhanced context
   const documents = await retrieveDocuments(query, context_ids, supabase);
+  
+  // Stage 2: Dynamic model selection based on task type
+  const modelWeights = ECS_CONFIG.task_weights[task_type] || ECS_CONFIG.task_weights.qna;
+  const selectedModels = Object.entries(modelWeights)
+    .sort(([,a], [,b]) => b - a)
+    .slice(0, 3)
+    .map(([model]) => model);
+  
+  console.log(`Selected models for ${task_type}:`, selectedModels, 'with weights:', modelWeights);
   
   let responses: any[] = [];
   let numbers: any[] = [];
+  let uncertainty_samples: any[] = [];
   
   try {
+    // Stage 3: Multi-temperature sampling for uncertainty quantification
+    const temperatures = [0.1, 0.3, 0.7];
+    
     if (task_type === 'qna' || task_type === 'summary') {
-      // Fan out to multiple reasoning models
-      responses = await Promise.allSettled([
-        callGrok(query, documents),
-        callClaude(query, documents),
-        callOpenAI(query, documents)
-      ]);
+      // Fan out to selected models with multiple temperatures
+      const modelPromises = [];
+      
+      if (selectedModels.includes('grok')) {
+        modelPromises.push(...temperatures.map(temp => 
+          callGrok(query, documents, temp)
+        ));
+      }
+      if (selectedModels.includes('claude')) {
+        modelPromises.push(...temperatures.map(temp => 
+          callClaude(query, documents, temp)
+        ));
+      }
+      if (selectedModels.includes('openai')) {
+        modelPromises.push(...temperatures.map(temp => 
+          callOpenAI(query, documents, temp)
+        ));
+      }
+      if (selectedModels.includes('perplexity')) {
+        modelPromises.push(...temperatures.map(temp => 
+          callPerplexity(query, documents, temp)
+        ));
+      }
+      
+      const allResponses = await Promise.allSettled(modelPromises);
+      responses = allResponses
+        .filter(result => result.status === 'fulfilled')
+        .map(result => (result as any).value);
+        
     } else if (task_type === 'numeric') {
-      // Compute numbers deterministically, then explain with LLMs
+      // Stage 4: Enhanced numeric validation with domain rules
       numbers = await computeNumbers(query, documents, supabase);
+      numbers = await validateWithDomainRules(numbers, task_type);
+      
       responses = await Promise.allSettled([
-        callGrok(`Explain these calculations: ${JSON.stringify(numbers)}`, documents),
-        callClaude(`Explain these calculations: ${JSON.stringify(numbers)}`, documents)
+        callGrok(`Explain these validated calculations: ${JSON.stringify(numbers)}`, documents),
+        callClaude(`Explain these validated calculations: ${JSON.stringify(numbers)}`, documents),
+        callOpenAI(`Explain these validated calculations: ${JSON.stringify(numbers)}`, documents)
       ]);
+      
     } else if (task_type === 'geo') {
-      // Detect anomalies then explain
       const anomalies = await detectAnomalies(query, supabase);
       responses = await Promise.allSettled([
-        callClaude(`Explain these anomalies: ${JSON.stringify(anomalies)}`, documents)
+        callClaude(`Explain these anomalies: ${JSON.stringify(anomalies)}`, documents),
+        callGrok(`Analyze these geographic anomalies: ${JSON.stringify(anomalies)}`, documents)
       ]);
     }
     
@@ -188,7 +254,12 @@ async function routeQuery(request: ECSRequest, supabase: any) {
       .filter(result => result.status === 'fulfilled')
       .map(result => (result as any).value);
     
-    const mergedAnswer = mergeResponses(successfulResponses);
+    // Stage 5: Enhanced consensus with weighted agreement
+    const weightedConsensus = calculateWeightedConsensus(successfulResponses, modelWeights, task_type);
+    const mergedAnswer = mergeResponsesWithWeights(successfulResponses, modelWeights);
+    
+    // Stage 6: Uncertainty quantification
+    const uncertainty_score = calculateUncertaintyScore(successfulResponses);
     
     return {
       answer: mergedAnswer.text,
@@ -196,19 +267,22 @@ async function routeQuery(request: ECSRequest, supabase: any) {
       numbers,
       model_votes: successfulResponses.map(r => ({
         model: r.model,
-        agree: true, // TODO: implement agreement scoring
+        agree: weightedConsensus.agreements[r.model] || false,
         response: r.response,
-        confidence: r.confidence || 0.8
-      }))
+        confidence: r.confidence || 0.8,
+        weight: modelWeights[r.model] || 0.1
+      })),
+      uncertainty_score,
+      consensus_data: weightedConsensus
     };
     
   } catch (error) {
-    console.error('Error in routeQuery:', error);
+    console.error('Error in enhanced routeQuery:', error);
     throw error;
   }
 }
 
-async function callGrok(prompt: string, documents: any[]) {
+async function callGrok(prompt: string, documents: any[], temperature: number = 0.3) {
   const grokKey = Deno.env.get('GROK_API_KEY');
   if (!grokKey) throw new Error('Grok API key not configured');
   
@@ -220,15 +294,15 @@ async function callGrok(prompt: string, documents: any[]) {
       'Authorization': `Bearer ${grokKey}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      model: 'grok-beta',
-      messages: [
-        { role: 'system', content: 'You are an expert maritime intelligence analyst. Always cite your sources and provide confidence levels.' },
-        { role: 'user', content: contextualPrompt }
-      ],
-      max_tokens: 1500,
-      temperature: 0.3,
-    }),
+      body: JSON.stringify({
+        model: 'grok-beta',
+        messages: [
+          { role: 'system', content: 'You are an expert maritime intelligence analyst. Always cite your sources and provide confidence levels. Be precise with numbers and calculations.' },
+          { role: 'user', content: contextualPrompt }
+        ],
+        max_tokens: 1500,
+        temperature,
+      }),
   });
 
   if (!response.ok) {
@@ -244,7 +318,7 @@ async function callGrok(prompt: string, documents: any[]) {
   };
 }
 
-async function callClaude(prompt: string, documents: any[]) {
+async function callClaude(prompt: string, documents: any[], temperature: number = 0.3) {
   const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
   if (!anthropicKey) throw new Error('Anthropic API key not configured');
   
@@ -279,7 +353,7 @@ async function callClaude(prompt: string, documents: any[]) {
   };
 }
 
-async function callOpenAI(prompt: string, documents: any[]) {
+async function callOpenAI(prompt: string, documents: any[], temperature: number = 0.3) {
   const openaiKey = Deno.env.get('OPENAI_API_KEY');
   if (!openaiKey) throw new Error('OpenAI API key not configured');
   
@@ -391,12 +465,67 @@ function mergeResponses(responses: any[]) {
 }
 
 function calculateConfidence(response: any) {
-  const agreement = 0.8; // Simplified
-  const citation_quality = response.citations?.length > 0 ? 0.9 : 0.3;
-  const freshness_score = 0.7; // Simplified
-  const numeric_pass = response.numbers?.length > 0 ? 1.0 : 0.8;
+  // Enhanced confidence calculation
+  const weighted_agreement = response.consensus_data?.weighted_confidence || 0.75;
+  const citation_quality = calculateCitationQuality(response.citations || []);
+  const freshness_score = calculateFreshnessScore(response.citations || []);
+  const numeric_pass = response.numbers?.every(n => n.validation_passed !== false) ? 1.0 : 0.6;
+  const domain_expertise = calculateDomainExpertise(response.numbers || []);
+  const uncertainty_factor = 1 - (response.uncertainty_score || 0.3);
+  const historical_consistency = 0.85; // Would be calculated from historical data
   
-  return 0.4 * agreement + 0.25 * citation_quality + 0.2 * freshness_score + 0.15 * numeric_pass;
+  // Enhanced formula with more factors
+  const confidence = 0.3 * weighted_agreement + 
+                   0.2 * citation_quality + 
+                   0.15 * freshness_score + 
+                   0.15 * numeric_pass +
+                   0.1 * domain_expertise +
+                   0.05 * uncertainty_factor +
+                   0.05 * historical_consistency;
+  
+  console.log('Confidence breakdown:', {
+    weighted_agreement,
+    citation_quality,
+    freshness_score,
+    numeric_pass,
+    domain_expertise,
+    uncertainty_factor,
+    final_confidence: confidence
+  });
+  
+  return Math.min(Math.max(confidence, 0.1), 0.98); // Cap between 10% and 98%
+}
+
+function calculateCitationQuality(citations: any[]): number {
+  if (citations.length === 0) return 0.3;
+  
+  const avgReliability = citations.reduce((sum, c) => sum + (c.reliability_score || 0.5), 0) / citations.length;
+  const recentSources = citations.filter(c => c.freshness_days < 30).length / citations.length;
+  const hasUrls = citations.filter(c => c.url && c.url !== '').length / citations.length;
+  
+  return (avgReliability * 0.5) + (recentSources * 0.3) + (hasUrls * 0.2);
+}
+
+function calculateFreshnessScore(citations: any[]): number {
+  if (citations.length === 0) return 0.5;
+  
+  const avgFreshnessDays = citations.reduce((sum, c) => sum + (c.freshness_days || 365), 0) / citations.length;
+  const halfLife = 365; // Days
+  
+  return Math.exp(-avgFreshnessDays / halfLife);
+}
+
+function calculateDomainExpertise(numbers: any[]): number {
+  if (numbers.length === 0) return 0.8;
+  
+  const validatedNumbers = numbers.filter(n => n.domain_validated === true).length;
+  const totalNumbers = numbers.length;
+  const validationRate = validatedNumbers / totalNumbers;
+  
+  const avgConfidenceAdjustment = numbers.reduce((sum, n) => 
+    sum + (n.confidence_adjustment || 0), 0) / numbers.length;
+  
+  return Math.max(0.1, validationRate + avgConfidenceAdjustment);
 }
 
 async function verifyResponse(response: any, supabase: any) {
