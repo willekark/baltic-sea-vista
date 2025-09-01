@@ -45,7 +45,7 @@ const Hero = () => {
           <Button 
             variant="secondary" 
             size="lg" 
-            className="group transition-all duration-300 hover:shadow-investment bg-gradient-investment text-black font-semibold hover:scale-105"
+            className="group transition-all duration-300 hover:shadow-investment hover:scale-105"
             onClick={() => scrollToHash('dashboard', 80)}
           >
             <BarChart className="w-5 h-5 mr-2" />
