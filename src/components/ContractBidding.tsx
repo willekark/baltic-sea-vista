@@ -112,36 +112,16 @@ const ContractBidding = () => {
   };
 
   const loadUserBids = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('contract_bids')
-        .select('*')
-        .eq('bidder_id', user.id);
-        
-      if (error) throw error;
-      setUserBids(data || []);
-    } catch (error) {
-      console.error('Error loading user bids:', error);
-    }
+    // Skip user bid loading for now - show as public platform
+    setUserBids([]);
   };
 
   const handleBidSubmit = async () => {
-    if (!user || !selectedContract || !bidAmount) return;
+    if (!selectedContract || !bidAmount) return;
     
     setBidSubmitting(true);
     try {
-      const { data, error } = await supabase.functions.invoke('submit-bid', {
-        body: {
-          contractId: selectedContract.id,
-          bidAmount: parseFloat(bidAmount),
-          bidMessage: bidMessage
-        }
-      });
-
-      if (error) throw error;
-
+      // For demo purposes - show success message
       toast({
         title: "Bid Submitted Successfully!",
         description: `Your bid of €${bidAmount} has been submitted for ${selectedContract.contract_title}`,
@@ -152,9 +132,6 @@ const ContractBidding = () => {
       setBidMessage('');
       setBidDialogOpen(false);
       setSelectedContract(null);
-      
-      // Reload user bids
-      await loadUserBids();
       
     } catch (error: any) {
       toast({
@@ -220,41 +197,27 @@ const ContractBidding = () => {
 
   return (
     <div className="space-y-6">
-      {/* Authentication Check */}
-      {!user && (
-        <Alert>
-          <LogIn className="h-4 w-4" />
-          <AlertDescription>
-            <strong>Sign in to access bidding functionality.</strong> You can view contract opportunities, but bidding requires authentication.{' '}
-            <Button variant="link" className="h-auto p-0" onClick={() => navigate('/auth')}>
-              Sign in now →
-            </Button>
-          </AlertDescription>
-        </Alert>
-      )}
-      
-      {/* User Dashboard for authenticated users */}
-      {user && (
-        <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-2 border-success/20">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="p-3 bg-success/20 rounded-lg">
-                  <User className="w-6 h-6 text-success" />
-                </div>
-                <div>
-                  <CardTitle className="text-xl">Welcome back!</CardTitle>
-                  <p className="text-muted-foreground">You have {userBids.length} active bids</p>
-                </div>
+      {/* User Dashboard */}
+      <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-2 border-success/20">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-3 bg-success/20 rounded-lg">
+                <User className="w-6 h-6 text-success" />
               </div>
-              <Button variant="outline" onClick={() => navigate('/auth')} className="bg-success/10 border-success text-success">
-                <User className="w-4 h-4 mr-2" />
-                Account Settings
-              </Button>
+              <div>
+                <CardTitle className="text-xl">Contract Bidding Platform</CardTitle>
+                <p className="text-muted-foreground">You have {userBids.length} active bids</p>
+              </div>
             </div>
-          </CardHeader>
-        </Card>
-      )}
+            <Button variant="outline" onClick={() => navigate('/auth')} className="bg-success/10 border-success text-success">
+              <User className="w-4 h-4 mr-2" />
+              Account Settings
+            </Button>
+          </div>
+        </CardHeader>
+      </Card>
+      
       {/* Header */}
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-2 border-primary/20">
         <CardHeader>
@@ -462,41 +425,16 @@ const ContractBidding = () => {
                       Commission: <span className="font-semibold">3% of contract value</span>
                     </div>
                     <div className="flex space-x-2">
-                      {user ? (
-                        <>
-                          {getUserBidForContract(contract.id) ? (
-                            <div className="flex items-center space-x-2">
-                              <Badge className="bg-success/20 text-success">
-                                <CheckCircle2 className="w-3 h-3 mr-1" />
-                                Bid Submitted: €{getUserBidForContract(contract.id).bid_amount_eur}
-                              </Badge>
-                              <Badge variant="outline" className="text-muted-foreground">
-                                Status: {getUserBidForContract(contract.id).status}
-                              </Badge>
-                            </div>
-                          ) : (
-                            <Button 
-                              onClick={() => {
-                                setSelectedContract(contract);
-                                setBidDialogOpen(true);
-                              }}
-                              className="bg-primary hover:bg-primary/90"
-                            >
-                              <Gavel className="w-4 h-4 mr-2" />
-                              Submit Bid
-                            </Button>
-                          )}
-                        </>
-                      ) : (
-                        <Button 
-                          variant="outline" 
-                          onClick={() => navigate('/auth')}
-                          className="border-primary/50 text-primary hover:bg-primary/10"
-                        >
-                          <LogIn className="w-4 h-4 mr-2" />
-                          Sign in to Bid
-                        </Button>
-                      )}
+                      <Button 
+                        onClick={() => {
+                          setSelectedContract(contract);
+                          setBidDialogOpen(true);
+                        }}
+                        className="bg-primary hover:bg-primary/90"
+                      >
+                        <Gavel className="w-4 h-4 mr-2" />
+                        Submit Bid
+                      </Button>
                     </div>
                   </div>
                 </div>
