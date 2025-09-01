@@ -59,7 +59,7 @@ const Hero = () => {
             return (
               <Button 
                 key={cta.testId}
-                variant="hero" 
+                variant="secondary" 
                 size="lg"
                 className="group transition-all duration-300 hover:shadow-investment hover:scale-105"
                 onClick={() => navigate(cta.href)}
