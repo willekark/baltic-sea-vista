@@ -13,6 +13,7 @@ import BlueEconomyDashboard from '@/components/investor/BlueEconomyDashboard';
 import InvestmentAnalyticsDashboard from '@/components/investor/InvestmentAnalyticsDashboard';
 import PortfolioLens from '@/components/investor/PortfolioLens';
 import ScenarioStudio from '@/components/investor/ScenarioStudio';
+import { BankDemoMode } from '@/components/investor/BankDemoMode';
 
 const BalticInvestorIntelligence = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -302,7 +303,10 @@ const BalticInvestorIntelligence = () => {
           </TabsContent>
 
           <TabsContent value="analytics">
-            <InvestmentAnalyticsDashboard />
+            <div className="grid grid-cols-1 gap-6">
+              <BankDemoMode />
+              <InvestmentAnalyticsDashboard />
+            </div>
           </TabsContent>
 
           <TabsContent value="portfolio">
