@@ -34,6 +34,8 @@ import IntelligenceAlerts from '@/components/IntelligenceAlerts';
 import IntelligenceProvenance from '@/components/IntelligenceProvenance';
 import ShippingInsights from '@/components/ShippingInsights';
 import MultiAIInsights from '@/components/MultiAIInsights';
+import { EnsembleOrchestrator } from '@/components/EnsembleOrchestrator';
+import { ECSLeaderboard } from '@/components/ECSLeaderboard';
 
 interface VariableStatus {
   variable: string;
@@ -352,6 +354,16 @@ const IntelligenceDashboard = () => {
             {/* Multi-AI Analysis Section */}
             <div className="mb-6">
               <MultiAIInsights />
+            </div>
+
+            {/* Ensemble Orchestration Service */}
+            <div className="mb-6">
+              <EnsembleOrchestrator />
+            </div>
+
+            {/* ECS Leaderboard */}
+            <div className="mb-6">
+              <ECSLeaderboard />
             </div>
           </div>
 
