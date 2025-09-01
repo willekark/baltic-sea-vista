@@ -64,8 +64,8 @@ export const HEADER_NAV: NavItem[] = [
 export const HERO_CTAS: NavItem[] = [
   {
     label: "Get Started",
-    href: "/auth",
-    description: "Sign up for access",
+    href: "/intelligence",
+    description: "Access intelligence dashboard",
     testId: "cta-get-started"
   },
   {
