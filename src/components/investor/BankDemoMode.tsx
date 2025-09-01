@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { downloadTrialReport } from '@/utils/reportDownload';
 
 interface DemoScenario {
   id: string;
@@ -392,7 +393,7 @@ export const BankDemoMode = () => {
                 <Button className="bg-blue-600 hover:bg-blue-700">
                   Schedule Implementation Call
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" onClick={downloadTrialReport}>
                   <Download className="h-4 w-4 mr-2" />
                   Download Demo Report
                 </Button>
