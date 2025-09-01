@@ -5,8 +5,39 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Ship, Truck, Zap, Building2, Clock, TrendingUp, AlertTriangle, Download, CheckCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const InfraLogisticsDashboard = () => {
+  const [realData, setRealData] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    fetchRealPortData();
+  }, []);
+
+  const fetchRealPortData = async () => {
+    try {
+      console.log('Fetching real port data...');
+      
+      // Fetch real port performance data
+      const { data: portData, error: portError } = await supabase.functions.invoke('real-port-data', {
+        body: {}
+      });
+
+      if (portError) {
+        console.error('Error fetching port data:', portError);
+        setLoading(false);
+        return;
+      }
+
+      console.log('Received port data:', portData);
+      setRealData(portData);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error in fetchRealPortData:', error);
+      setLoading(false);
+    }
+  };
   // Mock data for port performance
   const portPerformanceData = [
     { month: 'Jan', turnaround: 18.2, utilization: 87, throughput: 2340 },

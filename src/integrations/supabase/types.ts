@@ -684,6 +684,42 @@ export type Database = {
           },
         ]
       }
+      data_cache: {
+        Row: {
+          cache_key: string
+          cached_data: Json
+          created_at: string
+          data_type: string
+          endpoint: string
+          expires_at: string
+          id: string
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          cache_key: string
+          cached_data: Json
+          created_at?: string
+          data_type: string
+          endpoint: string
+          expires_at: string
+          id?: string
+          source: string
+          updated_at?: string
+        }
+        Update: {
+          cache_key?: string
+          cached_data?: Json
+          created_at?: string
+          data_type?: string
+          endpoint?: string
+          expires_at?: string
+          id?: string
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       data_summaries: {
         Row: {
           calculation_date: string
@@ -1179,6 +1215,48 @@ export type Database = {
         }
         Relationships: []
       }
+      market_data: {
+        Row: {
+          change_percent: number | null
+          created_at: string
+          currency: string
+          exchange: string
+          id: string
+          market_cap: number | null
+          price: number | null
+          sector: string | null
+          symbol: string
+          timestamp: string
+          volume: number | null
+        }
+        Insert: {
+          change_percent?: number | null
+          created_at?: string
+          currency?: string
+          exchange: string
+          id?: string
+          market_cap?: number | null
+          price?: number | null
+          sector?: string | null
+          symbol: string
+          timestamp: string
+          volume?: number | null
+        }
+        Update: {
+          change_percent?: number | null
+          created_at?: string
+          currency?: string
+          exchange?: string
+          id?: string
+          market_cap?: number | null
+          price?: number | null
+          sector?: string | null
+          symbol?: string
+          timestamp?: string
+          volume?: number | null
+        }
+        Relationships: []
+      }
       municipalities: {
         Row: {
           basin: string
@@ -1497,6 +1575,51 @@ export type Database = {
           created_at?: string
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      regulatory_feeds: {
+        Row: {
+          content: Json | null
+          created_at: string
+          description: string | null
+          effective_date: string | null
+          id: string
+          impact_level: string
+          published_at: string
+          regulation_type: string
+          sectors: string[] | null
+          source_authority: string
+          title: string
+          url: string | null
+        }
+        Insert: {
+          content?: Json | null
+          created_at?: string
+          description?: string | null
+          effective_date?: string | null
+          id?: string
+          impact_level: string
+          published_at: string
+          regulation_type: string
+          sectors?: string[] | null
+          source_authority: string
+          title: string
+          url?: string | null
+        }
+        Update: {
+          content?: Json | null
+          created_at?: string
+          description?: string | null
+          effective_date?: string | null
+          id?: string
+          impact_level?: string
+          published_at?: string
+          regulation_type?: string
+          sectors?: string[] | null
+          source_authority?: string
+          title?: string
+          url?: string | null
         }
         Relationships: []
       }
