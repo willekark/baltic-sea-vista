@@ -51,6 +51,12 @@ export const HEADER_NAV: NavItem[] = [
     href: "/port-agent",
     description: "Port operations dashboard",
     testId: "nav-port-agent"
+  },
+  {
+    label: "Investor Intelligence",
+    href: "/investor",
+    description: "Baltic investment analytics",
+    testId: "nav-investor"
   }
 ];
 
