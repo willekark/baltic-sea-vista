@@ -43,7 +43,7 @@ const Hero = () => {
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
           <Button 
-            variant="secondary" 
+            variant="hero" 
             size="lg" 
             className="group transition-all duration-300 hover:shadow-investment hover:scale-105"
             onClick={() => scrollToHash('dashboard', 80)}
