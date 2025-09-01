@@ -33,6 +33,7 @@ import IntelligenceMap from '@/components/IntelligenceMap';
 import IntelligenceAlerts from '@/components/IntelligenceAlerts';
 import IntelligenceProvenance from '@/components/IntelligenceProvenance';
 import ShippingInsights from '@/components/ShippingInsights';
+import MultiAIInsights from '@/components/MultiAIInsights';
 
 interface VariableStatus {
   variable: string;
@@ -346,6 +347,11 @@ const IntelligenceDashboard = () => {
             {/* Shipping Intelligence Section */}
             <div className="mb-6">
               <ShippingInsights />
+            </div>
+
+            {/* Multi-AI Analysis Section */}
+            <div className="mb-6">
+              <MultiAIInsights />
             </div>
           </div>
 
