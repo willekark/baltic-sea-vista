@@ -176,33 +176,95 @@ const ShippingInsights = () => {
                         key={key} 
                         className={`cursor-pointer border-2 transition-all ${
                           selectedRoute === key ? 'border-primary' : 'border-muted'
-                        } ${route.status === 'Restricted' ? 'bg-red-50' : route.status === 'Optimal' ? 'bg-green-50' : 'bg-blue-50'}`}
+                        } ${
+                          route.status === 'Restricted' 
+                            ? 'bg-red-100 border-red-200' 
+                            : route.status === 'Optimal' 
+                            ? 'bg-green-100 border-green-200' 
+                            : 'bg-blue-100 border-blue-200'
+                        }`}
                         onClick={() => setSelectedRoute(key)}
                       >
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium text-sm">{route.name}</span>
+                            <span className={`font-medium text-sm ${
+                              route.status === 'Restricted' 
+                                ? 'text-red-900' 
+                                : route.status === 'Optimal' 
+                                ? 'text-green-900' 
+                                : 'text-blue-900'
+                            }`}>
+                              {route.name}
+                            </span>
                             <Badge variant={route.status === 'Optimal' ? 'default' : route.status === 'Recommended' ? 'secondary' : 'destructive'}>
                               {route.status}
                             </Badge>
                           </div>
                           <div className="space-y-2">
                             <div className="flex justify-between text-xs">
-                              <span>Fuel Savings:</span>
-                              <span className={route.fuelSavings.includes('-') ? 'text-red-600' : 'text-green-600'}>
+                              <span className={`${
+                                route.status === 'Restricted' 
+                                  ? 'text-red-700' 
+                                  : route.status === 'Optimal' 
+                                  ? 'text-green-700' 
+                                  : 'text-blue-700'
+                              }`}>
+                                Fuel Savings:
+                              </span>
+                              <span className={route.fuelSavings.includes('-') ? 'text-red-600 font-semibold' : 'text-green-600 font-semibold'}>
                                 {route.fuelSavings}
                               </span>
                             </div>
                             <div className="flex justify-between text-xs">
-                              <span>Oxygen Levels:</span>
-                              <span className="font-medium">{route.oxygen}</span>
+                              <span className={`${
+                                route.status === 'Restricted' 
+                                  ? 'text-red-700' 
+                                  : route.status === 'Optimal' 
+                                  ? 'text-green-700' 
+                                  : 'text-blue-700'
+                              }`}>
+                                Oxygen Levels:
+                              </span>
+                              <span className={`font-medium ${
+                                route.status === 'Restricted' 
+                                  ? 'text-red-800' 
+                                  : route.status === 'Optimal' 
+                                  ? 'text-green-800' 
+                                  : 'text-blue-800'
+                              }`}>
+                                {route.oxygen}
+                              </span>
                             </div>
                             <div className="flex justify-between text-xs">
-                              <span>Congestion:</span>
-                              <span>{route.congestion}</span>
+                              <span className={`${
+                                route.status === 'Restricted' 
+                                  ? 'text-red-700' 
+                                  : route.status === 'Optimal' 
+                                  ? 'text-green-700' 
+                                  : 'text-blue-700'
+                              }`}>
+                                Congestion:
+                              </span>
+                              <span className={`font-medium ${
+                                route.status === 'Restricted' 
+                                  ? 'text-red-800' 
+                                  : route.status === 'Optimal' 
+                                  ? 'text-green-800' 
+                                  : 'text-blue-800'
+                              }`}>
+                                {route.congestion}
+                              </span>
                             </div>
                             <div className="flex justify-between text-xs">
-                              <span>Risk Level:</span>
+                              <span className={`${
+                                route.status === 'Restricted' 
+                                  ? 'text-red-700' 
+                                  : route.status === 'Optimal' 
+                                  ? 'text-green-700' 
+                                  : 'text-blue-700'
+                              }`}>
+                                Risk Level:
+                              </span>
                               <Badge variant={route.risk === 'Low' ? 'outline' : 'destructive'} className="text-xs">
                                 {route.risk}
                               </Badge>
