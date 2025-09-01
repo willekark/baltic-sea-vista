@@ -24,24 +24,24 @@ const RouteOptimizer: React.FC = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Select value={vesselSize} onValueChange={setVesselSize}>
-              <SelectTrigger>
-                <SelectValue />
+              <SelectTrigger className="text-foreground">
+                <SelectValue placeholder="Select vessel size" className="text-foreground" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="small">Small Vessel</SelectItem>
-                <SelectItem value="medium">Medium Vessel</SelectItem>
-                <SelectItem value="large">Large Vessel</SelectItem>
+              <SelectContent className="bg-card border-border">
+                <SelectItem value="small" className="text-card-foreground hover:bg-accent hover:text-accent-foreground">Small Vessel</SelectItem>
+                <SelectItem value="medium" className="text-card-foreground hover:bg-accent hover:text-accent-foreground">Medium Vessel</SelectItem>
+                <SelectItem value="large" className="text-card-foreground hover:bg-accent hover:text-accent-foreground">Large Vessel</SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={cargoType} onValueChange={setCargoType}>
-              <SelectTrigger>
-                <SelectValue />
+              <SelectTrigger className="text-foreground">
+                <SelectValue placeholder="Select cargo type" className="text-foreground" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="containers">Containers</SelectItem>
-                <SelectItem value="bulk">Bulk Cargo</SelectItem>
-                <SelectItem value="ro-ro">Ro-Ro</SelectItem>
+              <SelectContent className="bg-card border-border">
+                <SelectItem value="containers" className="text-card-foreground hover:bg-accent hover:text-accent-foreground">Containers</SelectItem>
+                <SelectItem value="bulk" className="text-card-foreground hover:bg-accent hover:text-accent-foreground">Bulk Cargo</SelectItem>
+                <SelectItem value="ro-ro" className="text-card-foreground hover:bg-accent hover:text-accent-foreground">Ro-Ro</SelectItem>
               </SelectContent>
             </Select>
 
