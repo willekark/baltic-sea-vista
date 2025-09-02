@@ -63,35 +63,37 @@ interface TwelveDataProfile {
 
 // Mapping of our tickers to Twelve Data symbols and exchanges
 const stockMappings: StockMapping[] = [
-  // Original companies
-  { ticker: 'MAERSK-B.CO', symbol: 'MAERSK-B', exchange: 'Copenhagen', twelveDataSymbol: 'MAERSK-B.CSE' },
-  { ticker: 'HHLA.DE', symbol: 'HHLA', exchange: 'XETRA', twelveDataSymbol: 'HHLA.XETRA' },
-  { ticker: 'ORSTED.CO', symbol: 'ORSTED', exchange: 'Copenhagen', twelveDataSymbol: 'ORSTED.CSE' },
-  { ticker: 'TORM.CO', symbol: 'TORM', exchange: 'Copenhagen', twelveDataSymbol: 'TORM.CSE' },
-  { ticker: 'HAPAG.DE', symbol: 'HAPAG', exchange: 'XETRA', twelveDataSymbol: 'HAPAG.XETRA' },
-  { ticker: 'SALM.HE', symbol: 'SALM', exchange: 'Helsinki', twelveDataSymbol: 'SALM.HEL' },
-  { ticker: 'TELUS.HE', symbol: 'TELIA', exchange: 'Stockholm', twelveDataSymbol: 'TELIA.STO' },
-  { ticker: 'KONE.HE', symbol: 'KONE', exchange: 'Helsinki', twelveDataSymbol: 'KONE.HEL' },
+  // Original companies - using correct Twelve Data symbols
+  { ticker: 'MAERSK-B.CO', symbol: 'MAERSK-B', exchange: 'Copenhagen', twelveDataSymbol: 'MAERSK-B' },
+  { ticker: 'HHLA.DE', symbol: 'HHLA', exchange: 'XETRA', twelveDataSymbol: 'HHLA' },
+  { ticker: 'ORSTED.CO', symbol: 'ORSTED', exchange: 'Copenhagen', twelveDataSymbol: 'ORSTED' },
+  { ticker: 'TORM.CO', symbol: 'TORM', exchange: 'Copenhagen', twelveDataSymbol: 'TORM' },
+  { ticker: 'HAPAG.DE', symbol: 'HAPAG', exchange: 'XETRA', twelveDataSymbol: 'HAPAG-LLOYD' },
+  { ticker: 'SALM.HE', symbol: 'SALM', exchange: 'Helsinki', twelveDataSymbol: 'SALMAR' },
+  { ticker: 'TELUS.HE', symbol: 'TELIA', exchange: 'Stockholm', twelveDataSymbol: 'TELIA' },
+  { ticker: 'KONE.HE', symbol: 'KONE', exchange: 'Helsinki', twelveDataSymbol: 'KNEBV' },
   
-  // New Baltic companies
-  { ticker: 'TSM1T', symbol: 'TSM1T', exchange: 'Tallinn', twelveDataSymbol: 'TSM1T.NASDAQ' },
-  { ticker: 'VIK1V', symbol: 'VIK1V', exchange: 'Helsinki', twelveDataSymbol: 'VIK1V.HEL' },
-  { ticker: 'TAL1T', symbol: 'TAL1T', exchange: 'Tallinn', twelveDataSymbol: 'TAL1T.NASDAQ' },
-  { ticker: 'DFDS', symbol: 'DFDS', exchange: 'Copenhagen', twelveDataSymbol: 'DFDS.CSE' },
-  { ticker: 'PGE', symbol: 'PGE', exchange: 'Warsaw', twelveDataSymbol: 'PGE.WSE' },
-  { ticker: 'ORLEN', symbol: 'ORLEN', exchange: 'Warsaw', twelveDataSymbol: 'PKN.WSE' },
-  { ticker: 'RWE', symbol: 'RWE', exchange: 'XETRA', twelveDataSymbol: 'RWE.XETRA' },
-  { ticker: 'EBK', symbol: 'EBK', exchange: 'XETRA', twelveDataSymbol: 'EBK.XETRA' },
-  { ticker: 'IGN1L', symbol: 'IGN1L', exchange: 'Vilnius', twelveDataSymbol: 'IGN1L.NASDAQ' },
-  { ticker: 'EGR1T', symbol: 'EGR1T', exchange: 'Tallinn', twelveDataSymbol: 'EGR1T.NASDAQ' },
-  { ticker: 'EQNR', symbol: 'EQNR', exchange: 'Oslo', twelveDataSymbol: 'EQNR.OSL' },
-  { ticker: 'PEP', symbol: 'PEP', exchange: 'Warsaw', twelveDataSymbol: 'PEP.WSE' },
-  { ticker: 'NESTE', symbol: 'NESTE', exchange: 'Helsinki', twelveDataSymbol: 'NESTE.HEL' },
-  { ticker: 'WRT1V', symbol: 'WRT1V', exchange: 'Helsinki', twelveDataSymbol: 'WRT1V.HEL' },
-  { ticker: 'ALFA', symbol: 'ALFA', exchange: 'Stockholm', twelveDataSymbol: 'ALFA.STO' },
-  { ticker: 'CCC', symbol: 'CCC', exchange: 'Stockholm', twelveDataSymbol: 'CCC.STO' },
-  { ticker: 'TVE1T', symbol: 'TVE1T', exchange: 'Tallinn', twelveDataSymbol: 'TVE1T.NASDAQ' },
-  { ticker: 'KNE1L', symbol: 'KNE1L', exchange: 'Vilnius', twelveDataSymbol: 'KNE1L.NASDAQ' }
+  // Test with simpler, well-known symbols first
+  { ticker: 'RWE', symbol: 'RWE', exchange: 'XETRA', twelveDataSymbol: 'RWE' },
+  { ticker: 'EQNR', symbol: 'EQNR', exchange: 'Oslo', twelveDataSymbol: 'EQNR' },
+  { ticker: 'NESTE', symbol: 'NESTE', exchange: 'Helsinki', twelveDataSymbol: 'NESTE' },
+  
+  // New Baltic companies - simplified symbols
+  { ticker: 'TSM1T', symbol: 'TSM1T', exchange: 'Tallinn', twelveDataSymbol: 'TSM1T' },
+  { ticker: 'VIK1V', symbol: 'VIK1V', exchange: 'Helsinki', twelveDataSymbol: 'VIK1V' },
+  { ticker: 'TAL1T', symbol: 'TAL1T', exchange: 'Tallinn', twelveDataSymbol: 'TAL1T' },
+  { ticker: 'DFDS', symbol: 'DFDS', exchange: 'Copenhagen', twelveDataSymbol: 'DFDS' },
+  { ticker: 'PGE', symbol: 'PGE', exchange: 'Warsaw', twelveDataSymbol: 'PGE' },
+  { ticker: 'ORLEN', symbol: 'ORLEN', exchange: 'Warsaw', twelveDataSymbol: 'PKN' },
+  { ticker: 'EBK', symbol: 'EBK', exchange: 'XETRA', twelveDataSymbol: 'EBK' },
+  { ticker: 'IGN1L', symbol: 'IGN1L', exchange: 'Vilnius', twelveDataSymbol: 'IGN1L' },
+  { ticker: 'EGR1T', symbol: 'EGR1T', exchange: 'Tallinn', twelveDataSymbol: 'EGR1T' },
+  { ticker: 'PEP', symbol: 'PEP', exchange: 'Warsaw', twelveDataSymbol: 'PEP' },
+  { ticker: 'WRT1V', symbol: 'WRT1V', exchange: 'Helsinki', twelveDataSymbol: 'WRT1V' },
+  { ticker: 'ALFA', symbol: 'ALFA', exchange: 'Stockholm', twelveDataSymbol: 'ALFA' },
+  { ticker: 'CCC', symbol: 'CCC', exchange: 'Stockholm', twelveDataSymbol: 'CCC' },
+  { ticker: 'TVE1T', symbol: 'TVE1T', exchange: 'Tallinn', twelveDataSymbol: 'TVE1T' },
+  { ticker: 'KNE1L', symbol: 'KNE1L', exchange: 'Vilnius', twelveDataSymbol: 'KNE1L' }
 ];
 
 serve(async (req) => {
@@ -106,9 +108,15 @@ serve(async (req) => {
       throw new Error('TWELVE_DATA_API_KEY is not configured');
     }
 
-    const url = new URL(req.url);
-    const requestedTickers = url.searchParams.get('tickers')?.split(',') || [];
-    const includeProfile = url.searchParams.get('includeProfile') === 'true';
+    // Get request data from body (when using supabase.functions.invoke)
+    const requestData = await req.json();
+    const tickersParam = requestData.tickers;
+    const includeProfile = requestData.includeProfile || false;
+    
+    // Parse tickers - can be string or array
+    const requestedTickers = typeof tickersParam === 'string' 
+      ? tickersParam.split(',').filter(t => t.trim()) 
+      : Array.isArray(tickersParam) ? tickersParam : [];
     
     console.log(`Fetching data for tickers: ${requestedTickers.join(', ')}`);
 
@@ -125,12 +133,19 @@ serve(async (req) => {
       try {
         // Fetch real-time quote
         const quoteUrl = `https://api.twelvedata.com/quote?symbol=${mapping.twelveDataSymbol}&apikey=${apiKey}`;
-        console.log(`Fetching quote from: ${quoteUrl}`);
+        console.log(`Fetching quote for ${ticker} from: ${quoteUrl}`);
         
         const quoteResponse = await fetch(quoteUrl);
+        
+        if (!quoteResponse.ok) {
+          console.log(`HTTP error ${quoteResponse.status} for ${ticker}`);
+          continue;
+        }
+        
         const quoteData: TwelveDataQuote = await quoteResponse.json();
+        console.log(`Quote data for ${ticker}:`, JSON.stringify(quoteData, null, 2));
 
-        if (quoteData && !('code' in quoteData)) {
+        if (quoteData && !('code' in quoteData) && !('message' in quoteData)) {
           let profileData: TwelveDataProfile | null = null;
           
           // Optionally fetch company profile for additional data
@@ -189,7 +204,7 @@ serve(async (req) => {
         }
 
         // Add delay to respect API rate limits (free tier: 8 calls/min)
-        await new Promise(resolve => setTimeout(resolve, 8000));
+        await new Promise(resolve => setTimeout(resolve, 500)); // Reduced delay for testing
         
       } catch (error) {
         console.error(`Error fetching data for ${ticker}:`, error);

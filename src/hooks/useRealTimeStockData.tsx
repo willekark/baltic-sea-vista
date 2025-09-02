@@ -60,6 +60,8 @@ export const useRealTimeStockData = ({
         }
       });
 
+      console.log('Function response:', data);
+
       if (functionError) {
         throw new Error(`Function error: ${functionError.message}`);
       }
@@ -72,6 +74,8 @@ export const useRealTimeStockData = ({
           toast.warning(`Retrieved ${data.fetchedCount} out of ${data.requestedCount} stocks`, {
             description: 'Some stocks may not be available or have rate limits'
           });
+        } else if (data.fetchedCount > 0) {
+          toast.success(`Updated ${data.fetchedCount} stock prices`);
         }
         
         console.log(`Successfully fetched ${data.fetchedCount} stock prices`);
