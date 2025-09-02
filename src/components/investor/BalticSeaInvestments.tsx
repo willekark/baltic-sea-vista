@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRealTimeStockData } from '@/hooks/useRealTimeStockData';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PublicStock {
   ticker: string;
@@ -1237,6 +1238,31 @@ const BalticSeaInvestments = () => {
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             {loading ? 'Updating...' : 'Refresh Prices'}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              try {
+                const { data } = await supabase.functions.invoke('test-stock-api');
+                console.log('API Test Result:', data);
+                if (data?.success) {
+                  toast.success('API Test Successful!', {
+                    description: `AAPL price: $${data.applTest?.close || 'N/A'}`
+                  });
+                } else {
+                  toast.error('API Test Failed', {
+                    description: data?.error || 'Unknown error'
+                  });
+                }
+              } catch (error) {
+                console.error('Test failed:', error);
+                toast.error('Test Failed', { description: error.message });
+              }
+            }}
+            className="flex items-center gap-2"
+          >
+            Test API
           </Button>
           {stockData.length > 0 && (
             <Badge variant="secondary" className="bg-green-50 text-green-700">

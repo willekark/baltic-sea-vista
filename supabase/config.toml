@@ -79,6 +79,9 @@ verify_jwt = false
 [functions.real-time-stock-data]
 verify_jwt = false
 
+[functions.test-stock-api]
+verify_jwt = false
+
 [functions.shadow-fleet-analysis]
 verify_jwt = false
 
