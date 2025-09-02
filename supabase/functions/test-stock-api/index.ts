@@ -12,7 +12,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  console.log('Test API function started');
+  console.log('Test API function started - v2');
 
   try {
     const apiKey = Deno.env.get('TWELVE_DATA_API_KEY');
