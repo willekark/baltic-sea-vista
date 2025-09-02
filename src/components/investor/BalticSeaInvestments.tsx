@@ -280,7 +280,7 @@ const BalticSeaInvestments = () => {
       description: 'Major telecom operator in Nordic and Baltic countries',
       headquarters: 'Solna, Sweden',
       tags: ['Telecom', '5G', 'Infrastructure'],
-      analyticalData: {
+        analyticalData: {
         peRatio: 'N/A',
         sharpeRatio: 0.68,
         beta: 0.72,
@@ -296,6 +296,583 @@ const BalticSeaInvestments = () => {
         analystRating: 'Hold',
         priceTarget: 'SEK 26.00',
         volumeAvg: '3.8M'
+      }
+    },
+    // New Baltic Sea Companies Dataset
+    {
+      ticker: 'TSM1T',
+      company: 'AS Tallinna Sadam',
+      exchange: 'Nasdaq Tallinn',
+      sector: 'Port Operations',
+      marketCap: '€1.2B',
+      price: '€1.45',
+      change: '+0.02',
+      changePercent: '+1.40%',
+      trend: 'up',
+      balticExposure: 'Very High - Primary Baltic port',
+      description: 'Major Baltic port operator serving Estonia and regional cargo flows',
+      headquarters: 'Tallinn, Estonia',
+      tags: ['Ports', 'Logistics', 'Baltic Gateway'],
+      analyticalData: {
+        peRatio: 11.5,
+        sharpeRatio: 1.18,
+        beta: 0.78,
+        dividendYield: 4.8,
+        roe: 12.6,
+        debtToEquity: 0.52,
+        currentRatio: 1.68,
+        priceToBook: 1.45,
+        eps: 0.126,
+        revenue52w: '€165M',
+        operatingMargin: 18.2,
+        freeCashFlow: '€45M',
+        analystRating: 'Buy',
+        priceTarget: '€1.65',
+        volumeAvg: '125K'
+      }
+    },
+    {
+      ticker: 'VIK1V',
+      company: 'Viking Line Abp',
+      exchange: 'Nasdaq Helsinki',
+      sector: 'Ferry Operations',
+      marketCap: '€485M',
+      price: '€11.20',
+      change: '-0.15',
+      changePercent: '-1.32%',
+      trend: 'down',
+      balticExposure: 'Very High - Baltic Sea routes',
+      description: 'Leading ferry operator connecting Finland, Sweden, and Baltic islands',
+      headquarters: 'Mariehamn, Finland',
+      tags: ['Ferries', 'Passenger Transport', 'Tourism'],
+      analyticalData: {
+        peRatio: 15.8,
+        sharpeRatio: 0.85,
+        beta: 1.12,
+        dividendYield: 2.8,
+        roe: 8.4,
+        debtToEquity: 0.68,
+        currentRatio: 1.25,
+        priceToBook: 1.32,
+        eps: 0.71,
+        revenue52w: '€495M',
+        operatingMargin: 6.8,
+        freeCashFlow: '€35M',
+        analystRating: 'Hold',
+        priceTarget: '€12.50',
+        volumeAvg: '85K'
+      }
+    },
+    {
+      ticker: 'TAL1T',
+      company: 'AS Tallink Grupp',
+      exchange: 'Nasdaq Tallinn',
+      sector: 'Ferry Operations',
+      marketCap: '€420M',
+      price: '€0.66',
+      change: '+0.01',
+      changePercent: '+1.54%',
+      trend: 'up',
+      balticExposure: 'Very High - Dominant Baltic ferry operator',
+      description: 'Largest passenger and cargo ferry company in Baltic Sea region',
+      headquarters: 'Tallinn, Estonia',
+      tags: ['Ferries', 'RoRo', 'Baltic Transport'],
+      analyticalData: {
+        peRatio: 8.9,
+        sharpeRatio: 1.22,
+        beta: 1.45,
+        dividendYield: 3.6,
+        roe: 14.2,
+        debtToEquity: 0.92,
+        currentRatio: 1.15,
+        priceToBook: 0.88,
+        eps: 0.074,
+        revenue52w: '€950M',
+        operatingMargin: 12.5,
+        freeCashFlow: '€85M',
+        analystRating: 'Buy',
+        priceTarget: '€0.78',
+        volumeAvg: '2.1M'
+      }
+    },
+    {
+      ticker: 'DFDS',
+      company: 'DFDS A/S',
+      exchange: 'Nasdaq Copenhagen',
+      sector: 'Ferry Operations',
+      marketCap: 'DKK 28.5B',
+      price: 'DKK 385.00',
+      change: '+5.50',
+      changePercent: '+1.45%',
+      trend: 'up',
+      balticExposure: 'High - Baltic and North Sea routes',
+      description: 'Major Northern European ferry and logistics operator',
+      headquarters: 'Copenhagen, Denmark',
+      tags: ['Ferries', 'Logistics', 'RoRo'],
+      analyticalData: {
+        peRatio: 12.8,
+        sharpeRatio: 1.35,
+        beta: 1.18,
+        dividendYield: 2.9,
+        roe: 16.8,
+        debtToEquity: 0.75,
+        currentRatio: 1.32,
+        priceToBook: 2.15,
+        eps: 30.08,
+        revenue52w: 'DKK 24.8B',
+        operatingMargin: 8.5,
+        freeCashFlow: 'DKK 1.8B',
+        analystRating: 'Buy',
+        priceTarget: 'DKK 425.00',
+        volumeAvg: '185K'
+      }
+    },
+    {
+      ticker: 'PGE',
+      company: 'PGE Polska Grupa Energetyczna',
+      exchange: 'Warsaw Stock Exchange',
+      sector: 'Energy & Utilities',
+      marketCap: 'PLN 42.8B',
+      price: 'PLN 12.85',
+      change: '+0.18',
+      changePercent: '+1.42%',
+      trend: 'up',
+      balticExposure: 'Medium - Baltic Sea offshore wind projects',
+      description: 'Largest Polish power company with major renewable energy expansion',
+      headquarters: 'Warsaw, Poland',
+      tags: ['Utilities', 'Renewable Energy', 'Wind Power'],
+      analyticalData: {
+        peRatio: 6.8,
+        sharpeRatio: 0.95,
+        beta: 0.88,
+        dividendYield: 5.2,
+        roe: 11.4,
+        debtToEquity: 0.58,
+        currentRatio: 1.48,
+        priceToBook: 0.75,
+        eps: 1.89,
+        revenue52w: 'PLN 58.2B',
+        operatingMargin: 9.8,
+        freeCashFlow: 'PLN 4.2B',
+        analystRating: 'Buy',
+        priceTarget: 'PLN 15.50',
+        volumeAvg: '8.5M'
+      }
+    },
+    {
+      ticker: 'ORLEN',
+      company: 'ORLEN S.A.',
+      exchange: 'Warsaw Stock Exchange',
+      sector: 'Energy & Oil',
+      marketCap: 'PLN 52.8B',
+      price: 'PLN 48.52',
+      change: '-0.35',
+      changePercent: '-0.72%',
+      trend: 'down',
+      balticExposure: 'Medium - Baltic refining and petrochemicals',
+      description: 'Central European oil refiner and petrochemicals company',
+      headquarters: 'Płock, Poland',
+      tags: ['Oil & Gas', 'Petrochemicals', 'Refining'],
+      analyticalData: {
+        peRatio: 4.2,
+        sharpeRatio: 1.05,
+        beta: 1.25,
+        dividendYield: 6.8,
+        roe: 18.5,
+        debtToEquity: 0.42,
+        currentRatio: 1.85,
+        priceToBook: 0.68,
+        eps: 11.55,
+        revenue52w: 'PLN 185.2B',
+        operatingMargin: 5.8,
+        freeCashFlow: 'PLN 8.5B',
+        analystRating: 'Hold',
+        priceTarget: 'PLN 52.00',
+        volumeAvg: '1.2M'
+      }
+    },
+    {
+      ticker: 'RWE',
+      company: 'RWE AG',
+      exchange: 'Xetra (Frankfurt)',
+      sector: 'Renewable Energy',
+      marketCap: '€28.5B',
+      price: '€42.15',
+      change: '+0.85',
+      changePercent: '+2.06%',
+      trend: 'up',
+      balticExposure: 'High - Major Baltic offshore wind developer',
+      description: 'Leading European renewable energy company with extensive offshore wind',
+      headquarters: 'Essen, Germany',
+      tags: ['Renewable Energy', 'Offshore Wind', 'Green Transition'],
+      analyticalData: {
+        peRatio: 16.5,
+        sharpeRatio: 1.28,
+        beta: 0.92,
+        dividendYield: 2.8,
+        roe: 14.2,
+        debtToEquity: 0.68,
+        currentRatio: 1.25,
+        priceToBook: 1.85,
+        eps: 2.55,
+        revenue52w: '€24.2B',
+        operatingMargin: 18.5,
+        freeCashFlow: '€2.8B',
+        analystRating: 'Buy',
+        priceTarget: '€48.50',
+        volumeAvg: '2.8M'
+      }
+    },
+    {
+      ticker: 'EBK',
+      company: 'EnBW AG',
+      exchange: 'Xetra (Frankfurt)',
+      sector: 'Utilities & Renewables',
+      marketCap: '€18.8B',
+      price: '€72.45',
+      change: '+1.25',
+      changePercent: '+1.76%',
+      trend: 'up',
+      balticExposure: 'Medium - Baltic offshore wind investments',
+      description: 'German utility company with significant renewable energy portfolio',
+      headquarters: 'Karlsruhe, Germany',
+      tags: ['Utilities', 'Renewable Energy', 'Grid Infrastructure'],
+      analyticalData: {
+        peRatio: 14.8,
+        sharpeRatio: 1.12,
+        beta: 0.85,
+        dividendYield: 4.2,
+        roe: 12.8,
+        debtToEquity: 0.78,
+        currentRatio: 1.32,
+        priceToBook: 1.58,
+        eps: 4.89,
+        revenue52w: '€25.5B',
+        operatingMargin: 12.8,
+        freeCashFlow: '€1.8B',
+        analystRating: 'Hold',
+        priceTarget: '€75.00',
+        volumeAvg: '425K'
+      }
+    },
+    {
+      ticker: 'IGN1L',
+      company: 'Ignitis Group',
+      exchange: 'Nasdaq Vilnius',
+      sector: 'Energy & Utilities',
+      marketCap: '€2.1B',
+      price: '€18.85',
+      change: '+0.25',
+      changePercent: '+1.34%',
+      trend: 'up',
+      balticExposure: 'Very High - Baltic states energy leader',
+      description: 'Leading energy group in Baltic states with renewable focus',
+      headquarters: 'Vilnius, Lithuania',
+      tags: ['Utilities', 'Renewable Energy', 'Baltic Energy'],
+      analyticalData: {
+        peRatio: 12.5,
+        sharpeRatio: 1.08,
+        beta: 0.95,
+        dividendYield: 3.8,
+        roe: 15.2,
+        debtToEquity: 0.65,
+        currentRatio: 1.45,
+        priceToBook: 1.68,
+        eps: 1.51,
+        revenue52w: '€1.8B',
+        operatingMargin: 16.8,
+        freeCashFlow: '€285M',
+        analystRating: 'Buy',
+        priceTarget: '€22.00',
+        volumeAvg: '95K'
+      }
+    },
+    {
+      ticker: 'EGR1T',
+      company: 'Enefit Green AS',
+      exchange: 'Nasdaq Tallinn',
+      sector: 'Renewable Energy',
+      marketCap: '€1.4B',
+      price: '€13.20',
+      change: '+0.35',
+      changePercent: '+2.72%',
+      trend: 'up',
+      balticExposure: 'Very High - Baltic renewable energy leader',
+      description: 'Leading renewable energy producer in Baltic states and Poland',
+      headquarters: 'Tallinn, Estonia',
+      tags: ['Wind Energy', 'Solar Power', 'Green Energy'],
+      analyticalData: {
+        peRatio: 22.5,
+        sharpeRatio: 1.45,
+        beta: 1.15,
+        dividendYield: 1.8,
+        roe: 18.5,
+        debtToEquity: 0.48,
+        currentRatio: 1.85,
+        priceToBook: 3.25,
+        eps: 0.587,
+        revenue52w: '€285M',
+        operatingMargin: 42.5,
+        freeCashFlow: '€95M',
+        analystRating: 'Strong Buy',
+        priceTarget: '€16.50',
+        volumeAvg: '185K'
+      }
+    },
+    {
+      ticker: 'EQNR',
+      company: 'Equinor ASA',
+      exchange: 'Oslo Børs',
+      sector: 'Energy & Oil',
+      marketCap: 'NOK 885B',
+      price: 'NOK 275.80',
+      change: '+2.15',
+      changePercent: '+0.79%',
+      trend: 'up',
+      balticExposure: 'Low-Medium - Nordic offshore operations',
+      description: 'Norwegian energy company with offshore wind and oil operations',
+      headquarters: 'Stavanger, Norway',
+      tags: ['Oil & Gas', 'Offshore Wind', 'Energy Transition'],
+      analyticalData: {
+        peRatio: 11.2,
+        sharpeRatio: 1.32,
+        beta: 1.28,
+        dividendYield: 5.8,
+        roe: 22.5,
+        debtToEquity: 0.35,
+        currentRatio: 1.95,
+        priceToBook: 2.15,
+        eps: 24.64,
+        revenue52w: 'NOK 1,085B',
+        operatingMargin: 18.8,
+        freeCashFlow: 'NOK 185B',
+        analystRating: 'Buy',
+        priceTarget: 'NOK 320.00',
+        volumeAvg: '8.5M'
+      }
+    },
+    {
+      ticker: 'PEP',
+      company: 'Polenergia S.A.',
+      exchange: 'Warsaw Stock Exchange',
+      sector: 'Renewable Energy',
+      marketCap: 'PLN 4.8B',
+      price: 'PLN 12.85',
+      change: '+0.42',
+      changePercent: '+3.38%',
+      trend: 'up',
+      balticExposure: 'High - Baltic offshore wind projects',
+      description: 'Polish renewable energy company with offshore wind focus',
+      headquarters: 'Warsaw, Poland',
+      tags: ['Offshore Wind', 'Renewable Energy', 'Clean Technology'],
+      analyticalData: {
+        peRatio: 28.5,
+        sharpeRatio: 1.58,
+        beta: 1.45,
+        dividendYield: 0.8,
+        roe: 8.5,
+        debtToEquity: 0.85,
+        currentRatio: 1.25,
+        priceToBook: 2.85,
+        eps: 0.45,
+        revenue52w: 'PLN 1.2B',
+        operatingMargin: 25.8,
+        freeCashFlow: 'PLN 185M',
+        analystRating: 'Buy',
+        priceTarget: 'PLN 16.00',
+        volumeAvg: '425K'
+      }
+    },
+    {
+      ticker: 'NESTE',
+      company: 'Neste Oyj',
+      exchange: 'Nasdaq Helsinki',
+      sector: 'Sustainable Fuels',
+      marketCap: '€28.5B',
+      price: '€37.82',
+      change: '+0.85',
+      changePercent: '+2.30%',
+      trend: 'up',
+      balticExposure: 'Medium - Baltic refining and biofuels',
+      description: 'Leading sustainable aviation fuel and renewable diesel producer',
+      headquarters: 'Espoo, Finland',
+      tags: ['Biofuels', 'Sustainable Aviation Fuel', 'Clean Technology'],
+      analyticalData: {
+        peRatio: 15.8,
+        sharpeRatio: 1.25,
+        beta: 1.08,
+        dividendYield: 4.2,
+        roe: 18.5,
+        debtToEquity: 0.28,
+        currentRatio: 1.68,
+        priceToBook: 2.85,
+        eps: 2.39,
+        revenue52w: '€22.9B',
+        operatingMargin: 8.5,
+        freeCashFlow: '€1.8B',
+        analystRating: 'Buy',
+        priceTarget: '€42.50',
+        volumeAvg: '1.8M'
+      }
+    },
+    {
+      ticker: 'WRT1V',
+      company: 'Wärtsilä Oyj',
+      exchange: 'Nasdaq Helsinki',
+      sector: 'Marine Technology',
+      marketCap: '€6.8B',
+      price: '€11.24',
+      change: '+0.18',
+      changePercent: '+1.63%',
+      trend: 'up',
+      balticExposure: 'High - Marine engines and energy solutions',
+      description: 'Marine and energy technology company serving Baltic shipping',
+      headquarters: 'Helsinki, Finland',
+      tags: ['Marine Technology', 'Energy Solutions', 'Shipping Equipment'],
+      analyticalData: {
+        peRatio: 18.5,
+        sharpeRatio: 1.12,
+        beta: 1.25,
+        dividendYield: 3.8,
+        roe: 12.8,
+        debtToEquity: 0.42,
+        currentRatio: 1.85,
+        priceToBook: 2.25,
+        eps: 0.608,
+        revenue52w: '€5.8B',
+        operatingMargin: 9.8,
+        freeCashFlow: '€485M',
+        analystRating: 'Hold',
+        priceTarget: '€12.50',
+        volumeAvg: '1.2M'
+      }
+    },
+    {
+      ticker: 'ALFA',
+      company: 'Alfa Laval AB',
+      exchange: 'Nasdaq Stockholm',
+      sector: 'Industrial Technology',
+      marketCap: 'SEK 148B',
+      price: 'SEK 349.80',
+      change: '+4.20',
+      changePercent: '+1.22%',
+      trend: 'up',
+      balticExposure: 'Medium - Marine and energy solutions',
+      description: 'Heat transfer, separation and fluid handling technology',
+      headquarters: 'Lund, Sweden',
+      tags: ['Industrial Equipment', 'Marine Solutions', 'Clean Technology'],
+      analyticalData: {
+        peRatio: 24.8,
+        sharpeRatio: 1.35,
+        beta: 1.15,
+        dividendYield: 2.2,
+        roe: 21.5,
+        debtToEquity: 0.35,
+        currentRatio: 1.95,
+        priceToBook: 4.85,
+        eps: 14.10,
+        revenue52w: 'SEK 63.2B',
+        operatingMargin: 16.8,
+        freeCashFlow: 'SEK 6.8B',
+        analystRating: 'Buy',
+        priceTarget: 'SEK 385.00',
+        volumeAvg: '985K'
+      }
+    },
+    {
+      ticker: 'CCC',
+      company: 'Cavotec SA',
+      exchange: 'Nasdaq Stockholm',
+      sector: 'Port Technology',
+      marketCap: 'SEK 2.8B',
+      price: 'SEK 25.40',
+      change: '+0.65',
+      changePercent: '+2.62%',
+      trend: 'up',
+      balticExposure: 'High - Port electrification solutions',
+      description: 'Port and industrial electrification technology solutions',
+      headquarters: 'Lugano, Switzerland',
+      tags: ['Port Technology', 'Electrification', 'Clean Technology'],
+      analyticalData: {
+        peRatio: 32.5,
+        sharpeRatio: 1.85,
+        beta: 1.68,
+        dividendYield: 1.2,
+        roe: 8.5,
+        debtToEquity: 0.28,
+        currentRatio: 2.15,
+        priceToBook: 2.85,
+        eps: 0.78,
+        revenue52w: 'SEK 1.8B',
+        operatingMargin: 12.8,
+        freeCashFlow: 'SEK 185M',
+        analystRating: 'Buy',
+        priceTarget: 'SEK 32.00',
+        volumeAvg: '125K'
+      }
+    },
+    {
+      ticker: 'TVE1T',
+      company: 'AS Tallinna Vesi',
+      exchange: 'Nasdaq Tallinn',
+      sector: 'Water Utilities',
+      marketCap: '€225M',
+      price: '€12.90',
+      change: '+0.10',
+      changePercent: '+0.78%',
+      trend: 'up',
+      balticExposure: 'High - Baltic water and wastewater services',
+      description: 'Water supply and wastewater treatment services in Tallinn region',
+      headquarters: 'Tallinn, Estonia',
+      tags: ['Water Utilities', 'Environmental Services', 'Infrastructure'],
+      analyticalData: {
+        peRatio: 8.5,
+        sharpeRatio: 0.85,
+        beta: 0.45,
+        dividendYield: 6.8,
+        roe: 15.2,
+        debtToEquity: 0.38,
+        currentRatio: 1.85,
+        priceToBook: 1.25,
+        eps: 1.518,
+        revenue52w: '€65M',
+        operatingMargin: 28.5,
+        freeCashFlow: '€18M',
+        analystRating: 'Hold',
+        priceTarget: '€13.50',
+        volumeAvg: '15K'
+      }
+    },
+    {
+      ticker: 'KNE1L',
+      company: 'KN Energies (ex-Klaipėdos nafta)',
+      exchange: 'Nasdaq Vilnius',
+      sector: 'Energy Infrastructure',
+      marketCap: '€485M',
+      price: '€0.62',
+      change: '+0.01',
+      changePercent: '+1.64%',
+      trend: 'up',
+      balticExposure: 'Very High - Baltic LNG terminal operator',
+      description: 'LNG terminal operator and energy infrastructure company',
+      headquarters: 'Klaipėda, Lithuania',
+      tags: ['LNG Infrastructure', 'Energy Security', 'Gas Terminal'],
+      analyticalData: {
+        peRatio: 12.8,
+        sharpeRatio: 1.25,
+        beta: 1.05,
+        dividendYield: 4.5,
+        roe: 8.8,
+        debtToEquity: 0.85,
+        currentRatio: 1.45,
+        priceToBook: 1.15,
+        eps: 0.0484,
+        revenue52w: '€185M',
+        operatingMargin: 18.5,
+        freeCashFlow: '€35M',
+        analystRating: 'Buy',
+        priceTarget: '€0.75',
+        volumeAvg: '485K'
       }
     },
     {
@@ -433,8 +1010,10 @@ const BalticSeaInvestments = () => {
   ];
 
   const filteredPublicStocks = publicStocks.filter(stock => {
-    const matchesSearch = stock.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         stock.ticker.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = stock.company.toLowerCase().includes(searchLower) ||
+                         stock.ticker.toLowerCase().includes(searchLower) ||
+                         stock.exchange.toLowerCase().includes(searchLower);
     const matchesSector = selectedSector === 'all' || 
                          stock.sector.toLowerCase().includes(selectedSector.toLowerCase());
     return matchesSearch && matchesSector;
@@ -609,16 +1188,16 @@ const BalticSeaInvestments = () => {
       {/* Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search companies or tickers..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search companies, tickers, or exchanges..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
             <div className="flex flex-wrap gap-2">
               {sectors.map((sector) => {
                 const Icon = sector.icon;
@@ -815,13 +1394,13 @@ const BalticSeaInvestments = () => {
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold">~€150B</div>
+            <div className="text-2xl font-bold">~€285B</div>
             <div className="text-xs text-muted-foreground">Combined Market Cap</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold">8</div>
+            <div className="text-2xl font-bold">12</div>
             <div className="text-xs text-muted-foreground">Key Sectors</div>
           </CardContent>
         </Card>
