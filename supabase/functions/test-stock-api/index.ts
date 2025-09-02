@@ -15,6 +15,11 @@ serve(async (req) => {
   console.log('Test API function started - v2');
 
   try {
+    // Debug: Log all environment variables that start with TWELVE
+    const allEnvVars = Deno.env.toObject();
+    const twelveVars = Object.keys(allEnvVars).filter(key => key.includes('TWELVE'));
+    console.log('Available TWELVE variables:', twelveVars);
+    
     const apiKey = Deno.env.get('TWELVE_DATA_API_KEY');
     console.log('API Key status:', apiKey ? `Found (${apiKey.substring(0, 8)}...)` : 'Not found');
     
