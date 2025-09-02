@@ -12,45 +12,48 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  console.log('Test API function started');
+
   try {
     const apiKey = Deno.env.get('TWELVE_DATA_API_KEY');
-    console.log('API Key exists:', !!apiKey);
-    console.log('API Key length:', apiKey?.length || 0);
+    console.log('API Key status:', apiKey ? `Found (${apiKey.substring(0, 8)}...)` : 'Not found');
     
     if (!apiKey) {
+      console.error('TWELVE_DATA_API_KEY not found in environment');
       return new Response(JSON.stringify({ 
         success: false, 
-        error: 'TWELVE_DATA_API_KEY is not configured' 
+        error: 'API key not configured' 
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Test with Apple (AAPL) - a guaranteed working symbol
+    // Simple test with AAPL
+    console.log('Making API request to Twelve Data...');
     const testUrl = `https://api.twelvedata.com/quote?symbol=AAPL&apikey=${apiKey}`;
-    console.log('Testing API with AAPL...');
     
     const response = await fetch(testUrl);
     console.log('Response status:', response.status);
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+    
+    if (!response.ok) {
+      console.error('HTTP error:', response.status, response.statusText);
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: `HTTP ${response.status}: ${response.statusText}` 
+      }), {
+        status: response.status,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     const data = await response.json();
-    console.log('Response data:', JSON.stringify(data, null, 2));
-
-    // Test with a European stock (BMW)
-    const bmwUrl = `https://api.twelvedata.com/quote?symbol=BMW.DEX&apikey=${apiKey}`;
-    console.log('Testing API with BMW...');
-    
-    const bmwResponse = await fetch(bmwUrl);
-    const bmwData = await bmwResponse.json();
-    console.log('BMW Response data:', JSON.stringify(bmwData, null, 2));
+    console.log('API Response:', JSON.stringify(data, null, 2));
 
     return new Response(JSON.stringify({ 
       success: true, 
-      apiKeyStatus: 'Found',
-      applTest: data,
-      bmwTest: bmwData,
+      message: 'API test successful',
+      data: data,
       timestamp: new Date().toISOString()
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -60,7 +63,7 @@ serve(async (req) => {
     console.error('Test function error:', error);
     return new Response(JSON.stringify({ 
       success: false, 
-      error: error.message,
+      error: `Function error: ${error.message}`,
       timestamp: new Date().toISOString()
     }), {
       status: 500,
