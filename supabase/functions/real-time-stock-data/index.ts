@@ -109,16 +109,39 @@ serve(async (req) => {
     }
 
     // Get request data from body (when using supabase.functions.invoke)
+    console.log('Raw request method:', req.method);
+    console.log('Raw request headers:', Object.fromEntries(req.headers.entries()));
+    
     const requestData = await req.json();
+    console.log('Received request data:', JSON.stringify(requestData, null, 2));
+    
     const tickersParam = requestData.tickers;
     const includeProfile = requestData.includeProfile || false;
     
-    // Parse tickers - can be string or array
-    const requestedTickers = typeof tickersParam === 'string' 
-      ? tickersParam.split(',').filter(t => t.trim()) 
-      : Array.isArray(tickersParam) ? tickersParam : [];
+    console.log('Tickers param:', tickersParam, 'Type:', typeof tickersParam);
     
-    console.log(`Fetching data for tickers: ${requestedTickers.join(', ')}`);
+    // Parse tickers - can be string or array
+    let requestedTickers: string[] = [];
+    if (typeof tickersParam === 'string') {
+      requestedTickers = tickersParam.split(',').map(t => t.trim()).filter(t => t.length > 0);
+    } else if (Array.isArray(tickersParam)) {
+      requestedTickers = tickersParam.filter(t => typeof t === 'string' && t.length > 0);
+    }
+    
+    console.log(`Parsed tickers (${requestedTickers.length}):`, requestedTickers);
+
+    if (requestedTickers.length === 0) {
+      return new Response(JSON.stringify({ 
+        success: true, 
+        data: [],
+        fetchedCount: 0,
+        requestedCount: 0,
+        timestamp: new Date().toISOString(),
+        message: 'No valid tickers provided'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     const results: any[] = [];
 
@@ -130,7 +153,20 @@ serve(async (req) => {
         continue;
       }
 
+      console.log(`Processing ticker ${ticker} -> ${mapping.twelveDataSymbol}`);
+
       try {
+        // Test with a simple known symbol first to validate API key
+        if (ticker === 'RWE') {
+          // Use a well-known German stock for testing
+          const testUrl = `https://api.twelvedata.com/quote?symbol=RWE&apikey=${apiKey}`;
+          console.log(`Test API call: ${testUrl}`);
+          
+          const testResponse = await fetch(testUrl);
+          const testData = await testResponse.json();
+          console.log(`Test API response for RWE:`, JSON.stringify(testData, null, 2));
+        }
+
         // Fetch real-time quote
         const quoteUrl = `https://api.twelvedata.com/quote?symbol=${mapping.twelveDataSymbol}&apikey=${apiKey}`;
         console.log(`Fetching quote for ${ticker} from: ${quoteUrl}`);
@@ -145,7 +181,7 @@ serve(async (req) => {
         const quoteData: TwelveDataQuote = await quoteResponse.json();
         console.log(`Quote data for ${ticker}:`, JSON.stringify(quoteData, null, 2));
 
-        if (quoteData && !('code' in quoteData) && !('message' in quoteData)) {
+        if (quoteData && !('code' in quoteData) && !('message' in quoteData) && quoteData.symbol) {
           let profileData: TwelveDataProfile | null = null;
           
           // Optionally fetch company profile for additional data
