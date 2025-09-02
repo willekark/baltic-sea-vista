@@ -16,8 +16,12 @@ import {
   ExternalLink,
   MapPin,
   DollarSign,
-  BarChart3
+  BarChart3,
+  ChevronDown,
+  ChevronUp,
+  Calculator
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface PublicStock {
   ticker: string;
@@ -33,6 +37,23 @@ interface PublicStock {
   description: string;
   headquarters: string;
   tags: string[];
+  analyticalData: {
+    peRatio: number | string;
+    sharpeRatio: number;
+    beta: number;
+    dividendYield: number;
+    roe: number;
+    debtToEquity: number;
+    currentRatio: number;
+    priceToBook: number;
+    eps: number;
+    revenue52w: string;
+    operatingMargin: number;
+    freeCashFlow: string;
+    analystRating: string;
+    priceTarget: string;
+    volumeAvg: string;
+  };
 }
 
 interface PrivateCompany {
@@ -50,6 +71,7 @@ interface PrivateCompany {
 const BalticSeaInvestments = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSector, setSelectedSector] = useState('all');
+  const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
 
   const publicStocks: PublicStock[] = [
     {
@@ -65,7 +87,24 @@ const BalticSeaInvestments = () => {
       balticExposure: 'High - Major Baltic routes',
       description: 'Global container shipping and port operations with significant Baltic Sea presence',
       headquarters: 'Copenhagen, Denmark',
-      tags: ['Shipping', 'Logistics', 'Ports', 'Container']
+      tags: ['Shipping', 'Logistics', 'Ports', 'Container'],
+      analyticalData: {
+        peRatio: 8.2,
+        sharpeRatio: 1.45,
+        beta: 1.23,
+        dividendYield: 3.8,
+        roe: 15.2,
+        debtToEquity: 0.65,
+        currentRatio: 1.85,
+        priceToBook: 1.12,
+        eps: 1534.5,
+        revenue52w: '$61.8B',
+        operatingMargin: 12.8,
+        freeCashFlow: '$4.2B',
+        analystRating: 'Buy',
+        priceTarget: 'DKK 14,200',
+        volumeAvg: '425K'
+      }
     },
     {
       ticker: 'HHLA.DE',
@@ -80,7 +119,24 @@ const BalticSeaInvestments = () => {
       balticExposure: 'Very High - Hamburg port gateway',
       description: 'Leading European port and logistics company operating Hamburg port',
       headquarters: 'Hamburg, Germany',
-      tags: ['Ports', 'Logistics', 'Container', 'Rail']
+      tags: ['Ports', 'Logistics', 'Container', 'Rail'],
+      analyticalData: {
+        peRatio: 12.4,
+        sharpeRatio: 0.82,
+        beta: 0.95,
+        dividendYield: 5.2,
+        roe: 8.9,
+        debtToEquity: 0.48,
+        currentRatio: 1.42,
+        priceToBook: 0.88,
+        eps: 1.31,
+        revenue52w: '€1.4B',
+        operatingMargin: 8.5,
+        freeCashFlow: '€180M',
+        analystRating: 'Hold',
+        priceTarget: '€17.50',
+        volumeAvg: '85K'
+      }
     },
     {
       ticker: 'ORSTED.CO',
@@ -95,7 +151,24 @@ const BalticSeaInvestments = () => {
       balticExposure: 'High - Baltic offshore wind farms',
       description: 'Leading offshore wind developer with multiple Baltic Sea projects',
       headquarters: 'Fredericia, Denmark',
-      tags: ['Wind Energy', 'Renewable', 'Offshore', 'Green Energy']
+      tags: ['Wind Energy', 'Renewable', 'Offshore', 'Green Energy'],
+      analyticalData: {
+        peRatio: 18.7,
+        sharpeRatio: 1.12,
+        beta: 1.08,
+        dividendYield: 2.1,
+        roe: 12.4,
+        debtToEquity: 0.82,
+        currentRatio: 1.15,
+        priceToBook: 2.34,
+        eps: 19.18,
+        revenue52w: 'DKK 77.2B',
+        operatingMargin: 15.6,
+        freeCashFlow: 'DKK 8.5B',
+        analystRating: 'Buy',
+        priceTarget: 'DKK 420.00',
+        volumeAvg: '2.1M'
+      }
     },
     {
       ticker: 'TORM.CO',
@@ -110,7 +183,24 @@ const BalticSeaInvestments = () => {
       balticExposure: 'Medium - Baltic/North Sea routes',
       description: 'Product tanker shipping company with Baltic operations',
       headquarters: 'Copenhagen, Denmark',
-      tags: ['Tankers', 'Product Shipping', 'Maritime']
+      tags: ['Tankers', 'Product Shipping', 'Maritime'],
+      analyticalData: {
+        peRatio: 6.8,
+        sharpeRatio: 2.15,
+        beta: 1.85,
+        dividendYield: 8.4,
+        roe: 24.6,
+        debtToEquity: 0.35,
+        currentRatio: 2.45,
+        priceToBook: 1.68,
+        eps: 25.35,
+        revenue52w: 'DKK 9.2B',
+        operatingMargin: 28.5,
+        freeCashFlow: 'DKK 1.8B',
+        analystRating: 'Strong Buy',
+        priceTarget: 'DKK 195.00',
+        volumeAvg: '1.2M'
+      }
     },
     {
       ticker: 'HAPAG.DE',
@@ -125,7 +215,24 @@ const BalticSeaInvestments = () => {
       balticExposure: 'Medium - Baltic service routes',
       description: 'Major container shipping line serving Baltic ports',
       headquarters: 'Hamburg, Germany',
-      tags: ['Container', 'Shipping', 'Logistics']
+      tags: ['Container', 'Shipping', 'Logistics'],
+      analyticalData: {
+        peRatio: 4.2,
+        sharpeRatio: 1.88,
+        beta: 1.65,
+        dividendYield: 6.8,
+        roe: 32.5,
+        debtToEquity: 0.58,
+        currentRatio: 1.92,
+        priceToBook: 1.35,
+        eps: 36.71,
+        revenue52w: '€19.8B',
+        operatingMargin: 18.2,
+        freeCashFlow: '€3.2B',
+        analystRating: 'Buy',
+        priceTarget: '€175.00',
+        volumeAvg: '890K'
+      }
     },
     {
       ticker: 'SALM.HE',
@@ -140,7 +247,24 @@ const BalticSeaInvestments = () => {
       balticExposure: 'Low-Medium - Nordic operations',
       description: 'Major salmon farming company with Nordic operations',
       headquarters: 'Frøya, Norway',
-      tags: ['Aquaculture', 'Salmon', 'Food Production']
+      tags: ['Aquaculture', 'Salmon', 'Food Production'],
+      analyticalData: {
+        peRatio: 14.2,
+        sharpeRatio: 0.95,
+        beta: 0.88,
+        dividendYield: 3.2,
+        roe: 18.4,
+        debtToEquity: 0.42,
+        currentRatio: 1.68,
+        priceToBook: 2.58,
+        eps: 51.73,
+        revenue52w: 'NOK 28.5B',
+        operatingMargin: 22.8,
+        freeCashFlow: 'NOK 4.1B',
+        analystRating: 'Buy',
+        priceTarget: 'NOK 820.00',
+        volumeAvg: '245K'
+      }
     },
     {
       ticker: 'TELUS.HE',
@@ -155,7 +279,24 @@ const BalticSeaInvestments = () => {
       balticExposure: 'Very High - Baltic states coverage',
       description: 'Major telecom operator in Nordic and Baltic countries',
       headquarters: 'Solna, Sweden',
-      tags: ['Telecom', '5G', 'Infrastructure']
+      tags: ['Telecom', '5G', 'Infrastructure'],
+      analyticalData: {
+        peRatio: 'N/A',
+        sharpeRatio: 0.68,
+        beta: 0.72,
+        dividendYield: 7.8,
+        roe: -2.1,
+        debtToEquity: 0.92,
+        currentRatio: 0.85,
+        priceToBook: 0.68,
+        eps: -1.24,
+        revenue52w: 'SEK 84.2B',
+        operatingMargin: 15.2,
+        freeCashFlow: 'SEK 12.5B',
+        analystRating: 'Hold',
+        priceTarget: 'SEK 26.00',
+        volumeAvg: '3.8M'
+      }
     },
     {
       ticker: 'KONE.HE',
@@ -170,7 +311,24 @@ const BalticSeaInvestments = () => {
       balticExposure: 'Medium - Baltic infrastructure projects',
       description: 'Global elevator and escalator manufacturer with Baltic presence',
       headquarters: 'Helsinki, Finland',
-      tags: ['Elevators', 'Infrastructure', 'Industrial']
+      tags: ['Elevators', 'Infrastructure', 'Industrial'],
+      analyticalData: {
+        peRatio: 19.8,
+        sharpeRatio: 1.05,
+        beta: 0.95,
+        dividendYield: 4.1,
+        roe: 16.8,
+        debtToEquity: 0.28,
+        currentRatio: 1.35,
+        priceToBook: 3.24,
+        eps: 2.07,
+        revenue52w: '€10.9B',
+        operatingMargin: 12.5,
+        freeCashFlow: '€1.1B',
+        analystRating: 'Buy',
+        priceTarget: '€45.50',
+        volumeAvg: '1.1M'
+      }
     }
   ];
 
@@ -297,6 +455,147 @@ const BalticSeaInvestments = () => {
     return Building2;
   };
 
+  const toggleCardExpansion = (index: number) => {
+    const newExpanded = new Set(expandedCards);
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index);
+    } else {
+      newExpanded.add(index);
+    }
+    setExpandedCards(newExpanded);
+  };
+
+  const handleViewChart = (ticker: string, company: string) => {
+    toast.info(`Opening chart for ${company} (${ticker})`, {
+      description: "Chart functionality would redirect to financial data provider"
+    });
+  };
+
+  const handleInvestmentAnalysis = (ticker: string, company: string) => {
+    toast.info(`Opening investment analysis for ${company}`, {
+      description: "Analysis would show detailed research report"
+    });
+  };
+
+  const AnalyticalDataSection = ({ stock, index }: { stock: PublicStock; index: number }) => {
+    const isExpanded = expandedCards.has(index);
+    
+    return (
+      <div className="space-y-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => toggleCardExpansion(index)}
+          className="w-full flex items-center justify-between p-2"
+        >
+          <span className="flex items-center gap-2">
+            <Calculator className="h-4 w-4" />
+            Financial Metrics
+          </span>
+          {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </Button>
+        
+        {isExpanded && (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/30 rounded-lg">
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm text-primary">Valuation Metrics</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">P/E Ratio:</span>
+                  <span className="font-medium">{stock.analyticalData.peRatio}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">P/B Ratio:</span>
+                  <span className="font-medium">{stock.analyticalData.priceToBook}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">EPS:</span>
+                  <span className="font-medium">{stock.analyticalData.eps}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm text-primary">Risk Metrics</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Sharpe Ratio:</span>
+                  <span className="font-medium">{stock.analyticalData.sharpeRatio}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Beta:</span>
+                  <span className="font-medium">{stock.analyticalData.beta}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Debt/Equity:</span>
+                  <span className="font-medium">{stock.analyticalData.debtToEquity}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm text-primary">Profitability</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">ROE:</span>
+                  <span className="font-medium">{stock.analyticalData.roe}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Op. Margin:</span>
+                  <span className="font-medium">{stock.analyticalData.operatingMargin}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Dividend Yield:</span>
+                  <span className="font-medium">{stock.analyticalData.dividendYield}%</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm text-primary">Financial Health</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Current Ratio:</span>
+                  <span className="font-medium">{stock.analyticalData.currentRatio}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Free Cash Flow:</span>
+                  <span className="font-medium">{stock.analyticalData.freeCashFlow}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Revenue (52w):</span>
+                  <span className="font-medium">{stock.analyticalData.revenue52w}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="col-span-2 lg:col-span-4 pt-2 border-t">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Analyst Rating:</span>
+                  <Badge variant={
+                    stock.analyticalData.analystRating.includes('Buy') ? 'default' : 
+                    stock.analyticalData.analystRating === 'Hold' ? 'secondary' : 'outline'
+                  }>
+                    {stock.analyticalData.analystRating}
+                  </Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Price Target:</span>
+                  <span className="font-medium">{stock.analyticalData.priceTarget}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Avg Volume:</span>
+                  <span className="font-medium">{stock.analyticalData.volumeAvg}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -408,12 +707,23 @@ const BalticSeaInvestments = () => {
                       ))}
                     </div>
                     
+                    <AnalyticalDataSection stock={stock} index={index} />
+                    
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="flex items-center gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="flex items-center gap-2"
+                        onClick={() => handleViewChart(stock.ticker, stock.company)}
+                      >
                         <ExternalLink className="h-4 w-4" />
                         View Chart
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleInvestmentAnalysis(stock.ticker, stock.company)}
+                      >
                         Investment Analysis
                       </Button>
                     </div>
