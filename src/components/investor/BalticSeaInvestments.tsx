@@ -19,9 +19,12 @@ import {
   BarChart3,
   ChevronDown,
   ChevronUp,
-  Calculator
+  Calculator,
+  RefreshCw,
+  Clock
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRealTimeStockData } from '@/hooks/useRealTimeStockData';
 
 interface PublicStock {
   ticker: string;
@@ -72,6 +75,20 @@ const BalticSeaInvestments = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSector, setSelectedSector] = useState('all');
   const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
+  
+  // All Baltic Sea company tickers
+  const allTickers = [
+    'MAERSK-B.CO', 'HHLA.DE', 'ORSTED.CO', 'TORM.CO', 'HAPAG.DE', 'SALM.HE', 'TELUS.HE', 'KONE.HE',
+    'TSM1T', 'VIK1V', 'TAL1T', 'DFDS', 'PGE', 'ORLEN', 'RWE', 'EBK', 'IGN1L', 'EGR1T', 
+    'EQNR', 'PEP', 'NESTE', 'WRT1V', 'ALFA', 'CCC', 'TVE1T', 'KNE1L'
+  ];
+  
+  // Fetch real-time stock data
+  const { stockData, loading, error, lastUpdated, refresh } = useRealTimeStockData({
+    tickers: allTickers,
+    refreshInterval: 300000, // Refresh every 5 minutes
+    includeProfile: false
+  });
 
   const publicStocks: PublicStock[] = [
     {
@@ -1034,6 +1051,23 @@ const BalticSeaInvestments = () => {
     return Building2;
   };
 
+  // Merge real-time data with static company info
+  const getMergedStockData = (stock: PublicStock): PublicStock & { lastUpdated?: string } => {
+    const realTimeData = stockData.find(rt => rt.ticker === stock.ticker);
+    if (realTimeData) {
+      return {
+        ...stock,
+        price: realTimeData.price,
+        change: realTimeData.change,
+        changePercent: realTimeData.changePercent,
+        trend: realTimeData.trend as 'up' | 'down' | 'neutral',
+        marketCap: realTimeData.marketCap || stock.marketCap,
+        lastUpdated: realTimeData.lastUpdated
+      };
+    }
+    return stock;
+  };
+
   const toggleCardExpansion = (index: number) => {
     const newExpanded = new Set(expandedCards);
     if (newExpanded.has(index)) {
@@ -1183,6 +1217,38 @@ const BalticSeaInvestments = () => {
         <p className="text-muted-foreground mt-1">
           Comprehensive list of investment opportunities in the Baltic Sea region
         </p>
+        
+        {/* Real-time Data Status */}
+        <div className="flex items-center gap-4 mt-4 p-4 bg-muted/30 rounded-lg">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">
+              {loading ? 'Fetching real-time data...' : 
+               lastUpdated ? `Last updated: ${lastUpdated.toLocaleTimeString()}` : 
+               'Real-time data not available'}
+            </span>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refresh}
+            disabled={loading}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? 'Updating...' : 'Refresh Prices'}
+          </Button>
+          {stockData.length > 0 && (
+            <Badge variant="secondary" className="bg-green-50 text-green-700">
+              {stockData.length} live prices
+            </Badge>
+          )}
+          {error && (
+            <Badge variant="destructive">
+              Error fetching data
+            </Badge>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
@@ -1228,7 +1294,10 @@ const BalticSeaInvestments = () => {
         <TabsContent value="public" className="space-y-4">
           <div className="grid gap-4">
             {filteredPublicStocks.map((stock, index) => {
-              const SectorIcon = getSectorIcon(stock.sector);
+              const mergedStock = getMergedStockData(stock);
+              const SectorIcon = getSectorIcon(mergedStock.sector);
+              const isRealTime = stockData.some(rt => rt.ticker === stock.ticker);
+              
               return (
                 <Card key={index} className="hover:shadow-md transition-shadow">
                   <CardHeader>
@@ -1237,28 +1306,40 @@ const BalticSeaInvestments = () => {
                         <div className="flex items-center gap-3">
                           <SectorIcon className="h-5 w-5 text-primary" />
                           <div>
-                            <CardTitle className="text-lg">{stock.company}</CardTitle>
+                            <div className="flex items-center gap-2">
+                              <CardTitle className="text-lg">{mergedStock.company}</CardTitle>
+                              {isRealTime && (
+                                <Badge variant="outline" className="bg-green-50 text-green-700 text-xs">
+                                  LIVE
+                                </Badge>
+                              )}
+                            </div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <span className="font-mono font-medium">{stock.ticker}</span>
+                              <span className="font-mono font-medium">{mergedStock.ticker}</span>
                               <span>•</span>
-                              <span>{stock.exchange}</span>
+                              <span>{mergedStock.exchange}</span>
                               <span>•</span>
                               <MapPin className="h-3 w-3" />
-                              <span>{stock.headquarters}</span>
+                              <span>{mergedStock.headquarters}</span>
                             </div>
                           </div>
                         </div>
-                        <p className="text-sm text-muted-foreground">{stock.description}</p>
+                        <p className="text-sm text-muted-foreground">{mergedStock.description}</p>
                       </div>
                       <div className="text-right space-y-1">
-                        <div className="text-2xl font-bold">{stock.price}</div>
+                        <div className="text-2xl font-bold">{mergedStock.price}</div>
                         <div className={`flex items-center gap-1 text-sm ${
-                          stock.trend === 'up' ? 'text-green-600' : 
-                          stock.trend === 'down' ? 'text-red-600' : 'text-gray-600'
+                          mergedStock.trend === 'up' ? 'text-green-600' : 
+                          mergedStock.trend === 'down' ? 'text-red-600' : 'text-gray-600'
                         }`}>
-                          {stock.trend === 'up' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                          <span>{stock.change} ({stock.changePercent})</span>
+                          {mergedStock.trend === 'up' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                          <span>{mergedStock.change} ({mergedStock.changePercent})</span>
                         </div>
+                        {isRealTime && mergedStock.lastUpdated && (
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(mergedStock.lastUpdated).toLocaleTimeString()}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </CardHeader>
@@ -1266,34 +1347,34 @@ const BalticSeaInvestments = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                       <div>
                         <span className="text-muted-foreground">Market Cap: </span>
-                        <span className="font-medium">{stock.marketCap}</span>
+                        <span className="font-medium">{mergedStock.marketCap}</span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Sector: </span>
-                        <span className="font-medium">{stock.sector}</span>
+                        <span className="font-medium">{mergedStock.sector}</span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Baltic Exposure: </span>
-                        <span className="font-medium">{stock.balticExposure}</span>
+                        <span className="font-medium">{mergedStock.balticExposure}</span>
                       </div>
                     </div>
                     
                     <div className="flex flex-wrap gap-2">
-                      {stock.tags.map((tag, tagIndex) => (
+                      {mergedStock.tags.map((tag, tagIndex) => (
                         <Badge key={tagIndex} variant="secondary" className="text-xs">
                           {tag}
                         </Badge>
                       ))}
                     </div>
                     
-                    <AnalyticalDataSection stock={stock} index={index} />
+                    <AnalyticalDataSection stock={mergedStock} index={index} />
                     
                     <div className="flex gap-2">
                       <Button 
                         size="sm" 
                         variant="outline" 
                         className="flex items-center gap-2"
-                        onClick={() => handleViewChart(stock.ticker, stock.company)}
+                        onClick={() => handleViewChart(mergedStock.ticker, mergedStock.company)}
                       >
                         <ExternalLink className="h-4 w-4" />
                         View Chart
@@ -1301,7 +1382,7 @@ const BalticSeaInvestments = () => {
                       <Button 
                         size="sm" 
                         variant="outline"
-                        onClick={() => handleInvestmentAnalysis(stock.ticker, stock.company)}
+                        onClick={() => handleInvestmentAnalysis(mergedStock.ticker, mergedStock.company)}
                       >
                         Investment Analysis
                       </Button>
