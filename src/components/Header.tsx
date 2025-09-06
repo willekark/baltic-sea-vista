@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { HEADER_NAV } from "@/config/nav";
-import headerLogo from "@/assets/header-logo.svg";
+import balticLogo from "@/assets/images/baltic-intelligence-logo.svg";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -20,12 +20,10 @@ const Header = () => {
             onClick={() => navigate("/")}
           >
             <img 
-              src="/lovable-uploads/8eac6bd3-ee88-4f05-ac9b-7adde0ea586d.png" 
+              src={balticLogo} 
               alt="Baltic Intelligence" 
-              className="h-12 w-auto group-hover:opacity-80 transition-opacity"
-              style={{
-                filter: 'invert(1) brightness(1.2) contrast(1.1)',
-              }}
+              width="200"
+              className="h-10 w-auto group-hover:opacity-80 transition-opacity"
             />
           </div>
 
