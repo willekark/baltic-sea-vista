@@ -1,4 +1,72 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+
+// Rate limiting utility class
+class RateLimiter {
+  private lastRequest = 0;
+  private requestCount = 0;
+  private resetTime = 0;
+
+  constructor(private requestsPerMinute: number = 60) {}
+
+  async waitForRateLimit() {
+    const now = Date.now();
+    
+    // Reset counter every minute
+    if (now - this.resetTime > 60000) {
+      this.requestCount = 0;
+      this.resetTime = now;
+    }
+
+    // If we've hit the limit, wait
+    if (this.requestCount >= this.requestsPerMinute) {
+      const waitTime = 60000 - (now - this.resetTime);
+      if (waitTime > 0) {
+        console.log(`Rate limit reached, waiting ${waitTime}ms`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        this.requestCount = 0;
+        this.resetTime = Date.now();
+      }
+    }
+
+    // Ensure minimum delay between requests
+    const timeSinceLastRequest = now - this.lastRequest;
+    const minDelay = 1000; // 1 second minimum between requests
+    if (timeSinceLastRequest < minDelay) {
+      const waitTime = minDelay - timeSinceLastRequest;
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+
+    this.lastRequest = Date.now();
+    this.requestCount++;
+  }
+}
+
+// Create rate limiters for different APIs
+const alphaVantageRateLimit = new RateLimiter(5); // 5 requests per minute for free tier
+const finnhubRateLimit = new RateLimiter(60); // 60 requests per minute
+
+// Retry logic with exponential backoff
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelay: number = 1000
+): Promise<T> {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (attempt === maxRetries) {
+        throw error;
+      }
+
+      const delay = baseDelay * Math.pow(2, attempt - 1) + Math.random() * 1000;
+      console.log(`Attempt ${attempt} failed, retrying in ${delay}ms:`, error.message);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  throw new Error('Max retries exceeded');
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -46,14 +114,38 @@ async function fetchFinancialData(symbol: string): Promise<CompanyFinancials | n
   }
 
   try {
-    // Fetch company overview
-    const overviewResponse = await fetch(
-      `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${symbol}&apikey=${alphaVantageKey}`
-    );
-    const overview = await overviewResponse.json();
+    // Apply rate limiting
+    await alphaVantageRateLimit.waitForRateLimit();
+    
+    // Fetch company overview with retry logic
+    const overview = await retryWithBackoff(async () => {
+      const response = await fetch(
+        `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${symbol}&apikey=${alphaVantageKey}`
+      );
+      
+      if (response.status === 429) {
+        throw new Error('Rate limit exceeded');
+      }
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.Note && data.Note.includes('API call frequency')) {
+        throw new Error('API call frequency limit reached');
+      }
+      
+      if (data['Error Message']) {
+        throw new Error(data['Error Message']);
+      }
+      
+      return data;
+    });
 
-    if (overview.Note || overview['Error Message']) {
-      console.log(`API limit reached or error for ${symbol}, using mock data`);
+    if (!overview || Object.keys(overview).length === 0) {
+      console.log(`No data available for ${symbol}, using mock data`);
       return generateMockFinancialData(symbol);
     }
 
@@ -64,19 +156,38 @@ async function fetchFinancialData(symbol: string): Promise<CompanyFinancials | n
     let priceData = null;
 
     try {
-      const [incomeResponse, balanceResponse, cashFlowResponse, priceResponse] = await Promise.all([
-        fetch(`https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol=${symbol}&apikey=${alphaVantageKey}`),
-        fetch(`https://www.alphavantage.co/query?function=BALANCE_SHEET&symbol=${symbol}&apikey=${alphaVantageKey}`),
-        fetch(`https://www.alphavantage.co/query?function=CASH_FLOW&symbol=${symbol}&apikey=${alphaVantageKey}`),
-        fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=compact&apikey=${alphaVantageKey}`)
-      ]);
-
+      // Fetch detailed data with rate limiting (sequential to avoid rate limits)
+      console.log(`Fetching detailed financial data for ${symbol}...`);
+      
+      // Income statement
+      await alphaVantageRateLimit.waitForRateLimit();
+      const incomeResponse = await retryWithBackoff(async () => {
+        const response = await fetch(`https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol=${symbol}&apikey=${alphaVantageKey}`);
+        if (response.status === 429) throw new Error('Rate limit exceeded');
+        return response;
+      });
       incomeStatement = await incomeResponse.json();
+
+      // Balance sheet  
+      await alphaVantageRateLimit.waitForRateLimit();
+      const balanceResponse = await retryWithBackoff(async () => {
+        const response = await fetch(`https://www.alphavantage.co/query?function=BALANCE_SHEET&symbol=${symbol}&apikey=${alphaVantageKey}`);
+        if (response.status === 429) throw new Error('Rate limit exceeded');
+        return response;
+      });
       balanceSheet = await balanceResponse.json();
-      cashFlow = await cashFlowResponse.json();
+
+      // Price data only (skip cash flow to reduce API calls)
+      await alphaVantageRateLimit.waitForRateLimit();
+      const priceResponse = await retryWithBackoff(async () => {
+        const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=compact&apikey=${alphaVantageKey}`);
+        if (response.status === 429) throw new Error('Rate limit exceeded');
+        return response;
+      });
       priceData = await priceResponse.json();
+      
     } catch (error) {
-      console.log(`Error fetching detailed data for ${symbol}, using overview data only`);
+      console.log(`Error fetching detailed data for ${symbol}, using overview data only:`, error.message);
     }
 
     // Extract price history
