@@ -76,6 +76,8 @@ const BalticSeaInvestments = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSector, setSelectedSector] = useState('all');
   const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
+  const [claudeAnalysis, setClaudeAnalysis] = useState<any>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
   
   // Baltic Sea company tickers - prioritized for real-time data availability
   const allTickers = [
@@ -89,6 +91,43 @@ const BalticSeaInvestments = () => {
     refreshInterval: 300000, // Refresh every 5 minutes
     includeProfile: false
   });
+
+  // Claude Analysis Function
+  const handleClaudeAnalysis = async () => {
+    if (!stockData.length) {
+      toast.error('Please fetch stock data first by clicking "Get Investment Data"');
+      return;
+    }
+
+    setAnalysisLoading(true);
+    try {
+      toast.info('Claude is analyzing your portfolio...', {
+        description: 'This may take a moment for comprehensive analysis'
+      });
+
+      const { data, error: supabaseError } = await supabase.functions.invoke('claude-investment-analysis', {
+        body: { 
+          stockData,
+          analysisType: 'comprehensive'
+        }
+      });
+
+      if (supabaseError) {
+        throw new Error(supabaseError.message || 'Failed to get Claude analysis');
+      }
+
+      setClaudeAnalysis(data);
+      toast.success('Claude Investment Analysis Complete', {
+        description: `Analysis covers ${data.summary?.stocksAnalyzed} stocks across ${data.summary?.sectors?.length} sectors`
+      });
+    } catch (err) {
+      console.error('Error getting Claude analysis:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to get analysis';
+      toast.error('Claude Analysis Failed', { description: errorMessage });
+    } finally {
+      setAnalysisLoading(false);
+    }
+  };
 
   const publicStocks: PublicStock[] = [
     {
@@ -1303,6 +1342,20 @@ const BalticSeaInvestments = () => {
           >
             📈 Get Investment Data
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleClaudeAnalysis}
+            disabled={analysisLoading || !stockData.length}
+            className="flex items-center gap-2"
+          >
+            {analysisLoading ? (
+              <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+            ) : (
+              "🤖"
+            )}
+            {analysisLoading ? 'Analyzing...' : 'Claude Analysis'}
+          </Button>
           {stockData.length > 0 && (
             <Badge variant="secondary" className="bg-green-50 text-green-700">
               {stockData.length} live prices
@@ -1315,6 +1368,78 @@ const BalticSeaInvestments = () => {
           )}
         </div>
       </div>
+
+      {/* Claude Analysis Results */}
+      {claudeAnalysis && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              🤖 Claude Investment Analysis
+              <Badge variant="outline" className="ml-2">
+                {claudeAnalysis.recommendations?.overallSentiment}
+              </Badge>
+            </CardTitle>
+            <CardDescription>
+              AI-powered strategic investment analysis for Baltic Sea opportunities
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="text-center p-4 bg-muted/50 rounded-lg">
+                <div className="text-sm text-muted-foreground">Risk Level</div>
+                <div className="font-semibold text-lg">{claudeAnalysis.recommendations?.riskLevel}</div>
+              </div>
+              <div className="text-center p-4 bg-muted/50 rounded-lg">
+                <div className="text-sm text-muted-foreground">Stocks Analyzed</div>
+                <div className="font-semibold text-lg">{claudeAnalysis.summary?.stocksAnalyzed}</div>
+              </div>
+              <div className="text-center p-4 bg-muted/50 rounded-lg">
+                <div className="text-sm text-muted-foreground">Market Value</div>
+                <div className="font-semibold text-lg">
+                  ${(claudeAnalysis.summary?.totalMarketValue / 1000000).toFixed(1)}M
+                </div>
+              </div>
+              <div className="text-center p-4 bg-muted/50 rounded-lg">
+                <div className="text-sm text-muted-foreground">Avg Change</div>
+                <div className={`font-semibold text-lg ${claudeAnalysis.summary?.averageChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {claudeAnalysis.summary?.averageChange?.toFixed(2)}%
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-semibold mb-2">Strategic Analysis</h4>
+                <div className="prose max-w-none">
+                  <div className="bg-muted/30 p-4 rounded-lg">
+                    <pre className="whitespace-pre-wrap text-sm font-mono overflow-auto max-h-96 leading-relaxed">
+                      {claudeAnalysis.analysis}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+              
+              {claudeAnalysis.recommendations?.topPicks?.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-2">Top Recommendations</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {claudeAnalysis.recommendations.topPicks.map((pick: string, index: number) => (
+                      <Badge key={index} variant="default" className="bg-green-100 text-green-800">
+                        {pick}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="text-xs text-muted-foreground border-t pt-2">
+                Analysis generated on {new Date(claudeAnalysis.summary?.timestamp).toLocaleString()} 
+                • Based on real-time market data
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filters */}
       <Card>
