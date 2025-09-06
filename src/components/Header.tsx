@@ -20,12 +20,20 @@ const Header = () => {
             onClick={() => navigate("/")}
           >
             <img 
-              src={headerLogo} 
+              src="/lovable-uploads/8eac6bd3-ee88-4f05-ac9b-7adde0ea586d.png" 
               alt="Baltic Intelligence" 
-              className="h-8 w-auto group-hover:opacity-80 transition-opacity"
+              className="h-10 w-auto group-hover:opacity-80 transition-opacity"
               onError={(e) => {
                 console.log('Logo failed to load:', e);
+                // Fallback to text if image fails
                 e.currentTarget.style.display = 'none';
+                const parent = e.currentTarget.parentElement;
+                if (parent && !parent.querySelector('.logo-fallback')) {
+                  const fallback = document.createElement('span');
+                  fallback.textContent = 'Baltic Intelligence';
+                  fallback.className = 'logo-fallback font-semibold text-foreground';
+                  parent.appendChild(fallback);
+                }
               }}
               onLoad={() => console.log('Logo loaded successfully')}
             />
