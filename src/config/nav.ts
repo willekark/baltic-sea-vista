@@ -57,6 +57,12 @@ export const HEADER_NAV: NavItem[] = [
     href: "/investor",
     description: "Baltic investment analytics",
     testId: "nav-investor"
+  },
+  {
+    label: "AI Orchestrator",
+    href: "/ai-orchestrator",
+    description: "Unified AI intelligence platform",
+    testId: "nav-ai-orchestrator"
   }
 ];
 

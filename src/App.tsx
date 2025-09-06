@@ -15,6 +15,7 @@ import PortAgent from "./pages/PortAgent";
 import EcologicalReporting from "./pages/EcologicalReporting";
 import PilotEastSweden from "./pages/PilotEastSweden";
 import BalticInvestorIntelligence from "./pages/BalticInvestorIntelligence";
+import AIOrchestrator from "./pages/AIOrchestrator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/ecology" element={<EcologicalReporting />} />
               <Route path="/pilot-east-sweden" element={<PilotEastSweden />} />
               <Route path="/investor" element={<BalticInvestorIntelligence />} />
+              <Route path="/ai-orchestrator" element={<AIOrchestrator />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

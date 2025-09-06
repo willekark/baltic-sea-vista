@@ -44,6 +44,11 @@ export const ROUTE_CANON = {
     anchors: ["overview", "macro", "esg", "infrastructure", "risk", "blue", "analytics", "portfolio"],
     description: "Investment intelligence platform for Baltic region fund and asset managers"
   },
+  "/ai-orchestrator": {
+    title: "AI Orchestrator",
+    anchors: ["analysis", "realtime", "reports"],
+    description: "Unified Claude and OpenAI intelligence platform for comprehensive maritime analysis"
+  },
   "/auth": { 
     title: "Authentication",
     anchors: [],
