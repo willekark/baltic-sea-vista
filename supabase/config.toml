@@ -93,3 +93,6 @@ verify_jwt = true
 
 [functions.multi-provider-stock-data]
 verify_jwt = false
+
+[functions.enhanced-financial-analysis]
+verify_jwt = false
