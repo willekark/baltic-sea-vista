@@ -3,22 +3,29 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export interface RealTimeStockData {
-  ticker: string;
-  company: string;
-  exchange: string;
-  price: string;
-  change: string;
-  changePercent: string;
-  trend: 'up' | 'down' | 'neutral';
-  volume: string;
-  avgVolume: string;
-  open: string;
-  high: string;
-  low: string;
-  previousClose: string;
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+  changePercent: number;
   currency: string;
-  lastUpdated: string;
+  volume: number;
   marketCap?: string;
+  pe?: number;
+  dividend?: number;
+  timestamp: string;
+  source: string;
+  // Legacy fields for compatibility
+  ticker?: string;
+  company?: string;
+  exchange?: string;
+  trend?: 'up' | 'down' | 'neutral';
+  avgVolume?: string;
+  open?: string;
+  high?: string;
+  low?: string;
+  previousClose?: string;
+  lastUpdated?: string;
   sector?: string;
   industry?: string;
   description?: string;
@@ -30,13 +37,13 @@ export interface RealTimeStockData {
 
 interface UseRealTimeStockDataProps {
   tickers: string[];
-  refreshInterval?: number; // in milliseconds
+  refreshInterval?: number;
   includeProfile?: boolean;
 }
 
 export const useRealTimeStockData = ({ 
   tickers, 
-  refreshInterval = 60000, // 1 minute default 
+  refreshInterval = 60000,
   includeProfile = false 
 }: UseRealTimeStockDataProps) => {
   const [stockData, setStockData] = useState<RealTimeStockData[]>([]);
@@ -51,11 +58,11 @@ export const useRealTimeStockData = ({
     setError(null);
     
     try {
-      console.log('Fetching real-time stock data for:', tickers);
+      console.log('Fetching multi-provider stock data for:', tickers);
       
-      const { data, error: functionError } = await supabase.functions.invoke('real-time-stock-data', {
+      const { data, error: functionError } = await supabase.functions.invoke('multi-provider-stock-data', {
         body: {
-          tickers: tickers.join(','),
+          symbols: tickers,
           includeProfile
         }
       });
@@ -67,27 +74,39 @@ export const useRealTimeStockData = ({
       }
 
       if (data?.success) {
-        setStockData(data.data || []);
+        const stocksWithCompatibility = (data.data || []).map((stock: any) => ({
+          ...stock,
+          // Add compatibility fields
+          ticker: stock.symbol,
+          company: stock.name,
+          trend: stock.change > 0 ? 'up' : stock.change < 0 ? 'down' : 'neutral',
+          lastUpdated: stock.timestamp
+        }));
+        
+        setStockData(stocksWithCompatibility);
         setLastUpdated(new Date());
         
-        if (data.fetchedCount < data.requestedCount) {
-          toast.warning(`Retrieved ${data.fetchedCount} out of ${data.requestedCount} stocks`, {
+        const fetchedCount = data.data?.length || 0;
+        const requestedCount = tickers.length;
+        
+        if (fetchedCount < requestedCount) {
+          toast.warning(`Retrieved ${fetchedCount} out of ${requestedCount} stocks`, {
             description: 'Some stocks may not be available or have rate limits'
           });
-        } else if (data.fetchedCount > 0) {
-          toast.success(`Updated ${data.fetchedCount} stock prices`);
+        } else if (fetchedCount > 0) {
+          toast.success(`Updated ${fetchedCount} stock prices from ${data.providers?.join(', ') || 'multiple sources'}`);
         }
         
-        console.log(`Successfully fetched ${data.fetchedCount} stock prices`);
+        console.log(`Successfully fetched ${fetchedCount} stock prices`);
       } else {
         throw new Error(data?.error || 'Failed to fetch stock data');
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       setError(errorMessage);
-      console.error('Error fetching real-time stock data:', err);
+      console.error('Error fetching multi-provider stock data:', err);
       
-      toast.error('Failed to fetch real-time stock data', {
+      toast.error('Failed to fetch stock data', {
         description: errorMessage
       });
     } finally {

@@ -1096,9 +1096,9 @@ const BalticSeaInvestments = () => {
     if (realTimeData) {
       return {
         ...stock,
-        price: realTimeData.price,
-        change: realTimeData.change,
-        changePercent: realTimeData.changePercent,
+        price: realTimeData.price.toString(),
+        change: realTimeData.change.toString(),
+        changePercent: realTimeData.changePercent.toString(),
         trend: realTimeData.trend as 'up' | 'down' | 'neutral',
         marketCap: realTimeData.marketCap || stock.marketCap,
         lastUpdated: realTimeData.lastUpdated

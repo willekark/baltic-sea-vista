@@ -90,3 +90,6 @@ verify_jwt = false
 
 [functions.submit-bid]
 verify_jwt = true
+
+[functions.multi-provider-stock-data]
+verify_jwt = false
