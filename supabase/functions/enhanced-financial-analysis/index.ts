@@ -508,6 +508,9 @@ function generateAnalysisFromFinancials(financials: CompanyFinancials, symbol: s
     };
   }
 
+  return analysis;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
