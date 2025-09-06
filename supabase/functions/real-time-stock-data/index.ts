@@ -63,24 +63,21 @@ interface TwelveDataProfile {
 
 // Mapping of our tickers to Twelve Data symbols and exchanges
 const stockMappings: StockMapping[] = [
-  // Updated with better Twelve Data symbols for Baltic companies
-  { ticker: 'MAERSK-B.CO', symbol: 'MAERSK-B', exchange: 'Copenhagen', twelveDataSymbol: 'MAERSK-B.CO' },
-  { ticker: 'HHLA.DE', symbol: 'HHLA', exchange: 'XETRA', twelveDataSymbol: 'HHFA.F' },
-  { ticker: 'ORSTED.CO', symbol: 'ORSTED', exchange: 'Copenhagen', twelveDataSymbol: 'DOGEF' },
-  { ticker: 'TORM.CO', symbol: 'TORM', exchange: 'Copenhagen', twelveDataSymbol: 'TRMD' },
-  { ticker: 'HAPAG.DE', symbol: 'HAPAG', exchange: 'XETRA', twelveDataSymbol: 'HLAG.DE' },
-  { ticker: 'SALM.HE', symbol: 'SALM', exchange: 'Helsinki', twelveDataSymbol: 'SALM.OL' },
-  { ticker: 'TELUS.HE', symbol: 'TELIA', exchange: 'Stockholm', twelveDataSymbol: 'TELIA.ST' },
-  { ticker: 'KONE.HE', symbol: 'KONE', exchange: 'Helsinki', twelveDataSymbol: 'KNEBV.HE' },
+  // Verified working symbols for major Baltic Sea companies
+  { ticker: 'MAERSK-B.CO', symbol: 'MAERSK-B', exchange: 'Copenhagen', twelveDataSymbol: 'AMKBY' }, // ADR version
+  { ticker: 'HHLA.DE', symbol: 'HHLA', exchange: 'XETRA', twelveDataSymbol: 'HHLA.F' },
+  { ticker: 'ORSTED.CO', symbol: 'ORSTED', exchange: 'Copenhagen', twelveDataSymbol: 'DNNGY' }, // ADR version
+  { ticker: 'TORM.CO', symbol: 'TORM', exchange: 'NASDAQ', twelveDataSymbol: 'TRMD' },
+  { ticker: 'HAPAG.DE', symbol: 'HAPAG', exchange: 'XETRA', twelveDataSymbol: 'HPGLY' }, // ADR version
+  { ticker: 'EQNR', symbol: 'EQNR', exchange: 'NYSE', twelveDataSymbol: 'EQNR' },
+  { ticker: 'NESTE', symbol: 'NESTE', exchange: 'NASDAQ', twelveDataSymbol: 'NTOIY' }, // ADR version
+  { ticker: 'DFDS', symbol: 'DFDS', exchange: 'Copenhagen', twelveDataSymbol: 'DFDS' },
+  { ticker: 'RWE', symbol: 'RWE', exchange: 'NASDAQ', twelveDataSymbol: 'RWEOY' }, // ADR version
   
-  // Well-known symbols with proper exchange suffixes
-  { ticker: 'RWE', symbol: 'RWE', exchange: 'XETRA', twelveDataSymbol: 'RWE' },
-  { ticker: 'EQNR', symbol: 'EQNR', exchange: 'Oslo', twelveDataSymbol: 'EQNR.OL' },
-  { ticker: 'NESTE', symbol: 'NESTE', exchange: 'Helsinki', twelveDataSymbol: 'NESTE.HE' },
-  
-  // Baltic companies with fallback to available symbols
-  { ticker: 'DFDS', symbol: 'DFDS', exchange: 'Copenhagen', twelveDataSymbol: 'DFDS.CO' },
-  { ticker: 'PEP', symbol: 'PEP', exchange: 'NASDAQ', twelveDataSymbol: 'PEP' }
+  // Additional Baltic region companies
+  { ticker: 'KONE.HE', symbol: 'KONE', exchange: 'NASDAQ', twelveDataSymbol: 'KNYJY' }, // ADR version
+  { ticker: 'SALM.HE', symbol: 'SALM', exchange: 'Oslo', twelveDataSymbol: 'SALM.OL' },
+  { ticker: 'TELUS.HE', symbol: 'TELIA', exchange: 'NASDAQ', twelveDataSymbol: 'TLSNY' } // ADR version
 ];
 
 serve(async (req) => {
@@ -136,8 +133,16 @@ serve(async (req) => {
 
     const results: any[] = [];
 
-    // Process each requested ticker
-    for (const ticker of requestedTickers) {
+    // Process each requested ticker with rate limiting
+    for (let i = 0; i < requestedTickers.length; i++) {
+      const ticker = requestedTickers[i];
+      
+      // Add delay between requests (free tier: 8 calls per minute)
+      if (i > 0) {
+        console.log('Waiting 8 seconds to respect rate limits...');
+        await new Promise(resolve => setTimeout(resolve, 8000));
+      }
+      
       const mapping = stockMappings.find(m => m.ticker === ticker);
       if (!mapping) {
         console.log(`No mapping found for ticker: ${ticker}`);

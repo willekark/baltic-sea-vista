@@ -77,11 +77,10 @@ const BalticSeaInvestments = () => {
   const [selectedSector, setSelectedSector] = useState('all');
   const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
   
-  // All Baltic Sea company tickers
+  // Baltic Sea company tickers - prioritized for real-time data availability
   const allTickers = [
-    'MAERSK-B.CO', 'HHLA.DE', 'ORSTED.CO', 'TORM.CO', 'HAPAG.DE', 'SALM.HE', 'TELUS.HE', 'KONE.HE',
-    'TSM1T', 'VIK1V', 'TAL1T', 'DFDS', 'PGE', 'ORLEN', 'RWE', 'EBK', 'IGN1L', 'EGR1T', 
-    'EQNR', 'PEP', 'NESTE', 'WRT1V', 'ALFA', 'CCC', 'TVE1T', 'KNE1L'
+    'MAERSK-B.CO', 'HHLA.DE', 'ORSTED.CO', 'TORM.CO', 'HAPAG.DE', 
+    'EQNR', 'NESTE', 'DFDS', 'RWE', 'KONE.HE', 'SALM.HE', 'TELUS.HE'
   ];
   
   // Fetch real-time stock data
@@ -1269,39 +1268,40 @@ const BalticSeaInvestments = () => {
             size="sm"
             onClick={async () => {
               try {
-                // First try mock data for immediate results
-                const { data: mockData } = await supabase.functions.invoke('mock-stock-data', {
-                  body: { tickers: allTickers.slice(0, 8) }
+                toast.info('Fetching Investment-Grade Market Data...', { 
+                  description: 'Retrieving real-time data suitable for strategic analysis' 
                 });
                 
-                if (mockData?.success) {
-                  console.log('Mock Stock Data Result:', mockData);
-                  toast.success('Stock Data Retrieved', { 
-                    description: `Found ${mockData.fetchedCount} out of ${mockData.requestedCount} stocks (Mock Data)` 
-                  });
-                  return;
-                }
-
-                // Fallback to AI verification
-                const { data } = await supabase.functions.invoke('ai-stock-verification', {
-                  body: { tickers: allTickers.slice(0, 5) }
+                const { data } = await supabase.functions.invoke('enhanced-stock-data', {
+                  body: { 
+                    tickers: allTickers.slice(0, 5), // Limit for rate limits
+                    priority: 'accuracy'
+                  }
                 });
-                console.log('AI Verification Result:', data);
-                if (data?.success) {
-                  toast.success('AI Verification Complete', { 
-                    description: 'Check console for detailed price comparison' 
+                
+                console.log('Enhanced Stock Data Result:', data);
+                if (data?.success && data?.data?.length > 0) {
+                  toast.success('Investment-Grade Data Retrieved', { 
+                    description: `${data.fetchedCount} stocks • ${data.investmentGrade}` 
                   });
+                  if (data.errors?.length > 0) {
+                    console.warn('Data retrieval warnings:', data.errors);
+                  }
+                  // Trigger a refresh of the component data
+                  refresh();
                 } else {
-                  toast.error('AI Verification Failed', { description: data?.error });
+                  toast.warning('Market Data Limited', { 
+                    description: data?.recommendations?.[0] || 'Some data may be unavailable' 
+                  });
                 }
               } catch (error) {
-                console.error('Verification failed:', error);
-                toast.error('Verification Failed', { description: error.message });
+                console.error('Enhanced data fetch failed:', error);
+                toast.error('Market Data Error', { description: error.message });
               }
             }}
             className="flex items-center gap-2"
           >
-            🤖 AI Price Check
+            📈 Get Investment Data
           </Button>
           {stockData.length > 0 && (
             <Badge variant="secondary" className="bg-green-50 text-green-700">
