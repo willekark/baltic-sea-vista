@@ -17,6 +17,7 @@ import PilotEastSweden from "./pages/PilotEastSweden";
 import BalticInvestorIntelligence from "./pages/BalticInvestorIntelligence";
 import AIOrchestrator from "./pages/AIOrchestrator";
 import FinancialReports from "./pages/FinancialReports";
+import AIReportGenerator from "./pages/AIReportGenerator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,7 @@ const App = () => (
               <Route path="/investor" element={<BalticInvestorIntelligence />} />
               <Route path="/ai-orchestrator" element={<AIOrchestrator />} />
               <Route path="/financial-reports" element={<FinancialReports />} />
+              <Route path="/ai-reports" element={<AIReportGenerator />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

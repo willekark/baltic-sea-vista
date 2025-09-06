@@ -54,6 +54,11 @@ export const ROUTE_CANON = {
     anchors: ["reports", "analytics", "ai-consensus"],
     description: "AI-powered maritime financial intelligence and strategic decision making reports"
   },
+  "/ai-reports": {
+    title: "AI Report Generator",
+    anchors: ["generator", "controls", "report"],
+    description: "Interactive AI-powered Baltic Sea maritime intelligence report generator"
+  },
   "/auth": { 
     title: "Authentication",
     anchors: [],
