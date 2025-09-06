@@ -16,27 +16,33 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div 
-            className="flex items-center cursor-pointer group"
+            className="flex items-center cursor-pointer group min-w-[200px] bg-red-500/20 border border-red-500"
             onClick={() => navigate("/")}
           >
             <img 
               src="/lovable-uploads/8eac6bd3-ee88-4f05-ac9b-7adde0ea586d.png" 
               alt="Baltic Intelligence" 
-              className="h-10 w-auto group-hover:opacity-80 transition-opacity"
+              className="h-10 w-auto group-hover:opacity-80 transition-opacity border-2 border-blue-500"
               onError={(e) => {
-                console.log('Logo failed to load:', e);
+                console.log('Logo failed to load - error:', e);
+                console.log('Logo src:', e.currentTarget.src);
                 // Fallback to text if image fails
                 e.currentTarget.style.display = 'none';
                 const parent = e.currentTarget.parentElement;
                 if (parent && !parent.querySelector('.logo-fallback')) {
                   const fallback = document.createElement('span');
-                  fallback.textContent = 'Baltic Intelligence';
-                  fallback.className = 'logo-fallback font-semibold text-foreground';
+                  fallback.textContent = 'Baltic Intelligence (FALLBACK)';
+                  fallback.className = 'logo-fallback font-semibold text-foreground text-red-500';
                   parent.appendChild(fallback);
                 }
               }}
-              onLoad={() => console.log('Logo loaded successfully')}
+              onLoad={(e) => {
+                console.log('Logo loaded successfully');
+                const img = e.currentTarget as HTMLImageElement;
+                console.log('Logo dimensions:', img.naturalWidth, 'x', img.naturalHeight);
+              }}
             />
+            <span className="ml-2 text-yellow-500">DEBUG: Logo Container</span>
           </div>
 
           {/* Desktop Navigation */}
