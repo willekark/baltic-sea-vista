@@ -65,7 +65,7 @@ Please ensure accuracy and indicate confidence level for each price.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { 
             role: 'system', 
@@ -73,7 +73,6 @@ Please ensure accuracy and indicate confidence level for each price.`;
           },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.1,
         max_tokens: 2000
       }),
     });

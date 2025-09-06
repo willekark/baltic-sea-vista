@@ -1269,8 +1269,22 @@ const BalticSeaInvestments = () => {
             size="sm"
             onClick={async () => {
               try {
+                // First try mock data for immediate results
+                const { data: mockData } = await supabase.functions.invoke('mock-stock-data', {
+                  body: { tickers: allTickers.slice(0, 8) }
+                });
+                
+                if (mockData?.success) {
+                  console.log('Mock Stock Data Result:', mockData);
+                  toast.success('Stock Data Retrieved', { 
+                    description: `Found ${mockData.fetchedCount} out of ${mockData.requestedCount} stocks (Mock Data)` 
+                  });
+                  return;
+                }
+
+                // Fallback to AI verification
                 const { data } = await supabase.functions.invoke('ai-stock-verification', {
-                  body: { tickers: allTickers.slice(0, 5) } // Check first 5 companies
+                  body: { tickers: allTickers.slice(0, 5) }
                 });
                 console.log('AI Verification Result:', data);
                 if (data?.success) {
@@ -1281,8 +1295,8 @@ const BalticSeaInvestments = () => {
                   toast.error('AI Verification Failed', { description: data?.error });
                 }
               } catch (error) {
-                console.error('AI Verification failed:', error);
-                toast.error('AI Verification Failed', { description: error.message });
+                console.error('Verification failed:', error);
+                toast.error('Verification Failed', { description: error.message });
               }
             }}
             className="flex items-center gap-2"

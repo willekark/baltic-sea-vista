@@ -63,37 +63,24 @@ interface TwelveDataProfile {
 
 // Mapping of our tickers to Twelve Data symbols and exchanges
 const stockMappings: StockMapping[] = [
-  // Original companies - using correct Twelve Data symbols
-  { ticker: 'MAERSK-B.CO', symbol: 'MAERSK-B', exchange: 'Copenhagen', twelveDataSymbol: 'MAERSK-B' },
-  { ticker: 'HHLA.DE', symbol: 'HHLA', exchange: 'XETRA', twelveDataSymbol: 'HHLA' },
-  { ticker: 'ORSTED.CO', symbol: 'ORSTED', exchange: 'Copenhagen', twelveDataSymbol: 'ORSTED' },
-  { ticker: 'TORM.CO', symbol: 'TORM', exchange: 'Copenhagen', twelveDataSymbol: 'TORM' },
-  { ticker: 'HAPAG.DE', symbol: 'HAPAG', exchange: 'XETRA', twelveDataSymbol: 'HAPAG-LLOYD' },
-  { ticker: 'SALM.HE', symbol: 'SALM', exchange: 'Helsinki', twelveDataSymbol: 'SALMAR' },
-  { ticker: 'TELUS.HE', symbol: 'TELIA', exchange: 'Stockholm', twelveDataSymbol: 'TELIA' },
-  { ticker: 'KONE.HE', symbol: 'KONE', exchange: 'Helsinki', twelveDataSymbol: 'KNEBV' },
+  // Updated with better Twelve Data symbols for Baltic companies
+  { ticker: 'MAERSK-B.CO', symbol: 'MAERSK-B', exchange: 'Copenhagen', twelveDataSymbol: 'MAERSK-B.CO' },
+  { ticker: 'HHLA.DE', symbol: 'HHLA', exchange: 'XETRA', twelveDataSymbol: 'HHFA.F' },
+  { ticker: 'ORSTED.CO', symbol: 'ORSTED', exchange: 'Copenhagen', twelveDataSymbol: 'DOGEF' },
+  { ticker: 'TORM.CO', symbol: 'TORM', exchange: 'Copenhagen', twelveDataSymbol: 'TRMD' },
+  { ticker: 'HAPAG.DE', symbol: 'HAPAG', exchange: 'XETRA', twelveDataSymbol: 'HLAG.DE' },
+  { ticker: 'SALM.HE', symbol: 'SALM', exchange: 'Helsinki', twelveDataSymbol: 'SALM.OL' },
+  { ticker: 'TELUS.HE', symbol: 'TELIA', exchange: 'Stockholm', twelveDataSymbol: 'TELIA.ST' },
+  { ticker: 'KONE.HE', symbol: 'KONE', exchange: 'Helsinki', twelveDataSymbol: 'KNEBV.HE' },
   
-  // Test with simpler, well-known symbols first
+  // Well-known symbols with proper exchange suffixes
   { ticker: 'RWE', symbol: 'RWE', exchange: 'XETRA', twelveDataSymbol: 'RWE' },
-  { ticker: 'EQNR', symbol: 'EQNR', exchange: 'Oslo', twelveDataSymbol: 'EQNR' },
-  { ticker: 'NESTE', symbol: 'NESTE', exchange: 'Helsinki', twelveDataSymbol: 'NESTE' },
+  { ticker: 'EQNR', symbol: 'EQNR', exchange: 'Oslo', twelveDataSymbol: 'EQNR.OL' },
+  { ticker: 'NESTE', symbol: 'NESTE', exchange: 'Helsinki', twelveDataSymbol: 'NESTE.HE' },
   
-  // New Baltic companies - simplified symbols
-  { ticker: 'TSM1T', symbol: 'TSM1T', exchange: 'Tallinn', twelveDataSymbol: 'TSM1T' },
-  { ticker: 'VIK1V', symbol: 'VIK1V', exchange: 'Helsinki', twelveDataSymbol: 'VIK1V' },
-  { ticker: 'TAL1T', symbol: 'TAL1T', exchange: 'Tallinn', twelveDataSymbol: 'TAL1T' },
-  { ticker: 'DFDS', symbol: 'DFDS', exchange: 'Copenhagen', twelveDataSymbol: 'DFDS' },
-  { ticker: 'PGE', symbol: 'PGE', exchange: 'Warsaw', twelveDataSymbol: 'PGE' },
-  { ticker: 'ORLEN', symbol: 'ORLEN', exchange: 'Warsaw', twelveDataSymbol: 'PKN' },
-  { ticker: 'EBK', symbol: 'EBK', exchange: 'XETRA', twelveDataSymbol: 'EBK' },
-  { ticker: 'IGN1L', symbol: 'IGN1L', exchange: 'Vilnius', twelveDataSymbol: 'IGN1L' },
-  { ticker: 'EGR1T', symbol: 'EGR1T', exchange: 'Tallinn', twelveDataSymbol: 'EGR1T' },
-  { ticker: 'PEP', symbol: 'PEP', exchange: 'Warsaw', twelveDataSymbol: 'PEP' },
-  { ticker: 'WRT1V', symbol: 'WRT1V', exchange: 'Helsinki', twelveDataSymbol: 'WRT1V' },
-  { ticker: 'ALFA', symbol: 'ALFA', exchange: 'Stockholm', twelveDataSymbol: 'ALFA' },
-  { ticker: 'CCC', symbol: 'CCC', exchange: 'Stockholm', twelveDataSymbol: 'CCC' },
-  { ticker: 'TVE1T', symbol: 'TVE1T', exchange: 'Tallinn', twelveDataSymbol: 'TVE1T' },
-  { ticker: 'KNE1L', symbol: 'KNE1L', exchange: 'Vilnius', twelveDataSymbol: 'KNE1L' }
+  // Baltic companies with fallback to available symbols
+  { ticker: 'DFDS', symbol: 'DFDS', exchange: 'Copenhagen', twelveDataSymbol: 'DFDS.CO' },
+  { ticker: 'PEP', symbol: 'PEP', exchange: 'NASDAQ', twelveDataSymbol: 'PEP' }
 ];
 
 serve(async (req) => {
