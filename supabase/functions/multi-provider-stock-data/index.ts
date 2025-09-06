@@ -28,23 +28,106 @@ interface APIProvider {
   fetchStock: (symbol: string) => Promise<StockData | null>;
 }
 
-const BALTIC_STOCKS = [
-  { symbol: 'MAERSK-B.CO', name: 'A.P. Møller-Mærsk', exchange: 'CPH', currency: 'DKK' },
-  { symbol: 'EQNR', name: 'Equinor ASA', exchange: 'NYSE', currency: 'USD' },
-  { symbol: 'ORSTED.CO', name: 'Ørsted A/S', exchange: 'CPH', currency: 'DKK' },
-  { symbol: 'NESTE.HE', name: 'Neste Oyj', exchange: 'HEL', currency: 'EUR' },
-  { symbol: 'VWS.CO', name: 'Vestas', exchange: 'CPH', currency: 'DKK' },
-  { symbol: 'DFDS.CO', name: 'DFDS', exchange: 'CPH', currency: 'DKK' },
-  { symbol: 'SBLK', name: 'Star Bulk Carriers', exchange: 'NASDAQ', currency: 'USD' },
-  { symbol: 'GNK', name: 'Genco Shipping', exchange: 'NYSE', currency: 'USD' },
-  { symbol: 'HHLA.DE', name: 'Hamburger Hafen', exchange: 'XETRA', currency: 'EUR' },
-  { symbol: 'TORM.CO', name: 'TORM A/S', exchange: 'CPH', currency: 'DKK' },
-  { symbol: 'HAPAG.DE', name: 'Hapag-Lloyd', exchange: 'XETRA', currency: 'EUR' },
-  { symbol: 'RWE.DE', name: 'RWE AG', exchange: 'XETRA', currency: 'EUR' },
-  { symbol: 'KONE.HE', name: 'KONE Oyj', exchange: 'HEL', currency: 'EUR' },
-  { symbol: 'SALM.HE', name: 'Salmar ASA', exchange: 'HEL', currency: 'EUR' },
-  { symbol: 'TELUS.HE', name: 'Telia Company', exchange: 'HEL', currency: 'EUR' }
-];
+const STOCK_MAPPINGS = {
+  // Danish stocks (Copenhagen)
+  'MAERSK-B.CO': { 
+    alphaVantage: 'MAERSK-B.CPH', 
+    finnhub: 'MAERSK-B.CO', 
+    name: 'A.P. Møller-Mærsk', 
+    exchange: 'CPH', 
+    currency: 'DKK' 
+  },
+  'ORSTED.CO': { 
+    alphaVantage: 'ORSTED.CPH', 
+    finnhub: 'ORSTED.CO', 
+    name: 'Ørsted A/S', 
+    exchange: 'CPH', 
+    currency: 'DKK' 
+  },
+  'VWS.CO': { 
+    alphaVantage: 'VWS.CPH', 
+    finnhub: 'VWS.CO', 
+    name: 'Vestas', 
+    exchange: 'CPH', 
+    currency: 'DKK' 
+  },
+  'DFDS.CO': { 
+    alphaVantage: 'DFDS.CPH', 
+    finnhub: 'DFDS.CO', 
+    name: 'DFDS', 
+    exchange: 'CPH', 
+    currency: 'DKK' 
+  },
+  'TORM.CO': { 
+    alphaVantage: 'TORM.CPH', 
+    finnhub: 'TORM.CO', 
+    name: 'TORM A/S', 
+    exchange: 'CPH', 
+    currency: 'DKK' 
+  },
+  
+  // German stocks (XETRA)
+  'HHLA.DE': { 
+    alphaVantage: 'HHLA.DEX', 
+    finnhub: 'HHLA.DE', 
+    name: 'Hamburger Hafen', 
+    exchange: 'XETRA', 
+    currency: 'EUR' 
+  },
+  'HAPAG.DE': { 
+    alphaVantage: 'HLAG.DEX', 
+    finnhub: 'HLAG.DE', 
+    name: 'Hapag-Lloyd', 
+    exchange: 'XETRA', 
+    currency: 'EUR' 
+  },
+  'RWE.DE': { 
+    alphaVantage: 'RWE.DEX', 
+    finnhub: 'RWE.DE', 
+    name: 'RWE AG', 
+    exchange: 'XETRA', 
+    currency: 'EUR' 
+  },
+  
+  // Finnish stocks (Helsinki)
+  'NESTE.HE': { 
+    alphaVantage: 'NESTE.HEL', 
+    finnhub: 'NESTE.HE', 
+    name: 'Neste Oyj', 
+    exchange: 'HEL', 
+    currency: 'EUR' 
+  },
+  'KONE.HE': { 
+    alphaVantage: 'KONE.HEL', 
+    finnhub: 'KONE.HE', 
+    name: 'KONE Oyj', 
+    exchange: 'HEL', 
+    currency: 'EUR' 
+  },
+  
+  // US stocks
+  'EQNR': { 
+    alphaVantage: 'EQNR', 
+    finnhub: 'EQNR', 
+    name: 'Equinor ASA', 
+    exchange: 'NYSE', 
+    currency: 'USD' 
+  },
+  'SBLK': { 
+    alphaVantage: 'SBLK', 
+    finnhub: 'SBLK', 
+    name: 'Star Bulk Carriers', 
+    exchange: 'NASDAQ', 
+    currency: 'USD' 
+  },
+  'GNK': { 
+    alphaVantage: 'GNK', 
+    finnhub: 'GNK', 
+    name: 'Genco Shipping', 
+    exchange: 'NYSE', 
+    currency: 'USD' 
+  }
+};
 
 class RateLimiter {
   private callCounts = new Map<string, { count: number; resetTime: number }>();
@@ -84,14 +167,25 @@ async function fetchAlphaVantage(symbol: string): Promise<StockData | null> {
     throw new Error('Alpha Vantage rate limit exceeded');
   }
 
+  const mapping = STOCK_MAPPINGS[symbol as keyof typeof STOCK_MAPPINGS];
+  if (!mapping) {
+    console.log(`No mapping found for symbol: ${symbol}`);
+    return null;
+  }
+
   try {
+    const apiSymbol = mapping.alphaVantage;
+    console.log(`Fetching ${symbol} as ${apiSymbol} from Alpha Vantage`);
+    
     const response = await fetch(
-      `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`
+      `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${apiSymbol}&apikey=${apiKey}`
     );
     
     if (!response.ok) throw new Error(`Alpha Vantage API error: ${response.status}`);
     
     const data = await response.json();
+    console.log(`Alpha Vantage response for ${symbol}:`, data);
+    
     const quote = data['Global Quote'];
     
     if (!quote || Object.keys(quote).length === 0) {
@@ -100,20 +194,19 @@ async function fetchAlphaVantage(symbol: string): Promise<StockData | null> {
 
     rateLimiter.recordCall('alphavantage');
 
-    const stockInfo = BALTIC_STOCKS.find(s => s.symbol === symbol);
     return {
-      symbol: quote['01. symbol'],
-      name: stockInfo?.name || symbol,
+      symbol,
+      name: mapping.name,
       price: parseFloat(quote['05. price']),
       change: parseFloat(quote['09. change']),
       changePercent: parseFloat(quote['10. change percent'].replace('%', '')),
-      currency: stockInfo?.currency || 'USD',
+      currency: mapping.currency,
       volume: parseInt(quote['06. volume']),
       timestamp: new Date().toISOString(),
       source: 'Alpha Vantage'
     };
   } catch (error) {
-    console.error('Alpha Vantage error:', error);
+    console.error(`Alpha Vantage error for ${symbol}:`, error);
     return null;
   }
 }
@@ -126,14 +219,24 @@ async function fetchFinnhub(symbol: string): Promise<StockData | null> {
     throw new Error('Finnhub rate limit exceeded');
   }
 
+  const mapping = STOCK_MAPPINGS[symbol as keyof typeof STOCK_MAPPINGS];
+  if (!mapping) {
+    console.log(`No mapping found for symbol: ${symbol}`);
+    return null;
+  }
+
   try {
+    const apiSymbol = mapping.finnhub;
+    console.log(`Fetching ${symbol} as ${apiSymbol} from Finnhub`);
+    
     const response = await fetch(
-      `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`
+      `https://finnhub.io/api/v1/quote?symbol=${apiSymbol}&token=${apiKey}`
     );
     
     if (!response.ok) throw new Error(`Finnhub API error: ${response.status}`);
     
     const data = await response.json();
+    console.log(`Finnhub response for ${symbol}:`, data);
     
     if (!data.c || data.c === 0) {
       throw new Error('No data returned from Finnhub');
@@ -141,20 +244,19 @@ async function fetchFinnhub(symbol: string): Promise<StockData | null> {
 
     rateLimiter.recordCall('finnhub');
 
-    const stockInfo = BALTIC_STOCKS.find(s => s.symbol === symbol);
     return {
       symbol,
-      name: stockInfo?.name || symbol,
+      name: mapping.name,
       price: data.c,
       change: data.d,
       changePercent: data.dp,
-      currency: stockInfo?.currency || 'USD',
+      currency: mapping.currency,
       volume: 0, // Finnhub doesn't provide volume in this endpoint
       timestamp: new Date().toISOString(),
       source: 'Finnhub'
     };
   } catch (error) {
-    console.error('Finnhub error:', error);
+    console.error(`Finnhub error for ${symbol}:`, error);
     return null;
   }
 }
@@ -188,39 +290,9 @@ async function fetchStockDataWithFailover(symbol: string): Promise<StockData | n
     }
   }
 
-  // Fallback with realistic mock data in correct currencies
-  const stockInfo = BALTIC_STOCKS.find(s => s.symbol === symbol);
-  const currency = stockInfo?.currency || 'USD';
-  
-  // Generate realistic price ranges based on currency
-  let basePrice, priceRange;
-  switch (currency) {
-    case 'DKK':
-      basePrice = 500; // Danish Kroner - typically higher numbers
-      priceRange = 200;
-      break;
-    case 'EUR':
-      basePrice = 50; // Euro prices
-      priceRange = 25;
-      break;
-    case 'USD':
-    default:
-      basePrice = 25; // USD prices
-      priceRange = 15;
-      break;
-  }
-
-  return {
-    symbol,
-    name: stockInfo?.name || symbol,
-    price: basePrice + Math.random() * priceRange,
-    change: (Math.random() - 0.5) * 5,
-    changePercent: (Math.random() - 0.5) * 5,
-    currency,
-    volume: Math.floor(Math.random() * 1000000),
-    timestamp: new Date().toISOString(),
-    source: 'Fallback Mock Data'
-  };
+  // Return null instead of mock data when real data isn't available
+  console.log(`No real data available for ${symbol} from any provider`);
+  return null;
 }
 
 serve(async (req) => {
@@ -230,7 +302,7 @@ serve(async (req) => {
 
   try {
     const { symbols } = await req.json();
-    const requestedSymbols = symbols || BALTIC_STOCKS.map(s => s.symbol);
+    const requestedSymbols = symbols || Object.keys(STOCK_MAPPINGS);
 
     // Fetch data for all symbols in parallel
     const promises = requestedSymbols.map((symbol: string) => 
@@ -245,7 +317,9 @@ serve(async (req) => {
       if (result.status === 'fulfilled' && result.value) {
         stockData.push(result.value);
       } else {
-        errors.push(`Failed to fetch data for ${requestedSymbols[index]}`);
+        const symbol = requestedSymbols[index];
+        const mapping = STOCK_MAPPINGS[symbol as keyof typeof STOCK_MAPPINGS];
+        errors.push(`No real-time data available for ${mapping?.name || symbol} (${symbol})`);
       }
     });
 

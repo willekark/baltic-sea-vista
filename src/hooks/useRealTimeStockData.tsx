@@ -74,7 +74,8 @@ export const useRealTimeStockData = ({
       }
 
       if (data?.success) {
-        const stocksWithCompatibility = (data.data || []).map((stock: any) => ({
+        const validStocks = (data.data || []).filter(stock => stock !== null);
+        const stocksWithCompatibility = validStocks.map((stock: any) => ({
           ...stock,
           // Add compatibility fields
           ticker: stock.symbol,
@@ -86,18 +87,32 @@ export const useRealTimeStockData = ({
         setStockData(stocksWithCompatibility);
         setLastUpdated(new Date());
         
-        const fetchedCount = data.data?.length || 0;
+        const fetchedCount = validStocks.length;
         const requestedCount = tickers.length;
+        const realDataCount = validStocks.filter((stock: any) => 
+          stock.source !== 'Fallback Mock Data'
+        ).length;
         
-        if (fetchedCount < requestedCount) {
-          toast.warning(`Retrieved ${fetchedCount} out of ${requestedCount} stocks`, {
-            description: 'Some stocks may not be available or have rate limits'
+        if (fetchedCount === 0) {
+          toast.error('No stock data available', {
+            description: 'Unable to fetch real-time data for any requested stocks'
           });
-        } else if (fetchedCount > 0) {
-          toast.success(`Updated ${fetchedCount} stock prices from ${data.providers?.join(', ') || 'multiple sources'}`);
+        } else if (realDataCount === 0) {
+          toast.warning('Using simulated data only', {
+            description: 'Real-time data unavailable - showing placeholder values'
+          });
+        } else if (fetchedCount < requestedCount) {
+          toast.warning(`Retrieved ${realDataCount} real prices out of ${requestedCount} stocks`, {
+            description: 'Some stocks may not be available in current data sources'
+          });
+        } else {
+          const providers = [...new Set(validStocks.map((stock: any) => stock.source))];
+          toast.success(`Updated ${realDataCount} real stock prices`, {
+            description: `Data from: ${providers.join(', ')}`
+          });
         }
         
-        console.log(`Successfully fetched ${fetchedCount} stock prices`);
+        console.log(`Successfully fetched ${fetchedCount} stocks (${realDataCount} real, ${fetchedCount - realDataCount} simulated)`);
       } else {
         throw new Error(data?.error || 'Failed to fetch stock data');
       }
