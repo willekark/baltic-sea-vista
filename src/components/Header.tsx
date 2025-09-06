@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { HEADER_NAV } from "@/config/nav";
+import logo from "@/assets/logo.svg";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -15,15 +16,14 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div 
-            className="flex items-center gap-2 cursor-pointer group"
+            className="flex items-center cursor-pointer group"
             onClick={() => navigate("/")}
           >
-            <div className="w-8 h-8 bg-gradient-investment rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">BI</span>
-            </div>
-            <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
-              Baltic Intelligence
-            </span>
+            <img 
+              src={logo} 
+              alt="Baltic Intelligence" 
+              className="h-8 w-auto group-hover:opacity-80 transition-opacity"
+            />
           </div>
 
           {/* Desktop Navigation */}
