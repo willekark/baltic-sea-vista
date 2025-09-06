@@ -153,7 +153,13 @@ const InstitutionalReport: React.FC<InstitutionalReportProps> = ({
           geography: 'baltic',
           timeframe: 'current',
           riskProfile: 'institutional',
-          confidence: Math.round(validAnalyses.reduce((sum, stock) => sum + (stock.recommendation?.confidence || 85), 0) / validAnalyses.length)
+          confidence: Math.round(validAnalyses.reduce((sum, stock) => {
+            // Calculate confidence based on available financial metrics
+            const hasMetrics = stock.financialMetrics ? 90 : 70;
+            const hasDCF = stock.dcfModel ? 95 : hasMetrics;
+            const hasESG = stock.esgAnalysis ? hasDCF + 5 : hasDCF;
+            return sum + Math.min(hasESG, 95);
+          }, 0) / validAnalyses.length)
         },
         executiveSummary: {
           marketOverview: `Our comprehensive analysis of ${validAnalyses.length} Baltic maritime companies reveals a compelling investment opportunity driven by the €1.8 trillion EU Green Deal transformation. The sector is experiencing structural changes from maritime decarbonization mandates, with offshore wind capacity expanding from 3GW to 76GW by 2030. Portfolio weighted return potential of ${weightedReturn.toFixed(1)}% reflects strong fundamentals across shipping, energy, and infrastructure segments. Supply chain reshoring trends favor Baltic trade corridors, while Nordic energy transition creates substantial ESG-aligned investment opportunities with institutional-grade risk-return profiles.`,
@@ -257,7 +263,13 @@ const InstitutionalReport: React.FC<InstitutionalReportProps> = ({
         },
         aiConsensus: {
           overallRating: 'BUY' as const,
-          confidenceScore: Math.round(validAnalyses.reduce((sum, stock) => sum + (stock.recommendation?.confidence || 85), 0) / validAnalyses.length),
+          confidenceScore: Math.round(validAnalyses.reduce((sum, stock) => {
+            // Calculate confidence based on data completeness and analysis depth
+            const hasMetrics = stock.financialMetrics ? 90 : 70;
+            const hasDCF = stock.dcfModel ? 95 : hasMetrics;
+            const hasESG = stock.esgAnalysis ? hasDCF + 5 : hasDCF;
+            return sum + Math.min(hasESG, 95);
+          }, 0) / validAnalyses.length),
           priceTargets: validAnalyses.reduce((acc, stock) => {
             if (stock.recommendation?.targetPrice) {
               acc[stock.symbol] = stock.recommendation.targetPrice;
