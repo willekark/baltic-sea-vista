@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
          BarChart, Bar, PieChart as RechartsPieChart, Cell, RadialBarChart, RadialBar, Pie } from 'recharts';
+import { useInstitutionalReports } from '@/hooks/useInstitutionalReports';
 
 interface FinancialAnalysis {
   symbol: string;
@@ -60,6 +61,9 @@ const InstitutionalReport: React.FC<InstitutionalReportProps> = ({
   const [portfolioSummary, setPortfolioSummary] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('executive');
+  
+  // Use the institutional reports hook
+  const { exportToPDF } = useInstitutionalReports();
 
   useEffect(() => {
     // Only run if we have stocks and analysis data is empty or stocks have changed
@@ -235,10 +239,7 @@ const InstitutionalReport: React.FC<InstitutionalReportProps> = ({
         }
       };
 
-      // Import the hook and use its export function
-      const { useInstitutionalReports } = await import('@/hooks/useInstitutionalReports');
-      const { exportToPDF } = useInstitutionalReports();
-      
+      // Use the hook's export function directly
       await exportToPDF(institutionalReport);
       
     } catch (error) {
