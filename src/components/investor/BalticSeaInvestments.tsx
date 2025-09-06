@@ -1264,6 +1264,31 @@ const BalticSeaInvestments = () => {
           >
             Test API
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              try {
+                const { data } = await supabase.functions.invoke('ai-stock-verification', {
+                  body: { tickers: allTickers.slice(0, 5) } // Check first 5 companies
+                });
+                console.log('AI Verification Result:', data);
+                if (data?.success) {
+                  toast.success('AI Verification Complete', { 
+                    description: 'Check console for detailed price comparison' 
+                  });
+                } else {
+                  toast.error('AI Verification Failed', { description: data?.error });
+                }
+              } catch (error) {
+                console.error('AI Verification failed:', error);
+                toast.error('AI Verification Failed', { description: error.message });
+              }
+            }}
+            className="flex items-center gap-2"
+          >
+            🤖 AI Price Check
+          </Button>
           {stockData.length > 0 && (
             <Badge variant="secondary" className="bg-green-50 text-green-700">
               {stockData.length} live prices
