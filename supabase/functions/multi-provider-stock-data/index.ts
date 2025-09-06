@@ -29,14 +29,21 @@ interface APIProvider {
 }
 
 const BALTIC_STOCKS = [
-  { symbol: 'MAERSK-B.CO', name: 'A.P. Møller-Mærsk', exchange: 'CPH' },
-  { symbol: 'EQNR', name: 'Equinor ASA', exchange: 'NYSE' },
-  { symbol: 'ORSTED.CO', name: 'Ørsted A/S', exchange: 'CPH' },
-  { symbol: 'NESTE.HE', name: 'Neste Oyj', exchange: 'HEL' },
-  { symbol: 'VWS.CO', name: 'Vestas', exchange: 'CPH' },
-  { symbol: 'DFDS.CO', name: 'DFDS', exchange: 'CPH' },
-  { symbol: 'SBLK', name: 'Star Bulk Carriers', exchange: 'NASDAQ' },
-  { symbol: 'GNK', name: 'Genco Shipping', exchange: 'NYSE' }
+  { symbol: 'MAERSK-B.CO', name: 'A.P. Møller-Mærsk', exchange: 'CPH', currency: 'DKK' },
+  { symbol: 'EQNR', name: 'Equinor ASA', exchange: 'NYSE', currency: 'USD' },
+  { symbol: 'ORSTED.CO', name: 'Ørsted A/S', exchange: 'CPH', currency: 'DKK' },
+  { symbol: 'NESTE.HE', name: 'Neste Oyj', exchange: 'HEL', currency: 'EUR' },
+  { symbol: 'VWS.CO', name: 'Vestas', exchange: 'CPH', currency: 'DKK' },
+  { symbol: 'DFDS.CO', name: 'DFDS', exchange: 'CPH', currency: 'DKK' },
+  { symbol: 'SBLK', name: 'Star Bulk Carriers', exchange: 'NASDAQ', currency: 'USD' },
+  { symbol: 'GNK', name: 'Genco Shipping', exchange: 'NYSE', currency: 'USD' },
+  { symbol: 'HHLA.DE', name: 'Hamburger Hafen', exchange: 'XETRA', currency: 'EUR' },
+  { symbol: 'TORM.CO', name: 'TORM A/S', exchange: 'CPH', currency: 'DKK' },
+  { symbol: 'HAPAG.DE', name: 'Hapag-Lloyd', exchange: 'XETRA', currency: 'EUR' },
+  { symbol: 'RWE.DE', name: 'RWE AG', exchange: 'XETRA', currency: 'EUR' },
+  { symbol: 'KONE.HE', name: 'KONE Oyj', exchange: 'HEL', currency: 'EUR' },
+  { symbol: 'SALM.HE', name: 'Salmar ASA', exchange: 'HEL', currency: 'EUR' },
+  { symbol: 'TELUS.HE', name: 'Telia Company', exchange: 'HEL', currency: 'EUR' }
 ];
 
 class RateLimiter {
@@ -93,13 +100,14 @@ async function fetchAlphaVantage(symbol: string): Promise<StockData | null> {
 
     rateLimiter.recordCall('alphavantage');
 
+    const stockInfo = BALTIC_STOCKS.find(s => s.symbol === symbol);
     return {
       symbol: quote['01. symbol'],
-      name: BALTIC_STOCKS.find(s => s.symbol === symbol)?.name || symbol,
+      name: stockInfo?.name || symbol,
       price: parseFloat(quote['05. price']),
       change: parseFloat(quote['09. change']),
       changePercent: parseFloat(quote['10. change percent'].replace('%', '')),
-      currency: 'USD',
+      currency: stockInfo?.currency || 'USD',
       volume: parseInt(quote['06. volume']),
       timestamp: new Date().toISOString(),
       source: 'Alpha Vantage'
@@ -133,13 +141,14 @@ async function fetchFinnhub(symbol: string): Promise<StockData | null> {
 
     rateLimiter.recordCall('finnhub');
 
+    const stockInfo = BALTIC_STOCKS.find(s => s.symbol === symbol);
     return {
       symbol,
-      name: BALTIC_STOCKS.find(s => s.symbol === symbol)?.name || symbol,
+      name: stockInfo?.name || symbol,
       price: data.c,
       change: data.d,
       changePercent: data.dp,
-      currency: 'USD',
+      currency: stockInfo?.currency || 'USD',
       volume: 0, // Finnhub doesn't provide volume in this endpoint
       timestamp: new Date().toISOString(),
       source: 'Finnhub'
@@ -179,14 +188,35 @@ async function fetchStockDataWithFailover(symbol: string): Promise<StockData | n
     }
   }
 
-  // Fallback with realistic mock data
+  // Fallback with realistic mock data in correct currencies
+  const stockInfo = BALTIC_STOCKS.find(s => s.symbol === symbol);
+  const currency = stockInfo?.currency || 'USD';
+  
+  // Generate realistic price ranges based on currency
+  let basePrice, priceRange;
+  switch (currency) {
+    case 'DKK':
+      basePrice = 500; // Danish Kroner - typically higher numbers
+      priceRange = 200;
+      break;
+    case 'EUR':
+      basePrice = 50; // Euro prices
+      priceRange = 25;
+      break;
+    case 'USD':
+    default:
+      basePrice = 25; // USD prices
+      priceRange = 15;
+      break;
+  }
+
   return {
     symbol,
-    name: BALTIC_STOCKS.find(s => s.symbol === symbol)?.name || symbol,
-    price: 100 + Math.random() * 50,
+    name: stockInfo?.name || symbol,
+    price: basePrice + Math.random() * priceRange,
     change: (Math.random() - 0.5) * 5,
     changePercent: (Math.random() - 0.5) * 5,
-    currency: 'USD',
+    currency,
     volume: Math.floor(Math.random() * 1000000),
     timestamp: new Date().toISOString(),
     source: 'Fallback Mock Data'
