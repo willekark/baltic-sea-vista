@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { HEADER_NAV } from "@/config/nav";
-import logo from "@/assets/logo.svg";
+import headerLogo from "@/assets/header-logo.svg";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -20,9 +20,14 @@ const Header = () => {
             onClick={() => navigate("/")}
           >
             <img 
-              src={logo} 
+              src={headerLogo} 
               alt="Baltic Intelligence" 
               className="h-8 w-auto group-hover:opacity-80 transition-opacity"
+              onError={(e) => {
+                console.log('Logo failed to load:', e);
+                e.currentTarget.style.display = 'none';
+              }}
+              onLoad={() => console.log('Logo loaded successfully')}
             />
           </div>
 
