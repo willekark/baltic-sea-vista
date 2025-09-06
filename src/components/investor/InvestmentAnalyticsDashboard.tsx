@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart3, Download, Building2, FileText } from 'lucide-react';
 import BalticSeaInvestments from './BalticSeaInvestments';
 import InstitutionalReport from './InstitutionalReport';
+import { Link } from 'react-router-dom';
 
 const InvestmentAnalyticsDashboard = () => {
   return (
@@ -16,10 +17,18 @@ const InvestmentAnalyticsDashboard = () => {
             Scenario modeling, CTAs, and investment performance analytics
           </p>
         </div>
-        <Button variant="outline" className="flex items-center gap-2">
-          <Download className="h-4 w-4" />
-          Analytics Report
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button asChild variant="outline">
+            <Link to="/financial-reports" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Advanced Reports
+            </Link>
+          </Button>
+          <Button variant="outline" className="flex items-center gap-2">
+            <Download className="h-4 w-4" />
+            Analytics Report
+          </Button>
+        </div>
       </div>
       
       <Tabs defaultValue="investments" className="space-y-6">

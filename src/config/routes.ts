@@ -49,6 +49,11 @@ export const ROUTE_CANON = {
     anchors: ["analysis", "realtime", "reports"],
     description: "Unified Claude and OpenAI intelligence platform for comprehensive maritime analysis"
   },
+  "/financial-reports": {
+    title: "Financial Reports",
+    anchors: ["reports", "analytics", "ai-consensus"],
+    description: "AI-powered maritime financial intelligence and strategic decision making reports"
+  },
   "/auth": { 
     title: "Authentication",
     anchors: [],

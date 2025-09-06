@@ -63,6 +63,12 @@ export const HEADER_NAV: NavItem[] = [
     href: "/ai-orchestrator",
     description: "Unified AI intelligence platform",
     testId: "nav-ai-orchestrator"
+  },
+  {
+    label: "Financial Reports",
+    href: "/financial-reports",
+    description: "AI-powered financial intelligence reports",
+    testId: "nav-financial-reports"
   }
 ];
 
