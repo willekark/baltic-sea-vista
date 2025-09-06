@@ -60,44 +60,7 @@ class ReportRateLimiter {
   }
 }
 
-// Enhanced rate limiting for comprehensive reports
-class ReportRateLimiter {
-  private static instance: ReportRateLimiter;
-  private lastOpenAICall = 0;
-  private openAICallCount = 0;
-  private openAIResetTime = 0;
-  private lastESGCall = 0;
-
-  static getInstance(): ReportRateLimiter {
-    if (!ReportRateLimiter.instance) {
-      ReportRateLimiter.instance = new ReportRateLimiter();
-    }
-    return ReportRateLimiter.instance;
-  }
-
-  async waitForOpenAI() {
-    const now = Date.now();
-    
-    if (now - this.openAIResetTime > 60000) {
-      this.openAICallCount = 0;
-      this.openAIResetTime = now;
-    }
-
-    if (this.openAICallCount >= 30) {
-      const waitTime = 60000 - (now - this.openAIResetTime) + 2000;
-      await new Promise(resolve => setTimeout(resolve, waitTime));
-      this.openAICallCount = 0;
-      this.openAIResetTime = Date.now();
-    }
-
-    const timeSinceLastCall = now - this.lastOpenAICall;
-    if (timeSinceLastCall < 2000) {
-      const waitTime = 2000 - timeSinceLastCall;
-      await new Promise(resolve => setTimeout(resolve, waitTime));
-    }
-
-    this.lastOpenAICall = Date.now();
-    this.openAICallCount++;
+// Continue with the rest of the edge function implementation
   }
 
   async waitForESG() {
