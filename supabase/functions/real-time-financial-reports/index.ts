@@ -285,12 +285,12 @@ class FinancialReportGenerator {
 
     const keyInsights = [
       `${bestPerformer.name} leads with ${bestPerformer.performance.daily.toFixed(2)}% daily performance`,
-      `Portfolio volatility averaging ${stocks.reduce((sum, s) => sum + s.riskMetrics.volatility, 0) / stocks.length:.1f}%`,
+      `Portfolio volatility averaging ${(stocks.reduce((sum, s) => sum + s.riskMetrics.volatility, 0) / stocks.length).toFixed(1)}%`,
       `${stocks.filter(s => s.technicalIndicators.trend === 'bullish').length} of ${stocks.length} stocks showing bullish technical signals`
     ];
 
     const riskFactors = [
-      `Market volatility elevated at ${stocks.reduce((sum, s) => sum + s.riskMetrics.volatility, 0) / stocks.length:.1f}% average`,
+      `Market volatility elevated at ${(stocks.reduce((sum, s) => sum + s.riskMetrics.volatility, 0) / stocks.length).toFixed(1)}% average`,
       `Currency exposure concentrated in ${portfolioMetrics?.currencyExposure ? Object.keys(portfolioMetrics.currencyExposure)[0] : 'DKK'}`,
       'Regulatory changes in offshore wind sector creating uncertainty'
     ];
