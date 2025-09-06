@@ -9,7 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { TrendingUp, FileText, BarChart3, Brain, Zap } from 'lucide-react';
+import { TrendingUp, FileText, BarChart3, Brain, Zap, Download } from 'lucide-react';
+import { useInstitutionalReports, ReportRequest } from '@/hooks/useInstitutionalReports';
+import { toast } from 'sonner';
 
 interface ReportData {
   title: string;
@@ -21,12 +23,12 @@ interface ReportData {
 }
 
 const AIReportGenerator = () => {
-  const [reportType, setReportType] = useState('quarterly');
-  const [geography, setGeography] = useState('baltic');
-  const [timeframe, setTimeframe] = useState('current');
-  const [riskProfile, setRiskProfile] = useState('conservative');
-  const [showReport, setShowReport] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [reportType, setReportType] = useState<'quarterly' | 'investment' | 'risk' | 'sector'>('quarterly');
+  const [geography, setGeography] = useState<'baltic' | 'sweden' | 'denmark' | 'finland' | 'norway'>('baltic');
+  const [timeframe, setTimeframe] = useState<'current' | 'ytd' | '12month' | '3year'>('current');
+  const [riskProfile, setRiskProfile] = useState<'conservative' | 'moderate' | 'aggressive' | 'institutional'>('conservative');
+  
+  const { report, loading, error, generateReport, exportToPDF } = useInstitutionalReports();
 
   const reportData: Record<string, ReportData> = {
     quarterly: {
@@ -63,21 +65,27 @@ const AIReportGenerator = () => {
     }
   };
 
-  const generateReport = async () => {
-    setIsGenerating(true);
-    
-    // Simulate report generation
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsGenerating(false);
-    setShowReport(true);
-    
-    // Smooth scroll to report
-    setTimeout(() => {
-      document.getElementById('report-section')?.scrollIntoView({ 
-        behavior: 'smooth' 
-      });
-    }, 100);
+  const handleGenerateReport = async () => {
+    try {
+      const request: ReportRequest = {
+        reportType,
+        geography,
+        timeframe, 
+        riskProfile,
+        includeForecasts: true
+      };
+      
+      await generateReport(request);
+      
+      // Smooth scroll to report after generation
+      setTimeout(() => {
+        document.getElementById('report-section')?.scrollIntoView({ 
+          behavior: 'smooth' 
+        });
+      }, 100);
+    } catch (error) {
+      console.error('Report generation failed:', error);
+    }
   };
 
   const getConfidence = () => {
@@ -111,7 +119,7 @@ const AIReportGenerator = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-200">Report Type</label>
-                <Select value={reportType} onValueChange={setReportType}>
+                <Select value={reportType} onValueChange={(value) => setReportType(value as any)}>
                   <SelectTrigger className="bg-slate-900/80 border-white/20">
                     <SelectValue />
                   </SelectTrigger>
@@ -126,7 +134,7 @@ const AIReportGenerator = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-200">Geographic Focus</label>
-                <Select value={geography} onValueChange={setGeography}>
+                <Select value={geography} onValueChange={(value) => setGeography(value as any)}>
                   <SelectTrigger className="bg-slate-900/80 border-white/20">
                     <SelectValue />
                   </SelectTrigger>
@@ -142,7 +150,7 @@ const AIReportGenerator = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-200">Analysis Timeframe</label>
-                <Select value={timeframe} onValueChange={setTimeframe}>
+                <Select value={timeframe} onValueChange={(value) => setTimeframe(value as any)}>
                   <SelectTrigger className="bg-slate-900/80 border-white/20">
                     <SelectValue />
                   </SelectTrigger>
@@ -157,7 +165,7 @@ const AIReportGenerator = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-200">Risk Profile</label>
-                <Select value={riskProfile} onValueChange={setRiskProfile}>
+                <Select value={riskProfile} onValueChange={(value) => setRiskProfile(value as any)}>
                   <SelectTrigger className="bg-slate-900/80 border-white/20">
                     <SelectValue />
                   </SelectTrigger>
@@ -172,14 +180,14 @@ const AIReportGenerator = () => {
             </div>
 
             <Button 
-              onClick={generateReport}
-              disabled={isGenerating}
+              onClick={handleGenerateReport}
+              disabled={loading}
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 py-4 text-lg font-semibold"
             >
-              {isGenerating ? (
+              {loading ? (
                 <>
                   <Zap className="mr-2 h-5 w-5 animate-pulse" />
-                  Generating AI Analysis...
+                  Generating Real-Time Analysis...
                 </>
               ) : (
                 <>
@@ -192,17 +200,28 @@ const AIReportGenerator = () => {
         </Card>
 
         {/* Report Section */}
-        {showReport && (
+        {report && (
           <div id="report-section" className="space-y-6">
             <Card className="bg-slate-800/30 border-white/10 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <CardTitle className="text-2xl font-bold text-white">
-                    {currentData.title}
+                    {report.reportMetadata.title}
                   </CardTitle>
-                  <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2">
-                    AI Consensus: {getConfidence()}
-                  </Badge>
+                  <div className="flex gap-2">
+                    <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2">
+                      AI Consensus: {report.reportMetadata.confidence}%
+                    </Badge>
+                    <Button 
+                      onClick={() => exportToPDF(report)}
+                      variant="outline" 
+                      size="sm"
+                      className="border-white/20 text-white hover:bg-white/10"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Export PDF
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
             </Card>
@@ -213,7 +232,15 @@ const AIReportGenerator = () => {
                 <CardTitle className="text-xl text-green-400">Executive Summary</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-200 leading-relaxed">{currentData.summary}</p>
+                <p className="text-slate-200 leading-relaxed">{report.executiveSummary.marketOverview}</p>
+                <div className="mt-4 space-y-2">
+                  {report.executiveSummary.keyInsights.map((insight, index) => (
+                    <div key={index} className="text-sm text-slate-300 flex items-start">
+                      <span className="text-green-400 mr-2">•</span>
+                      {insight}
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
 

@@ -108,14 +108,6 @@ async function fetchFinancialData(symbol: string): Promise<CompanyFinancials | n
     const freeCashFlow = parseFloat(latestCashFlow?.operatingCashflow || String(netIncome * 1.2)) - 
                         parseFloat(latestCashFlow?.capitalExpenditures || String(revenue * 0.05));
 
-    const revenue = parseFloat(latestAnnual.totalRevenue || '0');
-    const netIncome = parseFloat(latestAnnual.netIncome || '0');
-    const totalAssets = parseFloat(latestBalance.totalAssets || '0');
-    const totalDebt = parseFloat(latestBalance.totalDebt || '0');
-    const shareholderEquity = parseFloat(latestBalance.totalShareholderEquity || '0');
-    const freeCashFlow = parseFloat(latestCashFlow?.operatingCashflow || '0') - 
-                        parseFloat(latestCashFlow?.capitalExpenditures || '0');
-
     return {
       symbol,
       name: overview.Name || getCompanyName(symbol),
