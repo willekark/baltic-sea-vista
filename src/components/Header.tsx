@@ -22,7 +22,7 @@ const Header = () => {
             <img 
               src="/lovable-uploads/8eac6bd3-ee88-4f05-ac9b-7adde0ea586d.png" 
               alt="Baltic Intelligence" 
-              className="h-12 w-auto group-hover:opacity-80 transition-opacity filter brightness-200 contrast-125"
+              className="h-12 w-auto group-hover:opacity-80 transition-opacity"
               style={{
                 filter: 'invert(1) brightness(1.2) contrast(1.1)',
               }}
