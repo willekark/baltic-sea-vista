@@ -12,7 +12,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  console.log('Test API function started - v4');
+  console.log('Test API function started - v5');
 
   try {
     // Debug: Log all environment variables that start with TWELVE
