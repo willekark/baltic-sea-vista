@@ -14,6 +14,7 @@ import InvestmentAnalyticsDashboard from '@/components/investor/InvestmentAnalyt
 import PortfolioLens from '@/components/investor/PortfolioLens';
 import ScenarioStudio from '@/components/investor/ScenarioStudio';
 import { BankDemoMode } from '@/components/investor/BankDemoMode';
+import FinancialReportGenerator from '@/components/investor/FinancialReportGenerator';
 
 const BalticInvestorIntelligence = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -148,8 +149,9 @@ const BalticInvestorIntelligence = () => {
 
         {/* Main Dashboard */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
+          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-9">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="reports">Reports</TabsTrigger>
             <TabsTrigger value="macro">Macro & Markets</TabsTrigger>
             <TabsTrigger value="esg">ESG & Sustainability</TabsTrigger>
             <TabsTrigger value="infrastructure">Infrastructure</TabsTrigger>
@@ -261,12 +263,16 @@ const BalticInvestorIntelligence = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Button variant="outline" className="h-20 flex flex-col gap-2" onClick={() => setActiveTab('reports')}>
+                    <FileText className="h-5 w-5" />
+                    <span className="text-sm">Financial Reports</span>
+                  </Button>
                   <Button variant="outline" className="h-20 flex flex-col gap-2" onClick={() => setActiveTab('analytics')}>
                     <BarChart3 className="h-5 w-5" />
                     <span className="text-sm">Scenario Analysis</span>
                   </Button>
                   <Button variant="outline" className="h-20 flex flex-col gap-2" onClick={() => setActiveTab('portfolio')}>
-                    <FileText className="h-5 w-5" />
+                    <Target className="h-5 w-5" />
                     <span className="text-sm">Portfolio Lens</span>
                   </Button>
                   <Button variant="outline" className="h-20 flex flex-col gap-2" onClick={() => setActiveTab('esg')}>
@@ -280,6 +286,10 @@ const BalticInvestorIntelligence = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <FinancialReportGenerator />
           </TabsContent>
 
           <TabsContent value="macro">
