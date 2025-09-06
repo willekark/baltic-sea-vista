@@ -102,9 +102,12 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  console.log('=== REAL-TIME STOCK DATA FUNCTION CALLED ===');
+  
   try {
     const apiKey = Deno.env.get('TWELVE_DATA_API_KEY');
-    console.log('API Key status - v4:', apiKey ? 'Found (length: ' + apiKey.length + ')' : 'Not found');
+    console.log('API Key status - v5:', apiKey ? 'Found (length: ' + apiKey.length + ')' : 'Not found');
+    console.log('First 10 chars of API key:', apiKey ? apiKey.substring(0, 10) + '...' : 'None');
     if (!apiKey) {
       throw new Error('TWELVE_DATA_API_KEY is not configured');
     }
