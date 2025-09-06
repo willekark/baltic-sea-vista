@@ -62,11 +62,14 @@ const InstitutionalReport: React.FC<InstitutionalReportProps> = ({
   const [activeTab, setActiveTab] = useState('executive');
 
   useEffect(() => {
-    generateComprehensiveAnalysis();
-  }, [selectedStocks]);
+    // Only run if we have stocks and analysis data is empty or stocks have changed
+    if (selectedStocks.length > 0 && (!analysisData.length || analysisData.length !== selectedStocks.length)) {
+      generateComprehensiveAnalysis();
+    }
+  }, [selectedStocks.join(',')]); // Use join to create stable dependency
 
   const generateComprehensiveAnalysis = async () => {
-    if (loading) return; // Prevent multiple simultaneous calls
+    if (loading || selectedStocks.length === 0) return; // Prevent multiple simultaneous calls
     
     setLoading(true);
     try {
