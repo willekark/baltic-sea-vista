@@ -60,23 +60,6 @@ class ReportRateLimiter {
   }
 }
 
-// Continue with the rest of the edge function implementation
-  }
-
-  async waitForESG() {
-    const now = Date.now();
-    const minDelay = 3000;
-    
-    const timeSinceLastCall = now - this.lastESGCall;
-    if (timeSinceLastCall < minDelay) {
-      const waitTime = minDelay - timeSinceLastCall;
-      await new Promise(resolve => setTimeout(resolve, waitTime));
-    }
-    
-    this.lastESGCall = Date.now();
-  }
-}
-
 // Institutional Report Structure
 class InstitutionalReportStructure {
   buildReport(analysis: any, reportType: string) {
