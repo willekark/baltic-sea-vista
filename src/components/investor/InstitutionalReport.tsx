@@ -440,8 +440,166 @@ const InstitutionalReport: React.FC<InstitutionalReportProps> = ({
                 transparencyScore: "95th percentile in climate disclosure (CDP)"
               },
               bestPractices: "Leading disclosure on Scope 3 shipping emissions"
+          }
+        },
+
+        // Trading Strategy & Implementation (Pages 10-11)
+        tradingStrategy: {
+          entryStrategy: {
+            timing: {
+              period: "Initiate positions over 3-6 week period to reduce market impact",
+              phasing: [
+                "Week 1-2: Core positions (Maersk, Ørsted) - 60% of target allocation",
+                "Week 3-4: Growth positions (Vestas, Equinor) - 75% of target",
+                "Week 5-6: Completion trades and blue bonds - 100% target allocation"
+              ],
+              marketConditions: "Avoid earnings periods and major ECB announcements"
+            },
+            sizing: {
+              initial: "Equal-weight initial positions across securities",
+              riskAdjusted: "Adjust position sizes based on individual volatility (inverse vol weighting)",
+              limits: "No single position >8% at entry, sector limits 50%",
+              calculation: `Target position sizes: ${validAnalyses.map(stock => 
+                `${stock.symbol} ${(100 / validAnalyses.length).toFixed(0)}%`).join(', ')}`
+            },
+            orderExecution: {
+              algorithm: "TWAP (Time-Weighted Average Price) execution over 2-3 days per position",
+              venues: "Primary exchanges + dark pools for large orders (>€500k)",
+              timing: "Avoid first/last 30 minutes of trading day",
+              slippage: "Target <10bp implementation shortfall for liquid names"
+            },
+            hedging: {
+              currency: "Hedge 50% of non-EUR exposure using 3-month forward contracts",
+              rolling: "Roll FX hedges monthly to maintain target hedge ratio",
+              cost: "Estimated 5-8bp annual hedging cost",
+              exposure: `Current FX exposure: ${Object.entries({
+                'DKK': '45%', 'NOK': '20%', 'SEK': '5%'
+              }).map(([curr, pct]) => `${curr} ${pct}`).join(', ')}`
             }
           },
+          
+          rebalancing: {
+            frequency: {
+              scheduled: "Monthly rebalancing to target weights on month-end",
+              tactical: "Weekly review for drift >2% from target allocation",
+              emergency: "Immediate rebalancing if single position >10% or <2%"
+            },
+            triggers: [
+              "Position drift >2% from target weight triggers rebalancing consideration",
+              "Sector allocation drift >5% requires mandatory rebalancing", 
+              "Individual stock decline >12% triggers fundamental review",
+              "Portfolio volatility exceeds 22% requires risk reduction"
+            ],
+            costs: {
+              estimate: "15-25bp transaction costs per rebalancing cycle",
+              breakdown: {
+                commissions: "3-5bp (institutional rates)",
+                spread: "8-12bp (average bid-ask spread)",
+                impact: "4-8bp (market impact for €10M+ orders)"
+              },
+              minimization: "Use crossing networks and algorithmic execution"
+            },
+            taxOptimization: {
+              harvesting: "Loss harvesting opportunities reviewed in November-December",
+              deferral: "Defer gains realization where possible for tax efficiency",
+              washSale: "31-day rule compliance for loss harvesting",
+              reporting: "Real-time tax lot tracking for optimal decision making"
+            }
+          },
+          
+          exitStrategy: {
+            profitTaking: {
+              systematic: "Take 50% profits at 20% gains, remaining 50% at target price",
+              targetPrices: validAnalyses.reduce((targets, stock) => {
+                targets[stock.symbol] = stock.recommendation?.targetPrice || 
+                  (stock.recommendation?.currentPrice || 2500) * 1.20;
+                return targets;
+              }, {} as { [symbol: string]: number }),
+              timing: "Avoid taking profits in thin trading periods (summer/holidays)"
+            },
+            stopLoss: {
+              individual: "15% stop-loss on individual positions from cost basis",
+              portfolio: "12% portfolio-level stop-loss triggers de-risking",
+              implementation: "Use stop-limit orders with 2% limit buffer",
+              override: "Fundamental review may override technical stops"
+            },
+            timeStop: {
+              review: "Re-evaluate all positions at 18-month mark against thesis",
+              criteria: [
+                "Fundamental thesis still intact and executing",
+                "Relative valuation remains attractive vs peers",
+                "ESG momentum continues to support premium",
+                "Regulatory backdrop remains supportive"
+              ],
+              action: "Close positions failing >2 criteria after review"
+            },
+            liquidity: {
+              cashBuffer: "Maintain 5% portfolio in cash for tactical opportunities",
+              dryPowder: "Additional 3% in short-term blue bonds for flexibility",
+              opportunistic: "Deploy cash on market corrections >8% or new issues"
+            }
+          },
+          
+          monitoring: {
+            performance: {
+              frequency: "Track relative performance vs benchmark weekly",
+              metrics: [
+                "Absolute return vs target",
+                "Relative return vs MSCI Europe Transport Index", 
+                "Risk-adjusted return (Sharpe, Information Ratio)",
+                "Tracking error and active share measurement"
+              ],
+              reporting: "Weekly performance attribution by sector and stock"
+            },
+            riskMetrics: {
+              daily: [
+                "Portfolio VaR (95% and 99% confidence)",
+                "Individual position sizes and sector concentrations",
+                "Currency exposure and hedge effectiveness",
+                "Correlation matrix changes and factor exposures"
+              ],
+              weekly: [
+                "Scenario analysis and stress testing results",
+                "Liquidity assessment and turnover analysis", 
+                "ESG score changes and controversy monitoring",
+                "Technical indicator review and momentum signals"
+              ]
+            },
+            fundamentals: {
+              earnings: "Quarterly earnings review with model updates within 48 hours",
+              estimates: "Monthly consensus estimate revision analysis",
+              events: "Track major corporate events (M&A, capex, strategic shifts)",
+              valuation: "Monthly DCF model updates with current market data"
+            },
+            macroMonitoring: {
+              regulatory: "Daily monitoring of EU policy developments affecting portfolio",
+              geopolitical: "Baltic Sea region political developments and trade policy",
+              markets: "Interest rate policy, currency trends, commodity prices",
+              sentiment: "ESG fund flows, institutional positioning surveys"
+            }
+          },
+
+          implementation: {
+            technology: {
+              oms: "Order Management System with real-time risk monitoring",
+              pms: "Portfolio Management System for attribution and reporting", 
+              bloomberg: "Bloomberg Terminal for market data and news monitoring",
+              riskSystem: "Dedicated risk management platform for VaR and scenario analysis"
+            },
+            team: {
+              pm: "Senior Portfolio Manager with Nordic market expertise",
+              analyst: "Dedicated ESG/Maritime sector research analyst",
+              trader: "Institutional trader with European market experience",
+              riskManager: "Independent risk oversight and daily monitoring"
+            },
+            governance: {
+              committee: "Monthly investment committee review of strategy and performance",
+              limits: "Real-time position and risk limit monitoring with alerts",
+              compliance: "Daily compliance review of trades and exposures",
+              reporting: "Monthly board reporting on performance and ESG metrics"
+            }
+          }
+        },
 
           taxonomyAlignment: {
             euTaxonomy: {
