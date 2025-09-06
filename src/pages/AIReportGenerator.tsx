@@ -249,39 +249,94 @@ const AIReportGenerator = () => {
               <Card className="bg-slate-900/60 border-white/10">
                 <CardContent className="p-6">
                   <div className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">
-                    Market Capitalization
+                    Total Market Cap
                   </div>
-                  <div className="text-3xl font-bold text-white mb-1">{currentData.marketCap}</div>
-                  <div className="text-sm font-semibold text-green-400">+5.2% QoQ</div>
+                  <div className="text-3xl font-bold text-white mb-1">{report.portfolioAnalysis.totalMarketCap}</div>
+                  <div className="text-sm font-semibold text-green-400">
+                    {report.portfolioAnalysis.weightedPerformance >= 0 ? '+' : ''}{report.portfolioAnalysis.weightedPerformance.toFixed(1)}% Today
+                  </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-slate-900/60 border-white/10">
                 <CardContent className="p-6">
                   <div className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">
-                    Investment Grade Rating
+                    Portfolio Volatility
                   </div>
-                  <div className="text-3xl font-bold text-white mb-1">{currentData.investmentGrade}</div>
-                  <div className="text-sm font-semibold text-green-400">Stable Outlook</div>
+                  <div className="text-3xl font-bold text-white mb-1">{report.portfolioAnalysis.riskMetrics.portfolioVolatility.toFixed(1)}%</div>
+                  <div className="text-sm font-semibold text-blue-400">
+                    Sharpe: {report.portfolioAnalysis.riskMetrics.sharpeRatio.toFixed(2)}
+                  </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-slate-900/60 border-white/10">
                 <CardContent className="p-6">
                   <div className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">
-                    ESG Compliance Score
+                    Environmental Score
                   </div>
-                  <div className="text-3xl font-bold text-white mb-1">{currentData.esgScore}</div>
-                  <div className="text-sm font-semibold text-green-400">+12.1% YoY</div>
+                  <div className="text-3xl font-bold text-white mb-1">{report.marketIntelligence.environmentalScore.toFixed(0)}</div>
+                  <div className="text-sm font-semibold text-green-400">ESG Compliant</div>
                 </CardContent>
               </Card>
 
               <Card className="bg-slate-900/60 border-white/10">
                 <CardContent className="p-6">
                   <div className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">
-                    Risk-Adjusted Return
+                    Baltic Maritime Index
+            </div>
+
+            {/* Portfolio Analysis */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="bg-slate-900/60 border-white/10">
+                <CardHeader>
+                  <CardTitle className="text-lg text-white">Sector Allocation</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {Object.entries(report.portfolioAnalysis.sectorAllocation).map(([sector, percentage]) => (
+                      <div key={sector} className="flex justify-between items-center">
+                        <span className="text-sm text-slate-300">{sector}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 bg-slate-700 rounded-full h-2">
+                            <div 
+                              className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" 
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                          <span className="text-sm font-semibold text-white">{percentage}%</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="text-3xl font-bold text-white mb-1">{currentData.sharpeRatio}</div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-900/60 border-white/10">
+                <CardHeader>
+                  <CardTitle className="text-lg text-white">Currency Exposure</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {Object.entries(report.portfolioAnalysis.currencyExposure).map(([currency, percentage]) => (
+                      <div key={currency} className="flex justify-between items-center">
+                        <span className="text-sm text-slate-300">{currency}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 bg-slate-700 rounded-full h-2">
+                            <div 
+                              className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" 
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                          <span className="text-sm font-semibold text-white">{percentage}%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+                  <div className="text-3xl font-bold text-white mb-1">{report.marketIntelligence.balticMaritimeIndex.toFixed(0)}</div>
                   <div className="text-sm font-semibold text-green-400">Above Benchmark</div>
                 </CardContent>
               </Card>
@@ -309,36 +364,98 @@ const AIReportGenerator = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="bg-slate-900/40 p-4 rounded-lg border-l-2 border-l-purple-500">
-                  <h4 className="font-semibold text-white mb-2">Immediate Action (0-3 months)</h4>
-                  <p className="text-slate-300">Increase allocation to digitally-enabled shipping companies by 8-12%. Target firms with autonomous vessel technology and AI-powered route optimization capabilities.</p>
+                  <h4 className="font-semibold text-white mb-2">Immediate Actions (0-3 months)</h4>
+                  <div className="space-y-2">
+                    {report.strategicRecommendations.immediateActions.map((action, index) => (
+                      <div key={index} className="text-slate-300 flex items-start">
+                        <span className="text-purple-400 mr-2">•</span>
+                        {action}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="bg-slate-900/40 p-4 rounded-lg border-l-2 border-l-purple-500">
+                <div className="bg-slate-900/40 p-4 rounded-lg border-l-2 border-l-blue-500">
                   <h4 className="font-semibold text-white mb-2">Medium-term Strategy (3-12 months)</h4>
-                  <p className="text-slate-300">Diversify into Baltic green energy infrastructure supporting maritime operations. Focus on offshore wind projects serving major shipping routes.</p>
+                  <div className="space-y-2">
+                    {report.strategicRecommendations.mediumTermStrategy.map((strategy, index) => (
+                      <div key={index} className="text-slate-300 flex items-start">
+                        <span className="text-blue-400 mr-2">•</span>
+                        {strategy}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="bg-slate-900/40 p-4 rounded-lg border-l-2 border-l-purple-500">
+                <div className="bg-slate-900/40 p-4 rounded-lg border-l-2 border-l-green-500">
                   <h4 className="font-semibold text-white mb-2">Long-term Positioning (1-3 years)</h4>
-                  <p className="text-slate-300">Establish strategic positions in Arctic shipping preparedness as ice-free passages become commercially viable, leveraging Baltic expertise.</p>
+                  <div className="space-y-2">
+                    {report.strategicRecommendations.longTermPositioning.map((position, index) => (
+                      <div key={index} className="text-slate-300 flex items-start">
+                        <span className="text-green-400 mr-2">•</span>
+                        {position}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* AI Consensus */}
             <Card className="bg-slate-900/60 border-white/10">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-gradient-to-r from-orange-900/20 to-red-900/20 border border-orange-500/30 rounded-lg p-4 text-center">
-                    <h4 className="font-semibold text-white mb-2">Claude AI Analysis</h4>
-                    <p className="text-slate-300">Confidence: 96%</p>
-                    <p className="text-green-400 font-semibold">Recommendation: BUY</p>
+              <CardHeader>
+                <CardTitle className="text-xl text-white flex items-center gap-2">
+                  <Brain className="h-5 w-5" />
+                  AI Consensus Analysis
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="text-center bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-lg p-6">
+                  <div className="text-4xl font-bold text-white mb-2">
+                    {report.aiConsensus.overallRating}
                   </div>
+                  <div className="text-slate-300 mb-2">
+                    Confidence Score: {report.aiConsensus.confidenceScore.toFixed(0)}%
+                  </div>
+                  <div className="text-sm text-slate-400">
+                    Investment Horizon: {report.aiConsensus.timeHorizon}
+                  </div>
+                </div>
 
-                  <div className="bg-gradient-to-r from-green-900/20 to-teal-900/20 border border-green-500/30 rounded-lg p-4 text-center">
-                    <h4 className="font-semibold text-white mb-2">OpenAI Analysis</h4>
-                    <p className="text-slate-300">Confidence: 92%</p>
-                    <p className="text-green-400 font-semibold">Recommendation: BUY</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {report.individualStocks.slice(0, 6).map((stock, index) => (
+                    <div key={index} className="bg-slate-800/40 border border-white/10 rounded-lg p-4">
+                      <div className="text-sm font-semibold text-white mb-1">{stock.symbol}</div>
+                      <div className="text-xs text-slate-400 mb-2">{stock.name}</div>
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm text-slate-300">
+                          Target: {stock.currency} {report.aiConsensus.priceTargets[stock.symbol]?.toFixed(2) || 'N/A'}
+                        </div>
+                        <Badge 
+                          className={`text-xs ${
+                            stock.technicalIndicators.trend === 'bullish' 
+                              ? 'bg-green-600/20 text-green-400 border-green-500/30' 
+                              : stock.technicalIndicators.trend === 'bearish'
+                              ? 'bg-red-600/20 text-red-400 border-red-500/30'
+                              : 'bg-yellow-600/20 text-yellow-400 border-yellow-500/30'
+                          }`}
+                        >
+                          {stock.technicalIndicators.trend}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-slate-800/40 border border-white/10 rounded-lg p-4">
+                  <h4 className="font-semibold text-white mb-3">Key Risk Factors</h4>
+                  <div className="space-y-2">
+                    {report.executiveSummary.riskFactors.map((risk, index) => (
+                      <div key={index} className="text-sm text-slate-300 flex items-start">
+                        <span className="text-red-400 mr-2">⚠</span>
+                        {risk}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </CardContent>
