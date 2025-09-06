@@ -240,7 +240,7 @@ Context: Baltic Sea maritime intelligence platform focusing on shipping, ports, 
 
   const generateMockReport = (config: ReportConfig): ReportData => {
     const summaries = {
-      quarterly: 'Q4 demonstrates robust recovery in Baltic shipping with strong container throughput growth. Digital transformation investments showing measurable ROI improvements across major operators.',
+      quarterly: 'Q3 demonstrates robust recovery in Baltic shipping with strong container throughput growth. Digital transformation investments showing measurable ROI improvements across major operators.',
       investment: 'Exceptional opportunities identified in AI-powered logistics and sustainable shipping technologies. Emerging players in autonomous vessel systems presenting high-growth potential.',
       risk: 'Geopolitical stability improving risk profile significantly. Primary concerns remain around regulatory changes in environmental compliance and potential supply chain disruptions.',
       sector: 'Container shipping outperforming bulk carriers by 23%. Green technology adoption accelerating across all segments, creating competitive advantages for early adopters.'
@@ -263,6 +263,19 @@ Context: Baltic Sea maritime intelligence platform focusing on shipping, ports, 
     };
   };
 
+  const exportToPDF = () => {
+    toast.info('Preparing PDF Export...', {
+      description: 'Generating downloadable report'
+    });
+    
+    setTimeout(() => {
+      window.print();
+      toast.success('PDF Export Ready', {
+        description: 'Use your browser\'s print dialog to save as PDF'
+      });
+    }, 500);
+  };
+
   const getChangeIcon = (change: string) => {
     if (change.includes('+')) return <TrendingUp className="h-4 w-4 text-green-500" />;
     if (change.includes('-')) return <TrendingDown className="h-4 w-4 text-red-500" />;
@@ -270,304 +283,326 @@ Context: Baltic Sea maritime intelligence platform focusing on shipping, ports, 
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl flex items-center justify-center gap-2">
-            <Brain className="h-8 w-8 text-primary" />
-            Baltic Intelligence Hub
-          </CardTitle>
-          <CardDescription className="text-lg">
-            AI-Powered Maritime Financial Intelligence for Strategic Decision Making
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Report Configuration
-          </CardTitle>
-          <CardDescription>
-            Configure your financial intelligence report parameters
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Report Type</label>
-              <Select value={config.reportType} onValueChange={(value) => setConfig(prev => ({ ...prev, reportType: value }))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {reportTypes.map(type => (
-                    <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
+      <div className="container mx-auto p-6 space-y-8">
+        {/* Enhanced Header */}
+        <Card className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 border-primary/20">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5" />
+          <CardHeader className="relative text-center py-8">
+            <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-4">
+              <Brain className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-primary">AI-Powered Intelligence</span>
             </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Geographic Focus</label>
-              <Select value={config.geography} onValueChange={(value) => setConfig(prev => ({ ...prev, geography: value }))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {geographyOptions.map(geo => (
-                    <SelectItem key={geo.value} value={geo.value}>{geo.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Analysis Timeframe</label>
-              <Select value={config.timeframe} onValueChange={(value) => setConfig(prev => ({ ...prev, timeframe: value }))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {timeframeOptions.map(time => (
-                    <SelectItem key={time.value} value={time.value}>{time.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Risk Profile</label>
-              <Select value={config.riskProfile} onValueChange={(value) => setConfig(prev => ({ ...prev, riskProfile: value }))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {riskProfiles.map(risk => (
-                    <SelectItem key={risk.value} value={risk.value}>{risk.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <Button onClick={generateReport} disabled={loading} className="w-full" size="lg">
-            {loading ? (
-              <div className="flex items-center gap-2">
-                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                Generating AI Analysis...
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Brain className="h-4 w-4" />
-                Generate Intelligence Report
-              </div>
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-
-      {reportData && (
-        <Card className="border-primary/20">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xl">{reportData.title}</CardTitle>
-              <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                AI Consensus: {reportData.confidence}%
-              </Badge>
-            </div>
+            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+              Baltic Intelligence Hub
+            </CardTitle>
+            <CardDescription className="text-lg mt-2">
+              AI-Powered Maritime Financial Intelligence for Strategic Decision Making
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Executive Summary */}
-            <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 border-l-4 border-l-green-500">
-              <CardContent className="pt-6">
-                <h3 className="text-lg font-semibold text-green-700 dark:text-green-300 mb-3 flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Executive Summary
-                </h3>
-                <p className="text-green-800 dark:text-green-200 leading-relaxed">
-                  {reportData.summary}
-                </p>
-              </CardContent>
-            </Card>
+        </Card>
 
-            {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide">
-                      Market Capitalization
-                    </span>
-                    <DollarSign className="h-4 w-4 text-blue-500" />
-                  </div>
-                  <div className="text-2xl font-bold text-blue-900 dark:text-blue-100 mb-1">
-                    {reportData.metrics.marketCap}
-                  </div>
-                  <div className="flex items-center gap-1 text-sm">
-                    {getChangeIcon(reportData.metrics.marketCapChange)}
-                    <span className="text-green-600 dark:text-green-400 font-medium">
-                      {reportData.metrics.marketCapChange}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
+        {/* Configuration Panel */}
+        <Card className="bg-gradient-to-br from-card/50 to-card border-primary/10 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Report Configuration
+            </CardTitle>
+            <CardDescription>
+              Configure your financial intelligence report parameters
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Report Type</label>
+                <Select value={config.reportType} onValueChange={(value) => setConfig(prev => ({ ...prev, reportType: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {reportTypes.map(type => (
+                      <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium text-purple-600 dark:text-purple-400 uppercase tracking-wide">
-                      Investment Grade Rating
-                    </span>
-                    <Shield className="h-4 w-4 text-purple-500" />
-                  </div>
-                  <div className="text-2xl font-bold text-purple-900 dark:text-purple-100 mb-1">
-                    {reportData.metrics.investmentGrade}
-                  </div>
-                  <div className="text-sm text-purple-600 dark:text-purple-400 font-medium">
-                    {reportData.metrics.gradeChange}
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Geographic Focus</label>
+                <Select value={config.geography} onValueChange={(value) => setConfig(prev => ({ ...prev, geography: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {geographyOptions.map(geo => (
+                      <SelectItem key={geo.value} value={geo.value}>{geo.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium text-green-600 dark:text-green-400 uppercase tracking-wide">
-                      ESG Compliance Score
-                    </span>
-                    <Leaf className="h-4 w-4 text-green-500" />
-                  </div>
-                  <div className="text-2xl font-bold text-green-900 dark:text-green-100 mb-1">
-                    {reportData.metrics.esgScore}
-                  </div>
-                  <div className="flex items-center gap-1 text-sm">
-                    {getChangeIcon(reportData.metrics.esgChange)}
-                    <span className="text-green-600 dark:text-green-400 font-medium">
-                      {reportData.metrics.esgChange}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Analysis Timeframe</label>
+                <Select value={config.timeframe} onValueChange={(value) => setConfig(prev => ({ ...prev, timeframe: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timeframeOptions.map(time => (
+                      <SelectItem key={time.value} value={time.value}>{time.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <Card className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900">
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wide">
-                      Risk-Adjusted Return
-                    </span>
-                    <BarChart3 className="h-4 w-4 text-amber-500" />
-                  </div>
-                  <div className="text-2xl font-bold text-amber-900 dark:text-amber-100 mb-1">
-                    {reportData.metrics.sharpeRatio}
-                  </div>
-                  <div className="text-sm text-amber-600 dark:text-amber-400 font-medium">
-                    {reportData.metrics.sharpeChange}
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Risk Profile</label>
+                <Select value={config.riskProfile} onValueChange={(value) => setConfig(prev => ({ ...prev, riskProfile: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {riskProfiles.map(risk => (
+                      <SelectItem key={risk.value} value={risk.value}>{risk.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            {/* Chart Placeholder */}
-            <Card>
-              <CardContent className="pt-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Portfolio Performance vs Baltic Maritime Index
-                </h3>
-                <div className="h-48 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg flex items-center justify-center border-2 border-dashed border-primary/20">
-                  <p className="text-muted-foreground text-center">
-                    Interactive Chart: Real-time performance visualization would display here<br />
-                    <span className="text-sm">Connected to live market data feeds</span>
-                  </p>
+            <Button onClick={generateReport} disabled={loading} className="w-full" size="lg">
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                  Generating AI Analysis...
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Strategic Recommendations */}
-            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-l-4 border-l-blue-500">
-              <CardContent className="pt-6">
-                <h3 className="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-4 flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Strategic Recommendations
-                </h3>
-                
-                <div className="space-y-4">
-                  <Card className="bg-white/50 dark:bg-black/20 border-l-4 border-l-red-500">
-                    <CardContent className="pt-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Clock className="h-4 w-4 text-red-500" />
-                        <h4 className="font-semibold text-red-700 dark:text-red-300">
-                          Immediate Action (0-3 months)
-                        </h4>
-                      </div>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                        {reportData.recommendations.immediate}
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-white/50 dark:bg-black/20 border-l-4 border-l-yellow-500">
-                    <CardContent className="pt-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <MapPin className="h-4 w-4 text-yellow-500" />
-                        <h4 className="font-semibold text-yellow-700 dark:text-yellow-300">
-                          Medium-term Strategy (3-12 months)
-                        </h4>
-                      </div>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                        {reportData.recommendations.mediumTerm}
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-white/50 dark:bg-black/20 border-l-4 border-l-green-500">
-                    <CardContent className="pt-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Target className="h-4 w-4 text-green-500" />
-                        <h4 className="font-semibold text-green-700 dark:text-green-300">
-                          Long-term Positioning (1-3 years)
-                        </h4>
-                      </div>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                        {reportData.recommendations.longTerm}
-                      </p>
-                    </CardContent>
-                  </Card>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Brain className="h-4 w-4" />
+                  Generate Intelligence Report
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* AI Consensus */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950 border border-orange-200 dark:border-orange-800">
-                <CardContent className="pt-6 text-center">
-                  <h4 className="font-semibold text-orange-700 dark:text-orange-300 mb-2">Claude AI Analysis</h4>
-                  <div className="text-2xl font-bold text-orange-900 dark:text-orange-100 mb-1">
-                    {reportData.aiConsensus.claude.confidence}%
-                  </div>
-                  <Badge className={`${reportData.aiConsensus.claude.recommendation === 'BUY' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {reportData.aiConsensus.claude.recommendation}
-                  </Badge>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-teal-50 to-green-50 dark:from-teal-950 dark:to-green-950 border border-teal-200 dark:border-teal-800">
-                <CardContent className="pt-6 text-center">
-                  <h4 className="font-semibold text-teal-700 dark:text-teal-300 mb-2">OpenAI Analysis</h4>
-                  <div className="text-2xl font-bold text-teal-900 dark:text-teal-100 mb-1">
-                    {reportData.aiConsensus.openai.confidence}%
-                  </div>
-                  <Badge className={`${reportData.aiConsensus.openai.recommendation === 'BUY' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {reportData.aiConsensus.openai.recommendation}
-                  </Badge>
-                </CardContent>
-              </Card>
-            </div>
+              )}
+            </Button>
           </CardContent>
         </Card>
-      )}
+
+        {reportData && (
+          <Card className="relative overflow-hidden bg-gradient-to-br from-card/30 to-card/10 border-primary/20 backdrop-blur-sm">
+            <CardHeader className="border-b border-primary/10">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl font-bold">{reportData.title}</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-lg">
+                    AI Consensus: {reportData.confidence}%
+                  </Badge>
+                  <Button variant="outline" size="sm" onClick={exportToPDF}>
+                    <FileText className="h-4 w-4 mr-1" />
+                    Export PDF
+                  </Button>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  Generated: {new Date().toLocaleString()}
+                </div>
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-4 w-4" />
+                  {config.geography.charAt(0).toUpperCase() + config.geography.slice(1)} Focus
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6 p-6">
+              {/* Executive Summary */}
+              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-l-4 border-l-green-500 shadow-sm">
+                <CardContent className="pt-6">
+                  <h3 className="text-lg font-bold text-green-700 dark:text-green-300 mb-3 flex items-center gap-2">
+                    <Target className="h-5 w-5" />
+                    Executive Summary
+                  </h3>
+                  <p className="text-green-800 dark:text-green-200 leading-relaxed">
+                    {reportData.summary}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Key Metrics Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 border-blue-200 dark:border-blue-800">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">
+                        Market Capitalization
+                      </span>
+                      <DollarSign className="h-4 w-4 text-blue-500" />
+                    </div>
+                    <div className="text-3xl font-bold text-blue-900 dark:text-blue-100 mb-1">
+                      {reportData.metrics.marketCap}
+                    </div>
+                    <div className="flex items-center gap-1 text-sm">
+                      {getChangeIcon(reportData.metrics.marketCapChange)}
+                      <span className="text-green-600 dark:text-green-400 font-semibold">
+                        {reportData.metrics.marketCapChange}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-900/30 border-purple-200 dark:border-purple-800">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wide">
+                        Investment Grade
+                      </span>
+                      <Shield className="h-4 w-4 text-purple-500" />
+                    </div>
+                    <div className="text-3xl font-bold text-purple-900 dark:text-purple-100 mb-1">
+                      {reportData.metrics.investmentGrade}
+                    </div>
+                    <div className="text-sm text-purple-600 dark:text-purple-400 font-semibold">
+                      {reportData.metrics.gradeChange}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-emerald-50 to-green-100 dark:from-emerald-950/30 dark:to-green-900/30 border-emerald-200 dark:border-emerald-800">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">
+                        ESG Score
+                      </span>
+                      <Leaf className="h-4 w-4 text-emerald-500" />
+                    </div>
+                    <div className="text-3xl font-bold text-emerald-900 dark:text-emerald-100 mb-1">
+                      {reportData.metrics.esgScore}
+                    </div>
+                    <div className="flex items-center gap-1 text-sm">
+                      {getChangeIcon(reportData.metrics.esgChange)}
+                      <span className="text-green-600 dark:text-green-400 font-semibold">
+                        {reportData.metrics.esgChange}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-950/30 dark:to-orange-900/30 border-amber-200 dark:border-amber-800">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wide">
+                        Sharpe Ratio
+                      </span>
+                      <BarChart3 className="h-4 w-4 text-amber-500" />
+                    </div>
+                    <div className="text-3xl font-bold text-amber-900 dark:text-amber-100 mb-1">
+                      {reportData.metrics.sharpeRatio}
+                    </div>
+                    <div className="text-sm text-amber-600 dark:text-amber-400 font-semibold">
+                      {reportData.metrics.sharpeChange}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Chart Placeholder */}
+              <Card className="bg-gradient-to-br from-muted/30 to-muted/10 border-primary/10">
+                <CardContent className="pt-6">
+                  <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-primary" />
+                    Portfolio Performance vs Baltic Maritime Index
+                  </h3>
+                  <div className="h-48 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg flex items-center justify-center border border-primary/10">
+                    <div className="text-center text-muted-foreground">
+                      <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Interactive Chart: Real-time performance visualization</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Strategic Recommendations */}
+              <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+                <CardContent className="pt-6">
+                  <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                    <Target className="h-5 w-5" />
+                    Strategic Recommendations
+                  </h3>
+                  
+                  <div className="space-y-4">
+                    <Card className="bg-background/60 border-primary/10">
+                      <CardContent className="pt-4">
+                        <h4 className="font-semibold text-sm mb-2 text-primary">Immediate Action (0-3 months)</h4>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {reportData.recommendations.immediate}
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-background/60 border-primary/10">
+                      <CardContent className="pt-4">
+                        <h4 className="font-semibold text-sm mb-2 text-primary">Medium-term Strategy (3-12 months)</h4>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {reportData.recommendations.mediumTerm}
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-background/60 border-primary/10">
+                      <CardContent className="pt-4">
+                        <h4 className="font-semibold text-sm mb-2 text-primary">Long-term Positioning (1-3 years)</h4>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {reportData.recommendations.longTerm}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* AI Consensus */}
+              <Card className="bg-gradient-to-r from-background/80 to-background/60 border-primary/10">
+                <CardContent className="pt-6">
+                  <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-primary" />
+                    AI Model Consensus Analysis
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Card className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20 border-orange-200 dark:border-orange-800">
+                      <CardContent className="pt-4 text-center">
+                        <h4 className="font-bold text-orange-700 dark:text-orange-300 mb-2">Claude AI Analysis</h4>
+                        <div className="space-y-1">
+                          <p className="text-sm text-orange-600 dark:text-orange-400">
+                            Confidence: {reportData.aiConsensus.claude.confidence}%
+                          </p>
+                          <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
+                            {reportData.aiConsensus.claude.recommendation}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-950/20 dark:to-teal-950/20 border-green-200 dark:border-green-800">
+                      <CardContent className="pt-4 text-center">
+                        <h4 className="font-bold text-green-700 dark:text-green-300 mb-2">OpenAI Analysis</h4>
+                        <div className="space-y-1">
+                          <p className="text-sm text-green-600 dark:text-green-400">
+                            Confidence: {reportData.aiConsensus.openai.confidence}%
+                          </p>
+                          <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
+                            {reportData.aiConsensus.openai.recommendation}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };
