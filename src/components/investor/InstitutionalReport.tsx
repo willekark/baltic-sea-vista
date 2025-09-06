@@ -79,9 +79,20 @@ const InstitutionalReport: React.FC<InstitutionalReportProps> = ({
       if (error) throw error;
 
       if (data.success) {
+        const validResults = data.results?.filter((r: any) => r.success) || [];
+        const errorResults = data.results?.filter((r: any) => !r.success) || [];
+        
         setAnalysisData(data.results || []);
         setPortfolioSummary(data.portfolioSummary || {});
-        toast.success('Comprehensive analysis generated successfully');
+        
+        if (validResults.length > 0) {
+          const message = errorResults.length > 0 
+            ? `Analysis completed for ${validResults.length}/${data.results.length} stocks. ${errorResults.length} stocks had data limitations.`
+            : 'Comprehensive analysis generated successfully';
+          toast.success(message);
+        } else {
+          toast.warning('Analysis completed but some stocks had limited data availability');
+        }
       } else {
         throw new Error(data.error || 'Analysis failed');
       }
