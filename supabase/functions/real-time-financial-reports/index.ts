@@ -1421,6 +1421,11 @@ class FinancialReportGenerator {
     esgData: any
   ): InstitutionalReport {
     
+    // Handle empty stock data gracefully
+    if (!stockData || stockData.length === 0) {
+      return this.generateFallbackReport(request, esgData);
+    }
+    
     const reportTitles = {
       quarterly: 'Q4 2025 Baltic Maritime & Blue Economy Analysis',
       investment: 'Baltic Blue Economy Investment Opportunities Report',
@@ -1476,6 +1481,63 @@ class FinancialReportGenerator {
       },
       strategicRecommendations,
       aiConsensus
+    };
+  }
+
+  static generateFallbackReport(request: ReportRequest, esgData: any): InstitutionalReport {
+    const reportTitles = {
+      quarterly: 'Q4 2025 Baltic Maritime & Blue Economy Analysis',
+      investment: 'Baltic Blue Economy Investment Opportunities Report',
+      risk: 'Baltic Maritime & Energy Risk Assessment Report',
+      sector: 'Nordic Blue Economy Sector Performance Analysis'
+    };
+
+    return {
+      reportMetadata: {
+        title: reportTitles[request.reportType],
+        reportType: request.reportType,
+        generatedAt: new Date().toISOString(),
+        geography: request.geography,
+        timeframe: request.timeframe,
+        riskProfile: request.riskProfile,
+        confidence: 50
+      },
+      executiveSummary: {
+        marketOverview: 'No current stock data available. Market analysis limited to available ESG and regional data.',
+        keyInsights: ['Data collection in progress', 'ESG metrics available from regional sources'],
+        riskFactors: ['Limited data availability affects analysis depth'],
+        recommendations: ['Consider updating data sources', 'Retry analysis when market data becomes available']
+      },
+      portfolioAnalysis: {
+        totalMarketCap: '€0B',
+        weightedPerformance: 0,
+        sectorAllocation: { Maritime: 40, Energy: 35, Technology: 25 },
+        currencyExposure: { EUR: 60, DKK: 25, NOK: 15 },
+        riskMetrics: {
+          portfolioVolatility: 0,
+          sharpeRatio: 0,
+          beta: 1,
+          var95: 0
+        }
+      },
+      individualStocks: [],
+      marketIntelligence: {
+        balticMaritimeIndex: 100,
+        offshoreWindIndex: 100,
+        shippingRatesIndex: 100,
+        environmentalScore: esgData ? 75 : 70
+      },
+      strategicRecommendations: {
+        immediateActions: ['Update data connectivity', 'Verify API access'],
+        mediumTermStrategy: ['Establish reliable data feeds', 'Build monitoring systems'],
+        longTermPositioning: ['Focus on sustainable Baltic maritime investments']
+      },
+      aiConsensus: {
+        overallRating: 'HOLD' as const,
+        confidenceScore: 50,
+        priceTargets: {},
+        timeHorizon: 'Data dependent'
+      }
     };
   }
 
@@ -1545,12 +1607,21 @@ class FinancialReportGenerator {
   }
 
   static generateExecutiveSummary(request: ReportRequest, stocks: StockAnalysis[], portfolioMetrics: any, esgData: any) {
+    if (!stocks || stocks.length === 0) {
+      return {
+        marketOverview: 'No stock data available for analysis.',
+        keyInsights: [],
+        riskFactors: [],
+        recommendations: []
+      };
+    }
+    
     const avgPerformance = stocks.reduce((sum, stock) => sum + stock.performance.daily, 0) / stocks.length;
     const bestPerformer = stocks.reduce((best, stock) => 
-      stock.performance.daily > best.performance.daily ? stock : best
+      stock.performance.daily > best.performance.daily ? stock : best, stocks[0]
     );
     const worstPerformer = stocks.reduce((worst, stock) => 
-      stock.performance.daily < worst.performance.daily ? stock : worst
+      stock.performance.daily < worst.performance.daily ? stock : worst, stocks[0]
     );
 
     const esgInsights = esgData ? {
@@ -1628,6 +1699,21 @@ class FinancialReportGenerator {
   }
 
   static generatePortfolioAnalysis(portfolioMetrics: any, stocks: StockAnalysis[]) {
+    if (!stocks || stocks.length === 0) {
+      return {
+        totalMarketCap: '€0B',
+        weightedPerformance: 0,
+        sectorAllocation: {},
+        currencyExposure: { EUR: 100 },
+        riskMetrics: {
+          portfolioVolatility: 0,
+          sharpeRatio: 0,
+          beta: 1,
+          var95: 0
+        }
+      };
+    }
+    
     const totalMarketCap = portfolioMetrics?.totalValue || 'N/A';
     const weightedPerformance = stocks.reduce((sum, stock, index) => 
       sum + (stock.performance.daily * (1 / stocks.length)), 0
@@ -1665,6 +1751,14 @@ class FinancialReportGenerator {
   }
 
   static generateStrategicRecommendations(request: ReportRequest, stocks: StockAnalysis[]) {
+    if (!stocks || stocks.length === 0) {
+      return {
+        immediateActions: ['No stocks available for analysis'],
+        mediumTermStrategy: ['Rebuild portfolio with quality stocks'],
+        longTermPositioning: ['Focus on sustainable maritime companies']
+      };
+    }
+    
     const avgPerformance = stocks.reduce((sum, stock) => sum + stock.performance.daily, 0) / stocks.length;
     const highVolatilityStocks = stocks.filter(s => s.riskMetrics.volatility > 25).length;
     
@@ -1736,6 +1830,10 @@ class FinancialReportGenerator {
 
   static calculateEnvironmentalScore(stocks: StockAnalysis[], esgData?: any): number {
     // Base ESG score calculation
+    if (!stocks || stocks.length === 0) {
+      return 75; // Default ESG score when no data
+    }
+    
     let esgScore = stocks.reduce((sum, stock) => {
       let score = 70; // Base score
       if (stock.name.includes('Ørsted')) score += 15; // Strong renewable focus
