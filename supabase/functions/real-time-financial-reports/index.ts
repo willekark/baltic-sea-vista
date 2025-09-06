@@ -104,6 +104,20 @@ class FinancialReportGenerator {
   static async generateInstitutionalReport(request: ReportRequest): Promise<InstitutionalReport> {
     console.log('Generating institutional report with request:', request);
     
+    // Fetch free ESG data from World Bank and other sources
+    const esgDataResponse = await supabase.functions.invoke('free-esg-data-service', {
+      body: { 
+        dataTypes: ['environmental', 'social', 'governance'],
+        region: 'baltic'
+      }
+    });
+
+    let esgData = null;
+    if (esgDataResponse.data?.success) {
+      esgData = esgDataResponse.data.data;
+      console.log('Integrated free ESG data from:', esgData?.metadata?.sources);
+    }
+    
     // Fetch real stock data
     const stockDataResponse = await supabase.functions.invoke('baltic-stock-data-service', {
       body: { 
@@ -138,15 +152,16 @@ class FinancialReportGenerator {
       console.error('Enhanced analysis failed, using stock data only:', error);
     }
 
-    // Generate report based on real data
-    return this.generateReportFromRealData(request, stockData, portfolioMetrics, enhancedAnalysis);
+    // Generate report based on real data including ESG
+    return this.generateReportFromRealData(request, stockData, portfolioMetrics, enhancedAnalysis, esgData);
   }
 
   static generateReportFromRealData(
     request: ReportRequest, 
     stockData: any[], 
     portfolioMetrics: any,
-    enhancedAnalysis: any
+    enhancedAnalysis: any,
+    esgData: any
   ): InstitutionalReport {
     
     const reportTitles = {
@@ -171,8 +186,8 @@ class FinancialReportGenerator {
       riskMetrics: this.calculateRiskMetrics(stock)
     }));
 
-    // Generate executive summary based on real data
-    const executiveSummary = this.generateExecutiveSummary(request, individualStocks, portfolioMetrics);
+    // Generate executive summary based on real data including ESG
+    const executiveSummary = this.generateExecutiveSummary(request, individualStocks, portfolioMetrics, esgData);
     
     // Calculate portfolio-level metrics
     const portfolioAnalysis = this.generatePortfolioAnalysis(portfolioMetrics, individualStocks);
@@ -200,7 +215,7 @@ class FinancialReportGenerator {
         balticMaritimeIndex: this.calculateBalticMaritimeIndex(individualStocks),
         offshoreWindIndex: this.calculateOffshoreWindIndex(individualStocks),
         shippingRatesIndex: this.calculateShippingRatesIndex(individualStocks),
-        environmentalScore: this.calculateEnvironmentalScore(individualStocks)
+        environmentalScore: this.calculateEnvironmentalScore(individualStocks, esgData)
       },
       strategicRecommendations,
       aiConsensus
@@ -272,7 +287,7 @@ class FinancialReportGenerator {
     };
   }
 
-  static generateExecutiveSummary(request: ReportRequest, stocks: StockAnalysis[], portfolioMetrics: any) {
+  static generateExecutiveSummary(request: ReportRequest, stocks: StockAnalysis[], portfolioMetrics: any, esgData: any) {
     const avgPerformance = stocks.reduce((sum, stock) => sum + stock.performance.daily, 0) / stocks.length;
     const bestPerformer = stocks.reduce((best, stock) => 
       stock.performance.daily > best.performance.daily ? stock : best
@@ -281,21 +296,31 @@ class FinancialReportGenerator {
       stock.performance.daily < worst.performance.daily ? stock : worst
     );
 
-    const marketOverview = `Baltic maritime sector showing ${avgPerformance >= 0 ? 'positive' : 'negative'} momentum with average daily performance of ${avgPerformance.toFixed(2)}%. Current market conditions reflect ${avgPerformance >= 2 ? 'strong' : avgPerformance >= 0 ? 'moderate' : 'weak'} investor confidence in blue economy investments.`;
+    // Integrate ESG insights
+    const esgInsights = esgData ? {
+      co2Emissions: esgData.environmental?.summary?.avgCo2Emissions,
+      renewableEnergy: esgData.environmental?.summary?.avgRenewableEnergy,
+      governanceScore: esgData.governance?.transparency?.governmentEffectiveness,
+      socialScore: esgData.social?.employment?.balticRegion
+    } : null;
+
+    const marketOverview = `Baltic maritime sector showing ${avgPerformance >= 0 ? 'positive' : 'negative'} momentum with average daily performance of ${avgPerformance.toFixed(2)}%. Current market conditions reflect ${avgPerformance >= 2 ? 'strong' : avgPerformance >= 0 ? 'moderate' : 'weak'} investor confidence in blue economy investments.${esgData ? ` ESG analysis shows regional average of ${esgInsights?.renewableEnergy?.toFixed(1) || 'N/A'}% renewable energy penetration with government effectiveness score of ${esgInsights?.governanceScore || 'N/A'}/100.` : ''}`;
 
     const keyInsights = [
       `${bestPerformer.name} leads with ${bestPerformer.performance.daily.toFixed(2)}% daily performance`,
       `Portfolio volatility averaging ${(stocks.reduce((sum, s) => sum + s.riskMetrics.volatility, 0) / stocks.length).toFixed(1)}%`,
-      `${stocks.filter(s => s.technicalIndicators.trend === 'bullish').length} of ${stocks.length} stocks showing bullish technical signals`
+      `${stocks.filter(s => s.technicalIndicators.trend === 'bullish').length} of ${stocks.length} stocks showing bullish technical signals`,
+      ...(esgData ? [`Free ESG data integration from ${esgData.metadata?.sources?.join(', ') || 'World Bank sources'} enhances sustainability analysis`] : [])
     ];
 
     const riskFactors = [
       `Market volatility elevated at ${(stocks.reduce((sum, s) => sum + s.riskMetrics.volatility, 0) / stocks.length).toFixed(1)}% average`,
       `Currency exposure concentrated in ${portfolioMetrics?.currencyExposure ? Object.keys(portfolioMetrics.currencyExposure)[0] : 'DKK'}`,
-      'Regulatory changes in offshore wind sector creating uncertainty'
+      'Regulatory changes in offshore wind sector creating uncertainty',
+      ...(esgInsights?.co2Emissions ? [`Regional CO2 emissions at ${(esgInsights.co2Emissions / 1000).toFixed(1)} Mt requiring decarbonization focus`] : [])
     ];
 
-    const recommendations = this.generateRecommendationsByType(request.reportType, avgPerformance);
+    const recommendations = this.generateRecommendationsByType(request.reportType, avgPerformance, esgData);
 
     return {
       marketOverview,
@@ -305,27 +330,31 @@ class FinancialReportGenerator {
     };
   }
 
-  static generateRecommendationsByType(reportType: string, performance: number) {
+  static generateRecommendationsByType(reportType: string, performance: number, esgData?: any) {
     const baseRecommendations = {
       quarterly: [
         `${performance >= 0 ? 'Maintain' : 'Reassess'} current Baltic maritime allocations`,
         'Monitor offshore wind sector for consolidation opportunities',
-        'Consider increasing ESG-focused shipping investments'
+        'Consider increasing ESG-focused shipping investments',
+        ...(esgData ? ['Leverage free ESG data sources for enhanced sustainability screening'] : [])
       ],
       investment: [
         'Target undervalued offshore wind assets post-selloff',
         'Diversify across Baltic shipping and renewable energy',
-        'Focus on companies with strong decarbonization strategies'
+        'Focus on companies with strong decarbonization strategies',
+        ...(esgData ? [`Utilize World Bank environmental data showing ${esgData.environmental?.summary?.avgRenewableEnergy?.toFixed(1) || 'regional'} renewable energy targets`] : [])
       ],
       risk: [
         'Implement currency hedging for DKK exposure',
         'Monitor geopolitical developments affecting shipping routes',
-        'Assess regulatory risk in renewable energy investments'
+        'Assess regulatory risk in renewable energy investments',
+        ...(esgData ? ['Integrate governance risk metrics from free data sources'] : [])
       ],
       sector: [
         'Rebalance between shipping and offshore wind sectors',
         'Consider Nordic infrastructure development opportunities',
-        'Evaluate supply chain resilience across investments'
+        'Evaluate supply chain resilience across investments',
+        ...(esgData ? ['Apply ESG scoring from multiple free data providers'] : [])
       ]
     };
 
@@ -439,9 +468,9 @@ class FinancialReportGenerator {
     return shippingStocks.reduce((sum, stock) => sum + stock.performance.daily * 2, 0) / Math.max(shippingStocks.length, 1) + 100;
   }
 
-  static calculateEnvironmentalScore(stocks: StockAnalysis[]): number {
-    // Higher score for companies with strong ESG focus
-    const esgScore = stocks.reduce((sum, stock) => {
+  static calculateEnvironmentalScore(stocks: StockAnalysis[], esgData?: any): number {
+    // Base ESG score calculation
+    let esgScore = stocks.reduce((sum, stock) => {
       let score = 70; // Base score
       if (stock.name.includes('Ørsted')) score += 15; // Strong renewable focus
       if (stock.name.includes('Neste')) score += 10; // Renewable fuels
@@ -450,7 +479,20 @@ class FinancialReportGenerator {
       return sum + score;
     }, 0);
     
-    return Math.min(95, esgScore / stocks.length);
+    // Enhance with real ESG data if available
+    if (esgData?.environmental?.summary) {
+      const renewableScore = Math.min(20, (esgData.environmental.summary.avgRenewableEnergy || 0) / 5);
+      const carbonScore = Math.max(-10, -((esgData.environmental.summary.avgCo2Emissions || 0) / 50000));
+      esgScore = esgScore + renewableScore + carbonScore;
+    }
+
+    // Add governance score if available  
+    if (esgData?.governance?.transparency?.governmentEffectiveness) {
+      const govScore = Math.min(10, esgData.governance.transparency.governmentEffectiveness / 10);
+      esgScore = esgScore + govScore;
+    }
+    
+    return Math.min(95, Math.max(60, esgScore / stocks.length));
   }
 }
 

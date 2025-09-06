@@ -24,8 +24,17 @@ const generateExecutiveSummary = async (data: any) => {
     throw new Error('OpenAI API key not configured');
   }
 
+  const esgInsights = data.esgData ? `
+  Real ESG Data from World Bank and Free Sources:
+  - Average CO2 Emissions: ${data.esgData.environmental?.summary?.avgCo2Emissions ? (data.esgData.environmental.summary.avgCo2Emissions / 1000).toFixed(1) + ' Mt' : 'N/A'}
+  - Average Renewable Energy: ${data.esgData.environmental?.summary?.avgRenewableEnergy?.toFixed(1) || 'N/A'}%
+  - Employment Rate: ${data.esgData.social?.employment?.balticRegion ? (100 - data.esgData.social.employment.balticRegion.unemploymentRate).toFixed(1) : 'N/A'}%
+  - Government Effectiveness: ${data.esgData.governance?.transparency?.governmentEffectiveness || 'N/A'}/100
+  - Data Sources: ${data.esgData.metadata?.sources?.join(', ') || 'World Bank, OpenAQ'}
+  ` : '';
+
   const prompt = `
-  Generate a comprehensive executive summary report for Baltic Sea monitoring data.
+  Generate a comprehensive executive summary report for Baltic Sea monitoring data with integrated ESG analysis.
   
   Data Overview:
   - Environmental Data Points: ${data.environmentalData?.length || 0}
@@ -34,17 +43,19 @@ const generateExecutiveSummary = async (data: any) => {
   - Fish Stock Assessments: ${data.fisheries?.length || 0}
   - Environmental Incidents: ${data.incidents?.length || 0}
   
+  ${esgInsights}
+  
   Key Indicators:
   ${data.indicators?.map((ind: any) => `- ${ind.indicator_type}: ${ind.current_value} (${ind.trend})`).join('\n') || 'No indicators available'}
   
   Generate a professional executive summary that includes:
-  1. Current State Assessment (3-4 bullet points)
-  2. Key Trends and Patterns (3-4 bullet points)
+  1. Current State Assessment (3-4 bullet points) - integrate ESG metrics
+  2. Key Trends and Patterns (3-4 bullet points) - include free data insights
   3. Critical Issues Requiring Attention (2-3 bullet points)
-  4. Strategic Recommendations (3-4 actionable items)
+  4. Strategic Recommendations (3-4 actionable items) - include ESG considerations
   5. Risk Assessment (High/Medium/Low with explanations)
-  6. Economic Impact Summary
-  7. Next Steps and Monitoring Priorities
+  6. Economic Impact Summary - incorporate social and governance factors
+  7. Next Steps and Monitoring Priorities - include free data source integration
   
   Format as a professional report suitable for government officials and executives.
   `;
@@ -60,7 +71,7 @@ const generateExecutiveSummary = async (data: any) => {
       messages: [
         { 
           role: 'system', 
-          content: 'You are a senior environmental policy analyst specializing in marine ecosystems and Baltic Sea management. Generate professional, data-driven reports for executive decision-makers.' 
+          content: 'You are a senior environmental policy analyst specializing in marine ecosystems, Baltic Sea management, and ESG analysis. Generate professional, data-driven reports for executive decision-makers.' 
         },
         { role: 'user', content: prompt }
       ],
@@ -142,6 +153,14 @@ const generateStrategicAnalysis = async (data: any, stakeholder: string) => {
 
 const fetchAggregatedData = async () => {
   try {
+    // Fetch free ESG data from World Bank and other sources
+    const { data: esgData } = await supabase.functions.invoke('free-esg-data-service', {
+      body: { 
+        dataTypes: ['environmental', 'social', 'governance'],
+        region: 'baltic'
+      }
+    });
+
     // Fetch recent data summaries
     const { data: indicators } = await supabase
       .from('data_summaries')
@@ -186,6 +205,7 @@ const fetchAggregatedData = async () => {
       .order('reported_at', { ascending: false });
 
     return {
+      esgData: esgData?.data || null,
       indicators,
       environmentalData,
       waterQuality,
