@@ -96,3 +96,6 @@ verify_jwt = false
 
 [functions.enhanced-financial-analysis]
 verify_jwt = false
+
+[functions.voice-of-ocean-connector]
+verify_jwt = false

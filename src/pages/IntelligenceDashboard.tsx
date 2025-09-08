@@ -36,6 +36,7 @@ import ShippingInsights from '@/components/ShippingInsights';
 import MultiAIInsights from '@/components/MultiAIInsights';
 import { EnsembleOrchestrator } from '@/components/EnsembleOrchestrator';
 import { ECSLeaderboard } from '@/components/ECSLeaderboard';
+import VoiceOfOceanIntegration from '@/components/VoiceOfOceanIntegration';
 
 interface VariableStatus {
   variable: string;
@@ -364,6 +365,11 @@ const IntelligenceDashboard = () => {
             {/* ECS Leaderboard */}
             <div className="mb-6">
               <ECSLeaderboard />
+            </div>
+
+            {/* Voice of the Ocean Integration */}
+            <div className="mb-6">
+              <VoiceOfOceanIntegration />
             </div>
           </div>
 
