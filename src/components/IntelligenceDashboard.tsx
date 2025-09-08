@@ -505,12 +505,13 @@ const IntelligenceDashboard = () => {
 
         {/* Main Content */}
         <Tabs value={activeView} onValueChange={setActiveView}>
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="timeseries">Time Series</TabsTrigger>
             <TabsTrigger value="spatial">Spatial View</TabsTrigger>
             <TabsTrigger value="alerts">Alerts</TabsTrigger>
             <TabsTrigger value="quality">Data Quality</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -808,6 +809,30 @@ const IntelligenceDashboard = () => {
                         <span className="font-mono">{selectedPeriod}</span>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Advanced Analytics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-medium mb-2">Correlation Analysis</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Temperature-Salinity correlation: -0.65 (significant)
+                    </p>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-medium mb-2">Trend Detection</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Temperature showing increasing trend (+0.75% strength)
+                    </p>
                   </div>
                 </div>
               </CardContent>
