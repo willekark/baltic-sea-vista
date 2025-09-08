@@ -267,10 +267,6 @@ function getFallbackDatasets(): ERDDAPDataset[] {
 
   console.log(`Using fallback data with ${datasets.length} datasets`);
   return datasets;
-  } catch (error) {
-    console.error('Error fetching datasets:', error);
-    return [];
-  }
 }
 
 async function fetchOceanographicData(datasetId: string, parameters: any): Promise<VoiceOfOceanData[]> {
