@@ -67,7 +67,7 @@ interface BalticIndicator {
   value: number;
   confidence: number;
   methodology: string;
-  metadata: Record<string, any>;
+  metadata: any; // Changed from Record<string, any> to any to handle Json type
 }
 
 interface IntelligenceAlert {
@@ -771,13 +771,13 @@ const IntelligenceDashboard = () => {
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span>High Confidence (>0.8):</span>
+                            <span>High Confidence (&gt;0.8):</span>
                             <span className="font-mono">
                               {observations.filter(obs => obs.confidence_score > 0.8).length}
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Low Confidence (<0.5):</span>
+                            <span>Low Confidence (&lt;0.5):</span>
                             <span className="font-mono">
                               {observations.filter(obs => obs.confidence_score < 0.5).length}
                             </span>

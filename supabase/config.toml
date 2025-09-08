@@ -99,3 +99,12 @@ verify_jwt = false
 
 [functions.voice-of-ocean-connector]
 verify_jwt = false
+
+[functions.enhanced-erddap-processor]
+verify_jwt = false
+
+[functions.baltic-indicators-processor]
+verify_jwt = false
+
+[functions.intelligence-alerts-processor]
+verify_jwt = false
