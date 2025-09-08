@@ -202,6 +202,54 @@ export type Database = {
         }
         Relationships: []
       }
+      baltic_indicators: {
+        Row: {
+          bbox: Json | null
+          computed_at: string | null
+          confidence: number | null
+          created_at: string | null
+          data_sources: Json | null
+          id: string
+          indicator_type: string
+          metadata: Json | null
+          methodology: string | null
+          period_end: string
+          period_start: string
+          region: string | null
+          value: number
+        }
+        Insert: {
+          bbox?: Json | null
+          computed_at?: string | null
+          confidence?: number | null
+          created_at?: string | null
+          data_sources?: Json | null
+          id?: string
+          indicator_type: string
+          metadata?: Json | null
+          methodology?: string | null
+          period_end: string
+          period_start: string
+          region?: string | null
+          value: number
+        }
+        Update: {
+          bbox?: Json | null
+          computed_at?: string | null
+          confidence?: number | null
+          created_at?: string | null
+          data_sources?: Json | null
+          id?: string
+          indicator_type?: string
+          metadata?: Json | null
+          methodology?: string | null
+          period_end?: string
+          period_start?: string
+          region?: string | null
+          value?: number
+        }
+        Relationships: []
+      }
       bathing_water_sites: {
         Row: {
           created_at: string
@@ -720,6 +768,54 @@ export type Database = {
         }
         Relationships: []
       }
+      data_quality_assessments: {
+        Row: {
+          accuracy_score: number | null
+          assessment_details: Json | null
+          assessment_period_end: string
+          assessment_period_start: string
+          completeness_score: number | null
+          computed_at: string | null
+          created_at: string | null
+          dataset_id: string
+          id: string
+          overall_score: number | null
+          quality_flags: Json | null
+          spatial_coverage_score: number | null
+          temporal_continuity_score: number | null
+        }
+        Insert: {
+          accuracy_score?: number | null
+          assessment_details?: Json | null
+          assessment_period_end: string
+          assessment_period_start: string
+          completeness_score?: number | null
+          computed_at?: string | null
+          created_at?: string | null
+          dataset_id: string
+          id?: string
+          overall_score?: number | null
+          quality_flags?: Json | null
+          spatial_coverage_score?: number | null
+          temporal_continuity_score?: number | null
+        }
+        Update: {
+          accuracy_score?: number | null
+          assessment_details?: Json | null
+          assessment_period_end?: string
+          assessment_period_start?: string
+          completeness_score?: number | null
+          computed_at?: string | null
+          created_at?: string | null
+          dataset_id?: string
+          id?: string
+          overall_score?: number | null
+          quality_flags?: Json | null
+          spatial_coverage_score?: number | null
+          temporal_continuity_score?: number | null
+        }
+        Relationships: []
+      }
       data_summaries: {
         Row: {
           calculation_date: string
@@ -1116,6 +1212,63 @@ export type Database = {
         }
         Relationships: []
       }
+      erddap_datasets: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          data_quality: string | null
+          dataset_id: string
+          deployment_type: string | null
+          id: string
+          institution: string | null
+          last_updated: string | null
+          license: string | null
+          platform_type: string | null
+          spatial_coverage: Json | null
+          summary: string | null
+          temporal_coverage: Json | null
+          title: string
+          updated_at: string | null
+          variables: Json | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          data_quality?: string | null
+          dataset_id: string
+          deployment_type?: string | null
+          id?: string
+          institution?: string | null
+          last_updated?: string | null
+          license?: string | null
+          platform_type?: string | null
+          spatial_coverage?: Json | null
+          summary?: string | null
+          temporal_coverage?: Json | null
+          title: string
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          data_quality?: string | null
+          dataset_id?: string
+          deployment_type?: string | null
+          id?: string
+          institution?: string | null
+          last_updated?: string | null
+          license?: string | null
+          platform_type?: string | null
+          spatial_coverage?: Json | null
+          summary?: string | null
+          temporal_coverage?: Json | null
+          title?: string
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Relationships: []
+      }
       fisheries_data: {
         Row: {
           catch_area: string
@@ -1215,6 +1368,66 @@ export type Database = {
         }
         Relationships: []
       }
+      intelligence_alerts: {
+        Row: {
+          affected_datasets: Json | null
+          alert_type: string
+          bbox: Json | null
+          created_at: string | null
+          description: string | null
+          id: string
+          location_lat: number | null
+          location_lng: number | null
+          notification_channels: Json | null
+          resolved_at: string | null
+          severity: string | null
+          status: string | null
+          title: string
+          trigger_conditions: Json | null
+          trigger_data: Json | null
+          triggered_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          affected_datasets?: Json | null
+          alert_type: string
+          bbox?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          notification_channels?: Json | null
+          resolved_at?: string | null
+          severity?: string | null
+          status?: string | null
+          title: string
+          trigger_conditions?: Json | null
+          trigger_data?: Json | null
+          triggered_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          affected_datasets?: Json | null
+          alert_type?: string
+          bbox?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          notification_channels?: Json | null
+          resolved_at?: string | null
+          severity?: string | null
+          status?: string | null
+          title?: string
+          trigger_conditions?: Json | null
+          trigger_data?: Json | null
+          triggered_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       market_data: {
         Row: {
           change_percent: number | null
@@ -1290,6 +1503,63 @@ export type Database = {
           name?: string
           population?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      oceanographic_observations: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          dataset_id: string
+          depth_m: number | null
+          id: string
+          location_lat: number
+          location_lng: number
+          metadata: Json | null
+          mission_id: string | null
+          platform_id: string | null
+          quality_flag: string | null
+          source: string | null
+          timestamp: string
+          unit: string | null
+          value: number | null
+          variable_name: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          dataset_id: string
+          depth_m?: number | null
+          id?: string
+          location_lat: number
+          location_lng: number
+          metadata?: Json | null
+          mission_id?: string | null
+          platform_id?: string | null
+          quality_flag?: string | null
+          source?: string | null
+          timestamp: string
+          unit?: string | null
+          value?: number | null
+          variable_name: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          dataset_id?: string
+          depth_m?: number | null
+          id?: string
+          location_lat?: number
+          location_lng?: number
+          metadata?: Json | null
+          mission_id?: string | null
+          platform_id?: string | null
+          quality_flag?: string | null
+          source?: string | null
+          timestamp?: string
+          unit?: string | null
+          value?: number | null
+          variable_name?: string
         }
         Relationships: []
       }
