@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 
 import Index from "./pages/Index";
-import Auth from "./pages/Auth";
 import EutrophicationReports from "./pages/EutrophicationReports";
 import ShadowFleetTracker from "./pages/ShadowFleetTracker";
 import IntegratedIntelligence from "./pages/IntegratedIntelligence";
@@ -36,7 +35,6 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
             <Route path="/eutrophication" element={<EutrophicationReports />} />
             <Route path="/shadow-fleet" element={<ShadowFleetTracker />} />
             <Route path="/intelligence" element={<IntelligenceDashboard />} />
@@ -48,6 +46,8 @@ const App = () => (
             <Route path="/ai-orchestrator" element={<AIOrchestrator />} />
             <Route path="/financial-reports" element={<FinancialReports />} />
             <Route path="/ai-reports" element={<AIReportGenerator />} />
+            {/* Redirect old auth route to intelligence dashboard */}
+            <Route path="/auth" element={<IntelligenceDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
