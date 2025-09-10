@@ -227,10 +227,20 @@ const PortAgentDashboard: React.FC<PortAgentDashboardProps> = ({ onPortSelect })
                   </div>
                   <div className="text-right">
                     <p className="text-sm">
-                      {JSON.parse(port.facilities || '{}').berths || 'N/A'} berths
+                      {(() => {
+                        try {
+                          const facilities = typeof port.facilities === 'string' ? JSON.parse(port.facilities || '{}') : (port.facilities || {});
+                          return facilities.berths || 'N/A';
+                        } catch { return 'N/A'; }
+                      })()} berths
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Max draft: {JSON.parse(port.facilities || '{}').max_draft || 'N/A'}m
+                      Max draft: {(() => {
+                        try {
+                          const facilities = typeof port.facilities === 'string' ? JSON.parse(port.facilities || '{}') : (port.facilities || {});
+                          return facilities.max_draft || 'N/A';
+                        } catch { return 'N/A'; }
+                      })()}m
                     </p>
                   </div>
                 </div>

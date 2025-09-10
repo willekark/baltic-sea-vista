@@ -268,9 +268,24 @@ const PortCostAnalyzer: React.FC<PortCostAnalyzerProps> = ({ selectedPort }) => 
                     </span>
                   </div>
                   <div className="space-y-1 text-sm">
-                    <p>• {costData.port.facilities ? JSON.parse(costData.port.facilities).berths : 'N/A'} berths available</p>
-                    <p>• Maximum draft: {costData.port.facilities ? JSON.parse(costData.port.facilities).max_draft : 'N/A'}m</p>
-                    <p>• Services: {costData.port.facilities ? JSON.parse(costData.port.facilities).services?.join(', ') : 'Standard services'}</p>
+                    <p>• {(() => {
+                      try {
+                        const facilities = costData.port.facilities ? (typeof costData.port.facilities === 'string' ? JSON.parse(costData.port.facilities) : costData.port.facilities) : {};
+                        return facilities.berths || 'N/A';
+                      } catch { return 'N/A'; }
+                    })()} berths available</p>
+                    <p>• Maximum draft: {(() => {
+                      try {
+                        const facilities = costData.port.facilities ? (typeof costData.port.facilities === 'string' ? JSON.parse(costData.port.facilities) : costData.port.facilities) : {};
+                        return facilities.max_draft || 'N/A';
+                      } catch { return 'N/A'; }
+                    })()}m</p>
+                    <p>• Services: {(() => {
+                      try {
+                        const facilities = costData.port.facilities ? (typeof costData.port.facilities === 'string' ? JSON.parse(costData.port.facilities) : costData.port.facilities) : {};
+                        return facilities.services?.join(', ') || 'Standard services';
+                      } catch { return 'Standard services'; }
+                    })()}</p>
                   </div>
                 </div>
               </div>
