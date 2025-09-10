@@ -47,10 +47,10 @@ export const HEADER_NAV: NavItem[] = [
     testId: "nav-shadow-fleet"
   },
   {
-    label: "Port Agent",
-    href: "/port-agent",
-    description: "Port operations dashboard",
-    testId: "nav-port-agent"
+    label: "Shipping Intelligence",
+    href: "/shipping",
+    description: "Comprehensive shipping operations intelligence",
+    testId: "nav-shipping"
   },
   {
     label: "Investor Intelligence",
@@ -87,6 +87,12 @@ export const HERO_CTAS: NavItem[] = [
     testId: "cta-get-started"
   },
   {
+    label: "Shipping Intelligence", 
+    href: "/shipping",
+    description: "Access comprehensive shipping operations intelligence",
+    testId: "cta-shipping-intelligence"
+  },
+  {
     label: "Port Services", 
     href: "/port-agent",
     description: "Access port agent dashboard",
@@ -102,6 +108,12 @@ export const HERO_CTAS: NavItem[] = [
 
 // Dashboard quick actions
 export const DASHBOARD_ACTIONS: NavItem[] = [
+  {
+    label: "Shipping Intelligence",
+    href: "/shipping",
+    description: "Comprehensive shipping operations and market intelligence",
+    testId: "action-shipping-intelligence"
+  },
   {
     label: "Port Agent Services",
     href: "/port-agent",

@@ -19,7 +19,12 @@ export const ROUTE_CANON = {
     anchors: ["decision-hub"],
     description: "Advanced decision support and integrated analysis"
   },
-  "/eutrophication": { 
+  "/shipping": { 
+    title: "Shipping Intelligence Hub",
+    anchors: ["insights", "routes", "arbitrage", "contracts"],
+    description: "Comprehensive maritime intelligence platform for shipping operations"
+  },
+  "/eutrophication": {
     title: "Eutrophication Reports",
     anchors: ["reports", "data-explorer"],
     description: "Baltic Sea eutrophication monitoring and reports"
