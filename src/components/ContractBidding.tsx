@@ -31,7 +31,7 @@ import {
   LogIn
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -61,7 +61,6 @@ interface ContractOpportunity {
 }
 
 const ContractBidding = () => {
-  const { user, session } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -100,10 +99,8 @@ const ContractBidding = () => {
       setContracts(data.contracts || []);
       setSummary(data.summary || {});
       
-      // Load user bids if authenticated
-      if (user) {
-        await loadUserBids();
-      }
+      // Load user bids - now public platform
+      await loadUserBids();
     } catch (error) {
       console.error('Error analyzing contract opportunities:', error);
     } finally {
@@ -210,9 +207,9 @@ const ContractBidding = () => {
                 <p className="text-muted-foreground">You have {userBids.length} active bids</p>
               </div>
             </div>
-            <Button variant="outline" onClick={() => navigate('/auth')} className="bg-success/10 border-success text-success">
+            <Button variant="outline" className="bg-success/10 border-success text-success">
               <User className="w-4 h-4 mr-2" />
-              Account Settings
+              Public Platform
             </Button>
           </div>
         </CardHeader>
