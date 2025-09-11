@@ -49,6 +49,11 @@ export const ROUTE_CANON = {
     anchors: ["overview", "macro", "esg", "infrastructure", "risk", "blue", "analytics", "portfolio"],
     description: "Investment intelligence platform for Baltic region fund and asset managers"
   },
+  "/energy": {
+    title: "Energy Intelligence Hub",
+    anchors: ["prices", "flows", "offshore-wind", "ops", "bunkering", "municipal"],
+    description: "Grid prices, renewable output, OPS adoption, and green fuel infrastructure analytics"
+  },
   "/ai-orchestrator": {
     title: "AI Orchestrator",
     anchors: ["analysis", "realtime", "reports"],

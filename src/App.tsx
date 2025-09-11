@@ -12,6 +12,7 @@ import IntegratedIntelligence from "./pages/IntegratedIntelligence";
 import IntelligenceDashboard from "./pages/IntelligenceDashboard";
 import PortAgent from "./pages/PortAgent";
 import ShippingIntelligence from "./pages/ShippingIntelligence";
+import EnergyIntelligence from "./pages/EnergyIntelligence";
 import EcologicalReporting from "./pages/EcologicalReporting";
 import PilotEastSweden from "./pages/PilotEastSweden";
 import BalticInvestorIntelligence from "./pages/BalticInvestorIntelligence";
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/intelligence" element={<IntelligenceDashboard />} />
             <Route path="/intelligence/integrated" element={<IntegratedIntelligence />} />
             <Route path="/shipping" element={<ShippingIntelligence />} />
+            <Route path="/energy" element={<EnergyIntelligence />} />
             <Route path="/port-agent" element={<PortAgent />} />
             <Route path="/ecology" element={<EcologicalReporting />} />
             <Route path="/pilot-east-sweden" element={<PilotEastSweden />} />

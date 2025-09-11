@@ -59,6 +59,12 @@ export const HEADER_NAV: NavItem[] = [
     testId: "nav-investor"
   },
   {
+    label: "Energy Intelligence",
+    href: "/energy",
+    description: "Grid prices, offshore wind, OPS adoption, and green fuel infrastructure",
+    testId: "nav-energy"
+  },
+  {
     label: "AI Orchestrator",
     href: "/ai-orchestrator",
     description: "Unified AI intelligence platform",
@@ -103,6 +109,12 @@ export const HERO_CTAS: NavItem[] = [
     href: "/shadow-fleet", 
     description: "Monitor vessel movements",
     testId: "cta-track-vessels"
+  },
+  {
+    label: "Energy Intelligence",
+    href: "/energy",
+    description: "Grid prices, renewables, and green fuel infrastructure",
+    testId: "cta-energy-intelligence"
   }
 ];
 
@@ -131,6 +143,12 @@ export const DASHBOARD_ACTIONS: NavItem[] = [
     href: "/shadow-fleet",
     description: "Advanced vessel monitoring",
     testId: "action-fleet-tracker"
+  },
+  {
+    label: "Energy Intelligence",
+    href: "/energy",
+    description: "Grid flows, renewable output, and green infrastructure",
+    testId: "action-energy-intelligence"
   }
 ];
 
