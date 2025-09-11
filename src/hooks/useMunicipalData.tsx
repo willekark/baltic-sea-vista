@@ -11,6 +11,12 @@ interface MunicipalEnergyData {
   source_status?: string;
 }
 
+interface Co2IntensityData {
+  year: number;
+  g_co2_per_kwh: number;
+  source: string;
+}
+
 interface SectorShareData {
   year: number;
   households_pct: number;
@@ -39,7 +45,11 @@ export const useMunicipalEnergy = (geoId: string = 'SE0114', years: string = '20
         setLoading(true);
         setError(null);
         
-        const { data: result, error } = await supabase.functions.invoke('municipal-energy', {
+        // Determine if this is Swedish data (use SCB) or EU data (use Eurostat)
+        const isSwedish = geoId.startsWith('SE');
+        const functionName = isSwedish ? 'municipal-energy' : 'eurostat-energy';
+        
+        const { data: result, error } = await supabase.functions.invoke(functionName, {
           body: { geo_id: geoId, years }
         });
 
@@ -74,8 +84,13 @@ export const useMunicipalSectorShare = (geoId: string = 'SE0114', years: string 
         setLoading(true);
         setError(null);
         
-        const { data: result, error } = await supabase.functions.invoke('municipal-energy/sector-share', {
-          body: { geo_id: geoId, years }
+        // Determine if this is Swedish data (use SCB) or EU data (use Eurostat)
+        const isSwedish = geoId.startsWith('SE');
+        const functionName = isSwedish ? 'municipal-energy' : 'eurostat-energy';
+        const endpoint = isSwedish ? 'municipal-energy/sector-share' : 'eurostat-energy/sector-share';
+        
+        const { data: result, error } = await supabase.functions.invoke(functionName, {
+          body: { geo_id: geoId, years, endpoint: 'sector-share' }
         });
 
         if (error) throw error;
@@ -129,6 +144,41 @@ export const useMunicipalPeaks = (geoId: string = 'SE0114') => {
     const interval = setInterval(fetchData, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, [geoId]);
+
+  return { data, loading, error };
+};
+
+export const useCo2Intensity = (country: string = 'EU27_2020', years: string = '2019-2024') => {
+  const [data, setData] = useState<Co2IntensityData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const { data: result, error } = await supabase.functions.invoke('eurostat-energy', {
+          body: { country, years, endpoint: 'co2-intensity' }
+        });
+
+        if (error) throw error;
+        setData(result || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch CO2 intensity data');
+        console.error('CO2 intensity fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+    
+    // Refresh every 4 hours for CO2 data
+    const interval = setInterval(fetchData, 4 * 60 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [country, years]);
 
   return { data, loading, error };
 };

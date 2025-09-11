@@ -7,6 +7,7 @@ import { useMunicipalEnergy, useMunicipalSectorShare, useMunicipalPeaks } from '
 
 const TabMunicipal = () => {
   const [selectedGeoId] = useState('SE0114'); // Upplands Väsby as default
+  const [selectedCountry] = useState('SE'); // Sweden as default
   
   const { data: energyData, loading: energyLoading, error: energyError } = useMunicipalEnergy(selectedGeoId, '2019-2024');
   const { data: sectorData, loading: sectorLoading, error: sectorError } = useMunicipalSectorShare(selectedGeoId, '2019-2024');
@@ -81,9 +82,11 @@ const TabMunicipal = () => {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Building className="h-5 w-5 text-indigo-600" />
-                Swedish Municipal Energy (Upplands Väsby)
+                {selectedGeoId.startsWith('SE') ? 'Swedish Municipal Energy (Upplands Väsby)' : 'EU Regional Energy'}
               </CardTitle>
-              <CardDescription>SCB Open Data - Municipal energy consumption by sector</CardDescription>
+              <CardDescription>
+                {selectedGeoId.startsWith('SE') ? 'SCB Open Data' : 'Eurostat SDMX'} - Municipal energy consumption by sector
+              </CardDescription>
             </div>
             {peakData && !peakLoading && (
               <Badge 
