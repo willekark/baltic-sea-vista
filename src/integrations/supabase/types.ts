@@ -397,6 +397,30 @@ export type Database = {
           },
         ]
       }
+      cache_entries: {
+        Row: {
+          created_at: string
+          data: Json
+          expires_at: string
+          id: string
+          key: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          expires_at: string
+          id?: string
+          key: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          expires_at?: string
+          id?: string
+          key?: string
+        }
+        Relationships: []
+      }
       cargo_flows: {
         Row: {
           cargo_subtype: string | null
@@ -2621,6 +2645,10 @@ export type Database = {
       }
     }
     Functions: {
+      cleanup_expired_cache: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
