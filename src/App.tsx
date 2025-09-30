@@ -8,6 +8,7 @@ import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
 import EutrophicationReports from "./pages/EutrophicationReports";
 import ShadowFleetTracker from "./pages/ShadowFleetTracker";
+import ShadowFleetTrackerV2 from "./pages/ShadowFleetTrackerV2";
 import IntegratedIntelligence from "./pages/IntegratedIntelligence";
 import IntelligenceDashboard from "./pages/IntelligenceDashboard";
 import PortAgent from "./pages/PortAgent";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/eutrophication" element={<EutrophicationReports />} />
             <Route path="/shadow-fleet" element={<ShadowFleetTracker />} />
+            <Route path="/shadow-fleet-v2" element={<ShadowFleetTrackerV2 />} />
             <Route path="/intelligence" element={<IntelligenceDashboard />} />
             <Route path="/intelligence/integrated" element={<IntegratedIntelligence />} />
             <Route path="/shipping" element={<ShippingIntelligence />} />

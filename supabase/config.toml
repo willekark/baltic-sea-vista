@@ -108,3 +108,24 @@ verify_jwt = false
 
 [functions.intelligence-alerts-processor]
 verify_jwt = false
+
+[functions.ais-sar-correlation]
+verify_jwt = false
+
+[functions.shadow-fleet-scoring]
+verify_jwt = false
+
+[functions.shadow-fleet-api]
+verify_jwt = false
+
+[functions.seed-shadow-fleet-data]
+verify_jwt = false
+
+[functions.municipal-peaks]
+verify_jwt = false
+
+[functions.eurostat-energy]
+verify_jwt = false
+
+[functions.municipal-energy]
+verify_jwt = false

@@ -34,6 +34,11 @@ export const ROUTE_CANON = {
     anchors: ["tracker", "analysis", "alerts"],
     description: "Advanced vessel tracking and anomaly detection"
   },
+  "/shadow-fleet-v2": { 
+    title: "Shadow Fleet Tracker V2",
+    anchors: ["map", "alerts", "sar", "correlation"],
+    description: "Production-grade AIS-SAR correlation with ML-based anomaly detection"
+  },
   "/port-agent": { 
     title: "Port Agent Dashboard",
     anchors: ["dashboard", "services", "analytics"],

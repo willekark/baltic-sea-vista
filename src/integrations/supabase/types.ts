@@ -3199,6 +3199,27 @@ export type Database = {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
+      find_nearby_ais: {
+        Args: {
+          end_time: string
+          radius_m: number
+          start_time: string
+          target_lat: number
+          target_lon: number
+        }
+        Returns: {
+          cog: number
+          distance_m: number
+          draught: number
+          lat: number
+          lon: number
+          mmsi: number
+          sog: number
+          ts: string
+          vessel_name: string
+          vessel_type: string
+        }[]
+      }
       geography: {
         Args: { "": string } | { "": unknown }
         Returns: unknown
