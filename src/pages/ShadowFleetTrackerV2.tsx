@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertTriangle, Ship, Eye, Activity, Filter, Play, RefreshCw } from "lucide-react";
+import { AlertTriangle, Ship, Eye, Activity, Filter, Play, RefreshCw, Database } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import {
   useShadowFleetAlerts,
   useVesselTrack,
@@ -31,6 +32,7 @@ const ShadowFleetTrackerV2: React.FC = () => {
   const [alertFilter, setAlertFilter] = useState<string>('all');
   const [minScore, setMinScore] = useState<number>(0);
   const [selectedAlert, setSelectedAlert] = useState<any>(null);
+  const [isSeeding, setIsSeeding] = useState(false);
   const { toast } = useToast();
 
   // Fetch data using hooks
@@ -40,7 +42,7 @@ const ShadowFleetTrackerV2: React.FC = () => {
     since: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
   });
 
-  const { data: sarDetections } = useSARDetections({
+  const { data: sarDetections, refetch: refetchSAR } = useSARDetections({
     since: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
   });
 
@@ -69,6 +71,11 @@ const ShadowFleetTrackerV2: React.FC = () => {
     map.current.on('load', () => {
       setIsMapReady(true);
       console.log('Map loaded successfully');
+      
+      toast({
+        title: "Map Ready",
+        description: alerts && alerts.length === 0 ? "Click 'Seed Demo Data' to populate the database" : `Displaying ${alerts?.length || 0} alerts`,
+      });
     });
   };
 
@@ -308,17 +315,47 @@ const ShadowFleetTrackerV2: React.FC = () => {
     }
   }, []);
 
+  // Seed demo data
+  const handleSeedData = async () => {
+    setIsSeeding(true);
+    try {
+      toast({ title: "Seeding Demo Data", description: "This may take a moment..." });
+      
+      const { data, error } = await supabase.functions.invoke('seed-shadow-fleet-data');
+      
+      if (error) throw error;
+      
+      // Refetch all data
+      refetchAlerts();
+      refetchSAR();
+      
+      toast({
+        title: "Demo Data Seeded",
+        description: `Created ${data.data.ais_positions_created} AIS positions and ${data.data.sar_detections_created} SAR detections`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Seeding Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSeeding(false);
+    }
+  };
+
   // Run correlation
   const handleRunCorrelation = async () => {
     try {
       toast({ title: "Running Correlation", description: "This may take a moment..." });
       const result = await runCorrelation();
       refetchAlerts();
+      refetchSAR();
       toast({
         title: "Correlation Complete",
         description: `Processed ${result.processed} detections, found ${result.alerts_created} anomalies`,
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Correlation Failed",
         description: error.message,
@@ -336,7 +373,7 @@ const ShadowFleetTrackerV2: React.FC = () => {
         title: "Scoring Complete",
         description: `Scored ${result.scored} vessels`,
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Scoring Failed",
         description: error.message,
@@ -352,6 +389,8 @@ const ShadowFleetTrackerV2: React.FC = () => {
     loitering: alerts?.filter(a => a.type === 'loitering').length || 0,
     rendezvous: alerts?.filter(a => a.type === 'rendezvous').length || 0,
   };
+
+  const hasData = (alerts && alerts.length > 0) || (sarDetections && sarDetections.length > 0);
 
   if (!isMapReady && !mapboxToken) {
     return (
@@ -407,10 +446,22 @@ const ShadowFleetTrackerV2: React.FC = () => {
             </p>
           </div>
           <div className="flex gap-2">
+            {!hasData && (
+              <Button
+                onClick={handleSeedData}
+                disabled={isSeeding}
+                variant="default"
+                size="sm"
+              >
+                <Database className="w-4 h-4 mr-2" />
+                {isSeeding ? 'Seeding...' : 'Seed Demo Data'}
+              </Button>
+            )}
             <Button
               onClick={handleRunCorrelation}
               variant="outline"
               size="sm"
+              disabled={!hasData}
             >
               <Play className="w-4 h-4 mr-2" />
               Run Correlation
@@ -419,12 +470,16 @@ const ShadowFleetTrackerV2: React.FC = () => {
               onClick={handleCalculateScores}
               variant="outline"
               size="sm"
+              disabled={!hasData}
             >
               <Activity className="w-4 h-4 mr-2" />
               Calculate Scores
             </Button>
             <Button
-              onClick={() => refetchAlerts()}
+              onClick={() => {
+                refetchAlerts();
+                refetchSAR();
+              }}
               variant="outline"
               size="sm"
             >
@@ -450,97 +505,119 @@ const ShadowFleetTrackerV2: React.FC = () => {
             </TabsList>
 
             <TabsContent value="alerts" className="p-4 space-y-4">
-              <div className="space-y-2">
-                <Select value={alertFilter} onValueChange={setAlertFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Filter by type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Alerts ({alertTypeCounts.all})</SelectItem>
-                    <SelectItem value="dark_detection">🔴 Dark Detection ({alertTypeCounts.dark_detection})</SelectItem>
-                    <SelectItem value="spoofing_suspected">⚠️ Spoofing ({alertTypeCounts.spoofing_suspected})</SelectItem>
-                    <SelectItem value="loitering">⏱️ Loitering ({alertTypeCounts.loitering})</SelectItem>
-                    <SelectItem value="rendezvous">🤝 Rendezvous ({alertTypeCounts.rendezvous})</SelectItem>
-                  </SelectContent>
-                </Select>
+              {!hasData ? (
+                <Card>
+                  <CardContent className="p-6 text-center">
+                    <p className="text-muted-foreground mb-4">
+                      No data available. Click "Seed Demo Data" to populate the database.
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Select value={alertFilter} onValueChange={setAlertFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Filter by type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Alerts ({alertTypeCounts.all})</SelectItem>
+                        <SelectItem value="dark_detection">🔴 Dark Detection ({alertTypeCounts.dark_detection})</SelectItem>
+                        <SelectItem value="spoofing_suspected">⚠️ Spoofing ({alertTypeCounts.spoofing_suspected})</SelectItem>
+                        <SelectItem value="loitering">⏱️ Loitering ({alertTypeCounts.loitering})</SelectItem>
+                        <SelectItem value="rendezvous">🤝 Rendezvous ({alertTypeCounts.rendezvous})</SelectItem>
+                      </SelectContent>
+                    </Select>
 
-                <div>
-                  <label className="text-sm font-medium mb-1 block">
-                    Min Score: {minScore}
-                  </label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={minScore}
-                    onChange={(e) => setMinScore(parseInt(e.target.value))}
-                    className="w-full"
-                  />
-                </div>
-              </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">
+                        Min Score: {minScore}
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={minScore}
+                        onChange={(e) => setMinScore(parseInt(e.target.value))}
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                {alerts?.map(alert => (
-                  <Card
-                    key={alert.id}
-                    className={`cursor-pointer hover:bg-accent transition-colors ${
-                      selectedAlert?.id === alert.id ? 'ring-2 ring-primary' : ''
-                    }`}
-                    onClick={() => {
-                      setSelectedAlert(alert);
-                      if (alert.mmsi) setSelectedMMSI(alert.mmsi);
-                      if (map.current && alert.lat && alert.lon) {
-                        map.current.flyTo({ center: [alert.lon, alert.lat], zoom: 10 });
-                      }
-                    }}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <Badge variant={alert.score >= 70 ? "destructive" : "secondary"}>
-                          Score: {alert.score}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(alert.alert_time).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <h4 className="font-semibold text-sm mb-1">
-                        {alert.type.replace('_', ' ').toUpperCase()}
-                      </h4>
-                      <p className="text-xs text-muted-foreground">{alert.summary}</p>
-                      {alert.mmsi && (
-                        <p className="text-xs mt-2">MMSI: {alert.mmsi}</p>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                  <div className="space-y-2">
+                    {alerts?.map(alert => (
+                      <Card
+                        key={alert.id}
+                        className={`cursor-pointer hover:bg-accent transition-colors ${
+                          selectedAlert?.id === alert.id ? 'ring-2 ring-primary' : ''
+                        }`}
+                        onClick={() => {
+                          setSelectedAlert(alert);
+                          if (alert.mmsi) setSelectedMMSI(alert.mmsi);
+                          if (map.current && alert.lat && alert.lon) {
+                            map.current.flyTo({ center: [alert.lon, alert.lat], zoom: 10 });
+                          }
+                        }}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <Badge variant={alert.score >= 70 ? "destructive" : "secondary"}>
+                              Score: {alert.score}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(alert.alert_time).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <h4 className="font-semibold text-sm mb-1">
+                            {alert.type.replace('_', ' ').toUpperCase()}
+                          </h4>
+                          <p className="text-xs text-muted-foreground">{alert.summary}</p>
+                          {alert.mmsi && (
+                            <p className="text-xs mt-2">MMSI: {alert.mmsi}</p>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </>
+              )}
             </TabsContent>
 
             <TabsContent value="sar" className="p-4 space-y-2">
-              {sarDetections?.map(detection => (
-                <Card key={detection.id} className="cursor-pointer hover:bg-accent">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <Badge variant={detection.matched_mmsi ? "default" : "destructive"}>
-                        {detection.matched_mmsi ? 'Matched' : 'Dark'}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(detection.acq_time).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <h4 className="font-semibold text-sm mb-1">
-                      {detection.scene_id}
-                    </h4>
-                    <p className="text-xs text-muted-foreground">
-                      Length: {detection.est_length_m.toFixed(0)}m | 
-                      Conf: {(detection.confidence * 100).toFixed(0)}%
+              {!hasData ? (
+                <Card>
+                  <CardContent className="p-6 text-center">
+                    <p className="text-muted-foreground mb-4">
+                      No SAR detections available. Click "Seed Demo Data" first.
                     </p>
-                    {detection.matched_mmsi && (
-                      <p className="text-xs mt-2">MMSI: {detection.matched_mmsi}</p>
-                    )}
                   </CardContent>
                 </Card>
-              ))}
+              ) : (
+                sarDetections?.map(detection => (
+                  <Card key={detection.id} className="cursor-pointer hover:bg-accent">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <Badge variant={detection.matched_mmsi ? "default" : "destructive"}>
+                          {detection.matched_mmsi ? 'Matched' : 'Dark'}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(detection.acq_time).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <h4 className="font-semibold text-sm mb-1">
+                        {detection.scene_id}
+                      </h4>
+                      <p className="text-xs text-muted-foreground">
+                        Length: {detection.est_length_m.toFixed(0)}m | 
+                        Conf: {(detection.confidence * 100).toFixed(0)}%
+                      </p>
+                      {detection.matched_mmsi && (
+                        <p className="text-xs mt-2">MMSI: {detection.matched_mmsi}</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </TabsContent>
           </Tabs>
         </div>
