@@ -69,14 +69,14 @@ const InteractiveMaritimeMap = () => {
   const [showDataSources, setShowDataSources] = useState(false);
 
   const [layers, setLayers] = useState<LayerConfig[]>([
-    { id: 'currents', name: 'Surface Currents', icon: Activity, enabled: true, opacity: 0.7, color: '#3b82f6', dataType: 'vector' },
-    { id: 'waves', name: 'Wave Height', icon: Waves, enabled: true, opacity: 0.6, color: '#06b6d4', dataType: 'raster' },
-    { id: 'wind', name: 'Wind Speed', icon: Wind, enabled: true, opacity: 0.5, color: '#10b981', dataType: 'vector' },
-    { id: 'sst', name: 'Sea Surface Temp', icon: Thermometer, enabled: false, opacity: 0.6, color: '#f59e0b', dataType: 'raster' },
-    { id: 'shipping', name: 'Vessel Traffic', icon: Ship, enabled: true, opacity: 0.8, color: '#ef4444', dataType: 'real-time' },
-    { id: 'oxygen', name: 'Dissolved Oxygen', icon: Droplets, enabled: false, opacity: 0.5, color: '#8b5cf6', dataType: 'raster' },
-    { id: 'chlorophyll', name: 'Chlorophyll-a', icon: Eye, enabled: false, opacity: 0.5, color: '#22c55e', dataType: 'raster' },
-    { id: 'infrastructure', name: 'Ports & Infrastructure', icon: Anchor, enabled: true, opacity: 1.0, color: '#6b7280', dataType: 'vector' }
+    { id: 'currents', name: 'Surface Currents', icon: Activity, enabled: true, opacity: 0.7, color: '#1e40af', dataType: 'vector' },
+    { id: 'waves', name: 'Wave Height', icon: Waves, enabled: true, opacity: 0.6, color: '#0891b2', dataType: 'raster' },
+    { id: 'wind', name: 'Wind Speed', icon: Wind, enabled: true, opacity: 0.5, color: '#84cc16', dataType: 'vector' },
+    { id: 'sst', name: 'Sea Surface Temp', icon: Thermometer, enabled: false, opacity: 0.6, color: '#dc2626', dataType: 'raster' },
+    { id: 'shipping', name: 'Vessel Traffic', icon: Ship, enabled: true, opacity: 0.8, color: '#f97316', dataType: 'real-time' },
+    { id: 'oxygen', name: 'Dissolved Oxygen', icon: Droplets, enabled: false, opacity: 0.5, color: '#a855f7', dataType: 'raster' },
+    { id: 'chlorophyll', name: 'Chlorophyll-a', icon: Eye, enabled: false, opacity: 0.5, color: '#16a34a', dataType: 'raster' },
+    { id: 'infrastructure', name: 'Ports & Infrastructure', icon: Anchor, enabled: true, opacity: 1.0, color: '#64748b', dataType: 'vector' }
   ]);
 
   const layerDescriptions: Record<string, { description: string; source: string; unit: string }> = {
@@ -281,7 +281,7 @@ const InteractiveMaritimeMap = () => {
       type: 'line',
       source: 'currents',
       paint: {
-        'line-color': '#3b82f6',
+        'line-color': '#1e40af',
         'line-width': 3,
         'line-opacity': 0.7
       },
@@ -300,12 +300,12 @@ const InteractiveMaritimeMap = () => {
           'interpolate',
           ['linear'],
           ['heatmap-density'],
-          0, 'rgba(6, 182, 212, 0)',
-          0.2, 'rgba(6, 182, 212, 0.3)',
-          0.4, 'rgba(14, 165, 233, 0.5)',
-          0.6, 'rgba(59, 130, 246, 0.7)',
-          0.8, 'rgba(29, 78, 216, 0.8)',
-          1, 'rgba(30, 64, 175, 0.9)'
+          0, 'rgba(8, 145, 178, 0)',
+          0.2, 'rgba(8, 145, 178, 0.3)',
+          0.4, 'rgba(6, 182, 212, 0.5)',
+          0.6, 'rgba(34, 211, 238, 0.7)',
+          0.8, 'rgba(103, 232, 249, 0.8)',
+          1, 'rgba(165, 243, 252, 0.9)'
         ],
         'heatmap-radius': 30,
         'heatmap-opacity': 0.6
@@ -319,7 +319,7 @@ const InteractiveMaritimeMap = () => {
       type: 'line',
       source: 'wind',
       paint: {
-        'line-color': '#10b981',
+        'line-color': '#84cc16',
         'line-width': 2,
         'line-opacity': 0.5
       },
@@ -338,12 +338,12 @@ const InteractiveMaritimeMap = () => {
           'interpolate',
           ['linear'],
           ['heatmap-density'],
-          0, 'rgba(245, 158, 11, 0)',
-          0.2, 'rgba(245, 158, 11, 0.3)',
+          0, 'rgba(220, 38, 38, 0)',
+          0.2, 'rgba(220, 38, 38, 0.3)',
           0.4, 'rgba(239, 68, 68, 0.5)',
-          0.6, 'rgba(220, 38, 38, 0.7)',
-          0.8, 'rgba(185, 28, 28, 0.8)',
-          1, 'rgba(153, 27, 27, 0.9)'
+          0.6, 'rgba(248, 113, 113, 0.7)',
+          0.8, 'rgba(252, 165, 165, 0.8)',
+          1, 'rgba(254, 202, 202, 0.9)'
         ],
         'heatmap-radius': 25,
         'heatmap-opacity': 0.6
@@ -363,12 +363,12 @@ const InteractiveMaritimeMap = () => {
           'interpolate',
           ['linear'],
           ['heatmap-density'],
-          0, 'rgba(139, 92, 246, 0)',
-          0.2, 'rgba(139, 92, 246, 0.3)',
-          0.4, 'rgba(124, 58, 237, 0.5)',
-          0.6, 'rgba(109, 40, 217, 0.7)',
-          0.8, 'rgba(91, 33, 182, 0.8)',
-          1, 'rgba(76, 29, 149, 0.9)'
+          0, 'rgba(168, 85, 247, 0)',
+          0.2, 'rgba(168, 85, 247, 0.3)',
+          0.4, 'rgba(192, 132, 252, 0.5)',
+          0.6, 'rgba(216, 180, 254, 0.7)',
+          0.8, 'rgba(233, 213, 255, 0.8)',
+          1, 'rgba(250, 245, 255, 0.9)'
         ],
         'heatmap-radius': 20,
         'heatmap-opacity': 0.5
@@ -388,12 +388,12 @@ const InteractiveMaritimeMap = () => {
           'interpolate',
           ['linear'],
           ['heatmap-density'],
-          0, 'rgba(34, 197, 94, 0)',
-          0.2, 'rgba(34, 197, 94, 0.3)',
-          0.4, 'rgba(22, 163, 74, 0.5)',
-          0.6, 'rgba(21, 128, 61, 0.7)',
-          0.8, 'rgba(20, 83, 45, 0.8)',
-          1, 'rgba(22, 101, 52, 0.9)'
+          0, 'rgba(22, 163, 74, 0)',
+          0.2, 'rgba(22, 163, 74, 0.3)',
+          0.4, 'rgba(34, 197, 94, 0.5)',
+          0.6, 'rgba(74, 222, 128, 0.7)',
+          0.8, 'rgba(134, 239, 172, 0.8)',
+          1, 'rgba(187, 247, 208, 0.9)'
         ],
         'heatmap-radius': 18,
         'heatmap-opacity': 0.5
@@ -408,7 +408,7 @@ const InteractiveMaritimeMap = () => {
       source: 'vessels',
       paint: {
         'circle-radius': ['case', ['has', 'intensity'], ['interpolate', ['linear'], ['get', 'intensity'], 1, 4, 10, 12], 6],
-        'circle-color': '#ef4444',
+        'circle-color': '#f97316',
         'circle-opacity': 0.8,
         'circle-stroke-width': 1,
         'circle-stroke-color': '#ffffff'
@@ -432,8 +432,8 @@ const InteractiveMaritimeMap = () => {
         'visibility': 'visible'
       },
       paint: {
-        'icon-color': '#6b7280',
-        'text-color': '#374151',
+        'icon-color': '#64748b',
+        'text-color': '#475569',
         'text-halo-color': '#ffffff',
         'text-halo-width': 1
       }
