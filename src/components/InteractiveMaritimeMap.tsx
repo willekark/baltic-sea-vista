@@ -51,6 +51,8 @@ const API = {
   // EMODnet Human Activities WMS/WFS proxy -> XYZ/MVT you host (recommended for speed)
   EMODNET_GRID_CABLES_MVT: "https://your-proxy.example.com/emodnet/grid-cables/{z}/{x}/{y}.mvt",
   EMODNET_WINDFARMS_MVT: "https://your-proxy.example.com/emodnet/windfarms/{z}/{x}/{y}.mvt",
+  EMODNET_PIPELINES_MVT: "https://your-proxy.example.com/emodnet/pipelines/{z}/{x}/{y}.mvt",
+  EMODNET_TURBINES_MVT: "https://your-proxy.example.com/emodnet/turbines/{z}/{x}/{y}.mvt",
 
   // CAMS air-quality tiles (via your proxy)
   CAMS_NO2_TILES: "https://your-proxy.example.com/cams/no2/{z}/{x}/{y}.png?time={ISO}",
