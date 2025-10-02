@@ -578,14 +578,23 @@ export default function MarineOpsMap() {
               <div className="flex items-center justify-between"><Label className="font-medium text-white">Emission Control Areas</Label><Switch checked={showEmissionZones} onCheckedChange={setShowEmissionZones} /></div>
             </div>
 
-            <div className="space-y-2 pt-2 border-t border-white/10">
-              <div className="flex items-center justify-between"><Label className="font-medium text-white">Pipelines</Label><Switch checked={showPipelines} onCheckedChange={setShowPipelines} /></div>
-              <div><Label>Opacity</Label><Slider value={[Math.round(pipelinesOpacity * 100)]} onValueChange={(v) => setPipelinesOpacity(v[0]/100)} step={1} min={0} max={100}/></div>
-            </div>
-
-            <div className="space-y-2 pt-2 border-t border-white/10">
-              <div className="flex items-center justify-between"><Label className="font-medium text-white">Wind Infrastructure</Label><Switch checked={showWindInfra} onCheckedChange={setShowWindInfra} /></div>
-              <div><Label>Opacity</Label><Slider value={[Math.round(windOpacity * 100)]} onValueChange={(v) => setWindOpacity(v[0]/100)} step={1} min={0} max={100}/></div>
+            <div className="pt-2 border-t border-white/10">
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-white">Pipelines</Label>
+                    <Switch checked={showPipelines} onCheckedChange={setShowPipelines} />
+                  </div>
+                  <Slider value={[Math.round(pipelinesOpacity*100)]} onValueChange={(v)=> setPipelinesOpacity(v[0]/100)} step={1} min={0} max={100}/>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-white">Wind infra</Label>
+                    <Switch checked={showWindInfra} onCheckedChange={setShowWindInfra} />
+                  </div>
+                  <Slider value={[Math.round(windOpacity*100)]} onValueChange={(v)=> setWindOpacity(v[0]/100)} step={1} min={0} max={100}/>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-3 pt-3 border-t border-white/10">
