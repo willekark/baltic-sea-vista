@@ -250,7 +250,7 @@ export default function MarineOpsMap() {
           },
         } as any);
 
-        // Glow layer (softer, wider spread)
+        // Glow layer (softer, wider spread with blue/cyan)
         map.addLayer({
           id: "vessel-heat-glow",
           type: "heatmap",
@@ -258,23 +258,22 @@ export default function MarineOpsMap() {
           maxzoom: 10,
           paint: {
             "heatmap-weight": ["interpolate", ["linear"], ["get", "sog"], 0, 0, 25, 1],
-            "heatmap-intensity": 0.8,
+            "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 0, 0.8, 8, 1.4, 10, 1.8],
             "heatmap-color": [
               "interpolate", ["linear"], ["heatmap-density"],
               0.00, "rgba(0,0,0,0)",
-              0.10, "rgba(0,255,209,0.15)",
-              0.30, "rgba(43,255,0,0.2)",
-              0.50, "rgba(181,255,0,0.25)",
-              0.70, "rgba(255,212,0,0.3)",
-              0.90, "rgba(255,106,0,0.35)",
-              1.00, "rgba(255,0,51,0.4)",
+              0.05, "#001f7a",
+              0.15, "#0033cc",
+              0.30, "#00b3ff",
+              0.45, "#00fff0",
+              0.60, "#57ffb3"
             ],
-            "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 4, 9, 36],
-            "heatmap-opacity": Math.min(0.6, heatOpacity * 0.7),
-          },
+            "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 3, 6, 18, 9, 34],
+            "heatmap-opacity": 0.55
+          }
         } as any);
 
-        // Core layer (bright, focused hotspots)
+        // Core layer (neon green → yellow → orange → red)
         map.addLayer({
           id: "vessel-heat-core",
           type: "heatmap",
@@ -282,20 +281,19 @@ export default function MarineOpsMap() {
           maxzoom: 10,
           paint: {
             "heatmap-weight": ["interpolate", ["linear"], ["get", "sog"], 0, 0, 25, 1],
-            "heatmap-intensity": 1.8,
+            "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 0, 1.0, 8, 1.8, 10, 2.2],
             "heatmap-color": [
               "interpolate", ["linear"], ["heatmap-density"],
-              0.00, PALETTE.heat[0],
-              0.20, PALETTE.heat[1],
-              0.40, PALETTE.heat[2],
-              0.60, PALETTE.heat[3],
-              0.75, PALETTE.heat[4],
-              0.90, PALETTE.heat[5],
-              1.00, PALETTE.heat[6],
+              0.00, "rgba(0,0,0,0)",
+              0.20, "#2bff00",
+              0.40, "#b5ff00",
+              0.60, "#ffd400",
+              0.80, "#ff6a00",
+              1.00, "#ff0033"
             ],
-            "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5, 9, 20],
-            "heatmap-opacity": heatOpacity,
-          },
+            "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 2, 6, 12, 9, 22],
+            "heatmap-opacity": heatOpacity
+          }
         } as any);
 
         // Debug layer - shows actual vessel ping points
