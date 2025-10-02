@@ -310,9 +310,10 @@ export default function MarineOpsMap() {
         map.addLayer({ id: "eca-line", type: "line", source: "eca", paint: { "line-color": "#a994ff", "line-width": 1.5, "line-dasharray": [2, 2], "line-opacity": 0.9 } });
 
         // Time filter - apply to all vessel layers
-        const timeFilter = ["all", [">=", ["get", "ts"], tsWindow[0]], ["<=", ["get", "ts"], tsWindow[1]]] as any;
         ["vessel-heat", "vessel-heat-glow", "vessel-heat-core"].forEach(id => {
-          if (map.getLayer(id)) map.setFilter(id, timeFilter);
+          if (map.getLayer(id)) {
+            map.setFilter(id, ["all", [">=", ["get", "ts"], tsWindow[0]], ["<=", ["get", "ts"], tsWindow[1]]] as any);
+          }
         });
 
         // Cursor feedback
@@ -353,9 +354,10 @@ export default function MarineOpsMap() {
   useEffect(() => {
     const m = mapRef.current;
     if (!m || !isReady) return;
-    const timeFilter = ["all", [">=", ["get", "ts"], tsWindow[0]], ["<=", ["get", "ts"], tsWindow[1]]] as any;
     ["vessel-heat", "vessel-heat-glow", "vessel-heat-core"].forEach(id => {
-      if (m.getLayer(id)) m.setFilter(id, timeFilter);
+      if (m.getLayer(id)) {
+        m.setFilter(id, ["all", [">=", ["get", "ts"], tsWindow[0]], ["<=", ["get", "ts"], tsWindow[1]]] as any);
+      }
     });
   }, [tsWindow, isReady]);
   useEffect(() => { if (!play) return; const id = setInterval(() => { setTsWindow(([a,b])=>{ const step=600; const width=b-a; let na=a+step, nb=b+step; if (nb>maxTs){na=minTs; nb=minTs+width;} return [na,nb]; }); }, 450); return () => clearInterval(id); }, [play]);
