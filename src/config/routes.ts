@@ -74,6 +74,11 @@ export const ROUTE_CANON = {
     anchors: ["generator", "controls", "report"],
     description: "Interactive AI-powered Baltic Sea maritime intelligence report generator"
   },
+  "/map": {
+    title: "Maritime Intelligence Map",
+    anchors: ["map", "layers", "controls"],
+    description: "Full-screen interactive maritime intelligence map with real-time data visualization"
+  },
   "/auth": { 
     title: "Authentication",
     anchors: [],

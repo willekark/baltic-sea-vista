@@ -81,6 +81,12 @@ export const HEADER_NAV: NavItem[] = [
     href: "/ai-reports",
     description: "Interactive maritime intelligence report generator",
     testId: "nav-ai-reports"
+  },
+  {
+    label: "Map",
+    href: "/map",
+    description: "Full-screen interactive maritime map",
+    testId: "nav-map"
   }
 ];
 
