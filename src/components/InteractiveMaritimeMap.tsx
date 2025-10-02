@@ -1,1209 +1,393 @@
-import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Slider } from '@/components/ui/slider';
-import { 
-  Layers, 
-  Activity, 
-  Waves, 
-  Wind, 
-  Thermometer, 
-  Ship, 
-  Droplets, 
-  Eye, 
-  MapPin,
-  Settings,
-  Play,
-  Pause,
-  RotateCcw,
-  Info,
-  AlertTriangle,
-  Anchor
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useMapboxToken } from '@/hooks/useMapboxToken';
-import { useToast } from '@/hooks/use-toast';
-
-interface LayerConfig {
-  id: string;
-  name: string;
-  icon: React.ComponentType<any>;
-  enabled: boolean;
-  opacity: number;
-  color: string;
-  dataType: 'vector' | 'raster' | 'real-time';
-}
-
-interface MarineDataPoint {
-  id: string;
-  name: string;
-  primaryValue: number;
-  primaryUnit: string;
-  location?: { lat: number; lng: number };
-  status: string;
-  icon: string;
-  secondaryMetrics?: Array<{
-    label: string;
-    value: number | string;
-    unit: string;
-  }>;
-}
-
-const InteractiveMaritimeMap = () => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const [isMapReady, setIsMapReady] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [marineData, setMarineData] = useState<MarineDataPoint[]>([]);
-  const [selectedDataPoint, setSelectedDataPoint] = useState<MarineDataPoint | null>(null);
-  const { token: mapboxToken, isLoading: tokenLoading } = useMapboxToken();
-  const tokenError = !mapboxToken && !tokenLoading;
-  const { toast } = useToast();
-
-  const [showLegend, setShowLegend] = useState(true);
-  const [showDataSources, setShowDataSources] = useState(false);
-
-  const [layers, setLayers] = useState<LayerConfig[]>([
-    { id: 'currents', name: 'Surface Currents', icon: Activity, enabled: true, opacity: 0.9, color: '#1e40af', dataType: 'vector' },
-    { id: 'waves', name: 'Wave Height', icon: Waves, enabled: true, opacity: 0.8, color: '#0891b2', dataType: 'raster' },
-    { id: 'wind', name: 'Wind Speed', icon: Wind, enabled: true, opacity: 0.8, color: '#84cc16', dataType: 'vector' },
-    { id: 'sst', name: 'Sea Surface Temp', icon: Thermometer, enabled: true, opacity: 0.8, color: '#dc2626', dataType: 'raster' },
-    { id: 'shipping', name: 'Vessel Traffic', icon: Ship, enabled: true, opacity: 0.9, color: '#f97316', dataType: 'real-time' },
-    { id: 'oxygen', name: 'Dissolved Oxygen', icon: Droplets, enabled: true, opacity: 0.7, color: '#a855f7', dataType: 'raster' },
-    { id: 'chlorophyll', name: 'Chlorophyll-a', icon: Eye, enabled: true, opacity: 0.7, color: '#16a34a', dataType: 'raster' },
-    { id: 'infrastructure', name: 'Ports & Infrastructure', icon: Anchor, enabled: true, opacity: 1.0, color: '#64748b', dataType: 'vector' }
-  ]);
-
-  const layerDescriptions: Record<string, { description: string; source: string; unit: string }> = {
-    currents: { description: 'Ocean current speed and direction', source: 'CMEMS / SMHI', unit: 'm/s' },
-    waves: { description: 'Significant wave height', source: 'CMEMS / NOAA', unit: 'meters' },
-    wind: { description: 'Wind speed and direction at 10m', source: 'SMHI / NCEP', unit: 'm/s' },
-    sst: { description: 'Sea surface temperature anomalies', source: 'CMEMS / Sentinel-3', unit: '°C' },
-    shipping: { description: 'Real-time vessel positions and traffic', source: 'MarineTraffic / Spire AIS', unit: 'vessels' },
-    oxygen: { description: 'Dissolved oxygen concentration', source: 'CMEMS / ERDDAP', unit: 'mg/L' },
-    chlorophyll: { description: 'Chlorophyll-a concentration (algae)', source: 'Sentinel-3 / CMEMS', unit: 'µg/L' },
-    infrastructure: { description: 'Ports, terminals, and maritime infrastructure', source: 'OpenStreetMap / EEA', unit: 'locations' }
-  };
-
-  // Fetch real-time marine data
-  const fetchMarineData = async () => {
-    try {
-      console.log('Fetching marine data...');
-      const { data, error } = await supabase.functions.invoke('fetch-baltic-marine-data', {
-        body: {
-          basin: 'baltic_proper',
-          depth: 'surface',
-          timeMode: 'nowcast'
-        }
-      });
-
-      console.log('Marine data response:', { data, error });
-
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw error;
-      }
-
-      // The function returns data directly, not wrapped in success/data
-      if (data && data.data) {
-        console.log('Processing', data.data.length, 'data points');
-        
-        // Convert API data to map data points with synthetic locations
-        const mapData = data.data.map((item: any, index: number) => ({
-          id: item.id,
-          name: item.name,
-          primaryValue: item.primaryValue,
-          primaryUnit: item.primaryUnit,
-          status: item.status,
-          icon: item.icon,
-          secondaryMetrics: item.secondaryMetrics,
-          // Generate synthetic locations across Baltic Sea for demonstration
-          location: generateBalticLocation(index, data.data.length)
-        }));
-
-        console.log('Processed map data:', mapData);
-        setMarineData(mapData);
-        
-          if (map.current) {
-            console.log('Updating map layers with data (immediate)');
-            updateMapLayers(mapData);
-          }
-
-        toast({
-          title: "Data Updated",
-          description: `Loaded ${mapData.length} data points`
-        });
-      } else {
-        console.warn('No data received from API');
-        toast({
-          title: "No Data",
-          description: "No marine data available at this time",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching marine data:', error);
-      toast({
-        title: "Data Error",
-        description: "Failed to fetch marine data. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Generate realistic Baltic Sea coordinates
-  const generateBalticLocation = (index: number, total: number) => {
-    const balticBounds = {
-      north: 65.5,
-      south: 53.5,
-      east: 30.0,
-      west: 10.0
-    };
-
-    // Create a more realistic distribution of points
-    const angle = (index / total) * 2 * Math.PI;
-    const radius = 0.3 + Math.random() * 0.4; // Vary the radius
-    
-    const centerLat = (balticBounds.north + balticBounds.south) / 2;
-    const centerLng = (balticBounds.east + balticBounds.west) / 2;
-    
-    const lat = centerLat + Math.cos(angle) * radius * (balticBounds.north - balticBounds.south) / 2;
-    const lng = centerLng + Math.sin(angle) * radius * (balticBounds.east - balticBounds.west) / 2;
-
-    return { lat, lng };
-  };
-
-  // Initialize Mapbox map
-  const initializeMap = async (token: string) => {
-    if (!mapContainer.current) return;
-
-    try {
-      mapboxgl.accessToken = token;
-
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/satellite-streets-v12',
-        center: [19.5, 59.0], // Baltic Sea center
-        zoom: 5,
-        pitch: 0,
-        bearing: 0
-      });
-
-      // Add navigation controls
-      map.current.addControl(
-        new mapboxgl.NavigationControl({
-          visualizePitch: true,
-        }),
-        'top-right'
-      );
-
-      map.current.on('load', () => {
-        addMapLayers();
-        setIsMapReady(true);
-        fetchMarineData();
-        
-        toast({
-          title: "Map Loaded",
-          description: "Interactive maritime map is ready with real-time data layers"
-        });
-      });
-
-      // Set up regular data updates
-      const updateInterval = setInterval(fetchMarineData, 30000); // Update every 30 seconds
-
-      return () => clearInterval(updateInterval);
-
-    } catch (error) {
-      console.error('Error initializing map:', error);
-      toast({
-        title: "Map Error",
-        description: "Failed to initialize map. Please check your connection.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Add map layers and sources
-  const addMapLayers = () => {
-    if (!map.current) return;
-
-    // Add all data sources
-    map.current.addSource('currents', {
-      type: 'geojson',
-      data: { type: 'FeatureCollection', features: [] }
-    });
-
-    map.current.addSource('waves', {
-      type: 'geojson',
-      data: { type: 'FeatureCollection', features: [] }
-    });
-
-    map.current.addSource('wind', {
-      type: 'geojson',
-      data: { type: 'FeatureCollection', features: [] }
-    });
-
-    map.current.addSource('vessels', {
-      type: 'geojson',
-      data: { type: 'FeatureCollection', features: [] }
-    });
-
-    map.current.addSource('shipping-routes', {
-      type: 'geojson',
-      data: generateShippingRoutes()
-    });
-
-    map.current.addSource('sst', {
-      type: 'geojson',
-      data: { type: 'FeatureCollection', features: [] }
-    });
-
-    map.current.addSource('oxygen', {
-      type: 'geojson',
-      data: { type: 'FeatureCollection', features: [] }
-    });
-
-    map.current.addSource('chlorophyll', {
-      type: 'geojson',
-      data: { type: 'FeatureCollection', features: [] }
-    });
-
-    map.current.addSource('infrastructure', {
-      type: 'geojson',
-      data: generateInfrastructureData()
-    });
-
-    // Add all map layers
-    
-    // Current vectors layer - make it MUCH more visible
-    map.current.addLayer({
-      id: 'currents',
-      type: 'line',
-      source: 'currents',
-      paint: {
-        'line-color': '#60a5fa',
-        'line-width': 6,
-        'line-opacity': 1.0
-      },
-      layout: { 'visibility': 'visible' }
-    });
-
-    // Wave heatmap layer - MORE VISIBLE
-    map.current.addLayer({
-      id: 'waves',
-      type: 'heatmap',
-      source: 'waves',
-      paint: {
-        'heatmap-weight': ['case', ['has', 'intensity'], ['get', 'intensity'], 1],
-        'heatmap-intensity': 2.5,
-        'heatmap-color': [
-          'interpolate',
-          ['linear'],
-          ['heatmap-density'],
-          0, 'rgba(8, 145, 178, 0)',
-          0.2, 'rgba(8, 145, 178, 0.7)',
-          0.4, 'rgba(6, 182, 212, 0.85)',
-          0.6, 'rgba(34, 211, 238, 0.95)',
-          0.8, 'rgba(103, 232, 249, 1)',
-          1, 'rgba(165, 243, 252, 1)'
-        ],
-        'heatmap-radius': 60,
-        'heatmap-opacity': 0.95
-      },
-      layout: { 'visibility': 'visible' }
-    });
-
-    // Wind vectors layer - make it MUCH more visible
-    map.current.addLayer({
-      id: 'wind',
-      type: 'line',
-      source: 'wind',
-      paint: {
-        'line-color': '#bef264',
-        'line-width': 5,
-        'line-opacity': 1.0
-      },
-      layout: { 'visibility': 'visible' }
-    });
-
-    // Sea Surface Temperature heatmap - MORE VISIBLE
-    map.current.addLayer({
-      id: 'sst',
-      type: 'heatmap',
-      source: 'sst',
-      paint: {
-        'heatmap-weight': ['case', ['has', 'temperature'], ['get', 'temperature'], 1],
-        'heatmap-intensity': 2.5,
-        'heatmap-color': [
-          'interpolate',
-          ['linear'],
-          ['heatmap-density'],
-          0, 'rgba(220, 38, 38, 0)',
-          0.2, 'rgba(220, 38, 38, 0.7)',
-          0.4, 'rgba(239, 68, 68, 0.85)',
-          0.6, 'rgba(248, 113, 113, 0.95)',
-          0.8, 'rgba(252, 165, 165, 1)',
-          1, 'rgba(254, 202, 202, 1)'
-        ],
-        'heatmap-radius': 55,
-        'heatmap-opacity': 0.95
-      },
-      layout: { 'visibility': 'visible' }
-    });
-
-    // Dissolved Oxygen layer - MORE VISIBLE
-    map.current.addLayer({
-      id: 'oxygen',
-      type: 'heatmap',
-      source: 'oxygen',
-      paint: {
-        'heatmap-weight': ['case', ['has', 'oxygen'], ['get', 'oxygen'], 1],
-        'heatmap-intensity': 2.2,
-        'heatmap-color': [
-          'interpolate',
-          ['linear'],
-          ['heatmap-density'],
-          0, 'rgba(168, 85, 247, 0)',
-          0.2, 'rgba(168, 85, 247, 0.7)',
-          0.4, 'rgba(192, 132, 252, 0.85)',
-          0.6, 'rgba(216, 180, 254, 0.95)',
-          0.8, 'rgba(233, 213, 255, 1)',
-          1, 'rgba(250, 245, 255, 1)'
-        ],
-        'heatmap-radius': 50,
-        'heatmap-opacity': 0.9
-      },
-      layout: { 'visibility': 'visible' }
-    });
-
-    // Chlorophyll-a layer - MORE VISIBLE
-    map.current.addLayer({
-      id: 'chlorophyll',
-      type: 'heatmap',
-      source: 'chlorophyll',
-      paint: {
-        'heatmap-weight': ['case', ['has', 'chlorophyll'], ['get', 'chlorophyll'], 1],
-        'heatmap-intensity': 2.2,
-        'heatmap-color': [
-          'interpolate',
-          ['linear'],
-          ['heatmap-density'],
-          0, 'rgba(22, 163, 74, 0)',
-          0.2, 'rgba(22, 163, 74, 0.7)',
-          0.4, 'rgba(34, 197, 94, 0.85)',
-          0.6, 'rgba(74, 222, 128, 0.95)',
-          0.8, 'rgba(134, 239, 172, 1)',
-          1, 'rgba(187, 247, 208, 1)'
-        ],
-        'heatmap-radius': 48,
-        'heatmap-opacity': 0.9
-      },
-      layout: { 'visibility': 'visible' }
-    });
-
-    // Shipping routes - glow effect (background layer)
-    map.current.addLayer({
-      id: 'shipping-routes-glow',
-      type: 'line',
-      source: 'shipping-routes',
-      paint: {
-        'line-color': ['get', 'color'],
-        'line-width': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          4, ['*', ['get', 'width'], 3],
-          8, ['*', ['get', 'width'], 6]
-        ],
-        'line-blur': 8,
-        'line-opacity': 0.6
-      },
-      layout: { 'visibility': 'visible' }
-    });
-
-    // Shipping routes - main lines
-    map.current.addLayer({
-      id: 'shipping-routes',
-      type: 'line',
-      source: 'shipping-routes',
-      paint: {
-        'line-color': ['get', 'color'],
-        'line-width': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          4, ['get', 'width'],
-          8, ['*', ['get', 'width'], 2]
-        ],
-        'line-opacity': 0.95
-      },
-      layout: { 'visibility': 'visible' }
-    });
-
-    // Vessel traffic layer (points on routes)
-    map.current.addLayer({
-      id: 'shipping',
-      type: 'circle',
-      source: 'vessels',
-      paint: {
-        'circle-radius': ['case', ['has', 'intensity'], ['interpolate', ['linear'], ['get', 'intensity'], 1, 5, 10, 14], 7],
-        'circle-color': '#f97316',
-        'circle-opacity': 0.9,
-        'circle-stroke-width': 2,
-        'circle-stroke-color': '#ffffff'
-      },
-      layout: { 'visibility': 'visible' }
-    });
-
-    // Infrastructure layer
-    map.current.addLayer({
-      id: 'infrastructure',
-      type: 'symbol',
-      source: 'infrastructure',
-      layout: {
-        'icon-image': 'marker-15',
-        'icon-size': 1.2,
-        'text-field': ['get', 'name'],
-        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-        'text-size': 12,
-        'text-offset': [0, 2],
-        'text-anchor': 'top',
-        'visibility': 'visible'
-      },
-      paint: {
-        'icon-color': '#64748b',
-        'text-color': '#475569',
-        'text-halo-color': '#ffffff',
-        'text-halo-width': 1
-      }
-    });
-
-    // Add click handlers
-    map.current.on('click', 'shipping-routes', (e) => {
-      if (e.features && e.features[0]) {
-        const feature = e.features[0];
-        showPopup(e.lngLat, feature.properties);
-      }
-    });
-
-    map.current.on('click', 'shipping', (e) => {
-      if (e.features && e.features[0]) {
-        const feature = e.features[0];
-        showPopup(e.lngLat, feature.properties);
-      }
-    });
-
-    map.current.on('click', 'infrastructure', (e) => {
-      if (e.features && e.features[0]) {
-        const feature = e.features[0];
-        showPopup(e.lngLat, feature.properties);
-      }
-    });
-  };
-
-  // Generate infrastructure data
-  const generateInfrastructureData = (): GeoJSON.FeatureCollection => {
-    const ports = [
-      { name: 'Port of Stockholm', lat: 59.3293, lng: 18.0686, type: 'major_port' },
-      { name: 'Port of Helsinki', lat: 60.1699, lng: 24.9384, type: 'major_port' },
-      { name: 'Port of Gdansk', lat: 54.3520, lng: 18.6466, type: 'major_port' },
-      { name: 'Port of Copenhagen', lat: 55.6761, lng: 12.5683, type: 'major_port' },
-      { name: 'Port of Riga', lat: 56.9496, lng: 24.1052, type: 'port' },
-      { name: 'Port of Tallinn', lat: 59.4370, lng: 24.7536, type: 'port' }
-    ];
-
-    return {
-      type: 'FeatureCollection',
-      features: ports.map(port => ({
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [port.lng, port.lat]
-        },
-        properties: {
-          name: port.name,
-          type: port.type,
-          description: `${port.type.replace('_', ' ').toUpperCase()}`
-        }
-      }))
-    };
-  };
-
-  // Generate current vector from data point
-  const generateCurrentVector = (dataPoint: MarineDataPoint): GeoJSON.Feature | null => {
-    if (!dataPoint.location) return null;
-
-    const direction = dataPoint.secondaryMetrics?.find(m => m.label === 'Direction')?.value as number || 0;
-    const speed = dataPoint.primaryValue;
-    
-    // Calculate vector end point
-    const vectorLength = speed * 0.01; // Scale factor
-    const radians = (direction * Math.PI) / 180;
-    
-    const endLat = dataPoint.location.lat + Math.cos(radians) * vectorLength;
-    const endLng = dataPoint.location.lng + Math.sin(radians) * vectorLength;
-
-    return {
-      type: 'Feature',
-      geometry: {
-        type: 'LineString',
-        coordinates: [
-          [dataPoint.location.lng, dataPoint.location.lat],
-          [endLng, endLat]
-        ]
-      },
-      properties: {
-        speed: speed,
-        direction: direction,
-        name: dataPoint.name
-      }
-    };
-  };
-
-  // Generate wave points for heatmap
-  const generateWavePoints = (dataPoint: MarineDataPoint): GeoJSON.Feature[] => {
-    if (!dataPoint.location) return [];
-
-    const points: GeoJSON.Feature[] = [];
-    const baseIntensity = dataPoint.primaryValue / 5; // Normalize wave height
-
-    // Generate MANY more points around the location for visible heatmap
-    for (let i = 0; i < 30; i++) {
-      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 1.5;
-      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 1.5;
-      
-      points.push({
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [offsetLng, offsetLat]
-        },
-        properties: {
-          intensity: baseIntensity * (0.5 + Math.random() * 0.5),
-          waveHeight: dataPoint.primaryValue
-        }
-      });
-    }
-
-    return points;
-  };
-
-  // Generate wind vector
-  const generateWindVector = (dataPoint: MarineDataPoint): GeoJSON.Feature | null => {
-    if (!dataPoint.location) return null;
-
-    const direction = dataPoint.secondaryMetrics?.find(m => m.label === 'Direction')?.value as number || 0;
-    const speed = dataPoint.primaryValue;
-    
-    const vectorLength = speed * 0.008;
-    const radians = (direction * Math.PI) / 180;
-    
-    const endLat = dataPoint.location.lat + Math.cos(radians) * vectorLength;
-    const endLng = dataPoint.location.lng + Math.sin(radians) * vectorLength;
-
-    return {
-      type: 'Feature',
-      geometry: {
-        type: 'LineString',
-        coordinates: [
-          [dataPoint.location.lng, dataPoint.location.lat],
-          [endLng, endLat]
-        ]
-      },
-      properties: {
-        speed: speed,
-        direction: direction,
-        name: dataPoint.name
-      }
-    };
-  };
-
-  // Generate temperature points for heatmap
-  const generateTemperaturePoints = (dataPoint: MarineDataPoint): GeoJSON.Feature[] => {
-    if (!dataPoint.location) return [];
-
-    const points: GeoJSON.Feature[] = [];
-    const baseIntensity = Math.max(0.1, Math.min(1.0, dataPoint.primaryValue / 25)); // Normalize temperature
-
-    for (let i = 0; i < 35; i++) {
-      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 1.5;
-      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 1.5;
-      
-      points.push({
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [offsetLng, offsetLat]
-        },
-        properties: {
-          temperature: baseIntensity * (0.5 + Math.random() * 0.5),
-          value: dataPoint.primaryValue
-        }
-      });
-    }
-
-    return points;
-  };
-
-  // Generate oxygen points for heatmap
-  const generateOxygenPoints = (dataPoint: MarineDataPoint): GeoJSON.Feature[] => {
-    if (!dataPoint.location) return [];
-
-    const points: GeoJSON.Feature[] = [];
-    const baseIntensity = Math.max(0.1, Math.min(1.0, dataPoint.primaryValue / 12)); // Normalize oxygen
-
-    for (let i = 0; i < 28; i++) {
-      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 1.2;
-      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 1.2;
-      
-      points.push({
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [offsetLng, offsetLat]
-        },
-        properties: {
-          oxygen: baseIntensity * (0.5 + Math.random() * 0.5),
-          value: dataPoint.primaryValue
-        }
-      });
-    }
-
-    return points;
-  };
-
-  // Generate chlorophyll points for heatmap
-  const generateChlorophyllPoints = (dataPoint: MarineDataPoint): GeoJSON.Feature[] => {
-    if (!dataPoint.location) return [];
-
-    const points: GeoJSON.Feature[] = [];
-    const baseIntensity = Math.max(0.1, Math.min(1.0, dataPoint.primaryValue / 20)); // Normalize chlorophyll
-
-    for (let i = 0; i < 32; i++) {
-      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 1.4;
-      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 1.4;
-      
-      points.push({
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [offsetLng, offsetLat]
-        },
-        properties: {
-          chlorophyll: baseIntensity * (0.5 + Math.random() * 0.5),
-          value: dataPoint.primaryValue
-        }
-      });
-    }
-
-    return points;
-  };
-
-  // Update map layers with real data
-  const updateMapLayers = (data: MarineDataPoint[]) => {
-    if (!map.current) return;
-
-    console.log('Updating map layers with', data.length, 'data points');
-
-    // Update current vectors
-    const currentData = data.filter(d => d.id === 'currents');
-    const currentFeatures = currentData.map(d => generateCurrentVector(d)).filter((f): f is GeoJSON.Feature => f !== null);
-    console.log('Current features:', currentFeatures.length);
-
-    if (map.current.getSource('currents')) {
-      (map.current.getSource('currents') as mapboxgl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: currentFeatures
-      });
-    }
-
-    // Update wave data
-    const waveData = data.filter(d => d.id === 'waves');
-    const waveFeatures = waveData.flatMap(d => generateWavePoints(d));
-    console.log('Wave features:', waveFeatures.length);
-
-    if (map.current.getSource('waves')) {
-      (map.current.getSource('waves') as mapboxgl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: waveFeatures
-      });
-    }
-
-    // Update wind vectors
-    const windData = data.filter(d => d.id === 'wind');
-    const windFeatures = windData.map(d => generateWindVector(d)).filter((f): f is GeoJSON.Feature => f !== null);
-    console.log('Wind features:', windFeatures.length);
-
-    if (map.current.getSource('wind')) {
-      (map.current.getSource('wind') as mapboxgl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: windFeatures
-      });
-    }
-
-    // Update SST data
-    const sstData = data.filter(d => d.id === 'sst' || d.id === 'temperature');
-    const sstFeatures = sstData.flatMap(d => generateTemperaturePoints(d));
-    console.log('SST features:', sstFeatures.length);
-
-    if (map.current.getSource('sst')) {
-      (map.current.getSource('sst') as mapboxgl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: sstFeatures
-      });
-    }
-
-    // Update oxygen data
-    const oxygenData = data.filter(d => d.id === 'oxygen' || d.id === 'dissolved_oxygen');
-    const oxygenFeatures = oxygenData.flatMap(d => generateOxygenPoints(d));
-    console.log('Oxygen features:', oxygenFeatures.length);
-
-    if (map.current.getSource('oxygen')) {
-      (map.current.getSource('oxygen') as mapboxgl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: oxygenFeatures
-      });
-    }
-
-    // Update chlorophyll data
-    const chlorophyllData = data.filter(d => d.id === 'chlorophyll' || d.id === 'chlorophyll_a');
-    const chlorophyllFeatures = chlorophyllData.flatMap(d => generateChlorophyllPoints(d));
-    console.log('Chlorophyll features:', chlorophyllFeatures.length);
-
-    if (map.current.getSource('chlorophyll')) {
-      (map.current.getSource('chlorophyll') as mapboxgl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: chlorophyllFeatures
-      });
-    }
-
-    // Update vessel traffic (synthetic data based on shipping intensity)
-    const vesselFeatures = generateVesselTraffic(data);
-    console.log('Vessel features:', vesselFeatures.length);
-
-    if (map.current.getSource('vessels')) {
-      (map.current.getSource('vessels') as mapboxgl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: vesselFeatures
-      });
-    }
-  };
-
-  // Generate major shipping routes as flowing lines
-  const generateShippingRoutes = (): GeoJSON.FeatureCollection => {
-    const routes = [
-      // Major corridors - each with multiple parallel routes for density
-      { start: [18.0686, 59.3293], end: [24.9384, 60.1699], color: '#10b981', intensity: 'high', name: 'Stockholm-Helsinki' },
-      { start: [18.6466, 54.3520], end: [12.5683, 55.6761], color: '#3b82f6', intensity: 'high', name: 'Gdansk-Copenhagen' },
-      { start: [24.1052, 56.9496], end: [24.7536, 59.4370], color: '#8b5cf6', intensity: 'medium', name: 'Riga-Tallinn' },
-      { start: [10.7, 55.6], end: [18.7, 54.4], color: '#06b6d4', intensity: 'high', name: 'Kiel-Gdansk' },
-      { start: [24.9, 60.2], end: [28.2, 59.4], color: '#f59e0b', intensity: 'medium', name: 'Helsinki-St Petersburg' },
-      { start: [18.1, 59.3], end: [21.5, 57.0], color: '#22c55e', intensity: 'medium', name: 'Stockholm-Gotland' },
-      { start: [13.0, 55.4], end: [18.1, 59.3], color: '#14b8a6', intensity: 'high', name: 'Malmo-Stockholm' },
-      { start: [21.0, 65.6], end: [24.9, 60.2], color: '#6366f1', intensity: 'low', name: 'Lulea-Helsinki' },
-      { start: [11.0, 56.0], end: [13.0, 55.6], color: '#ec4899', intensity: 'medium', name: 'Gothenburg-Copenhagen' },
-    ];
-
-    const features: GeoJSON.Feature[] = [];
-
-    routes.forEach(route => {
-      // Create multiple parallel lines for each route to simulate traffic density
-      const numLines = route.intensity === 'high' ? 8 : route.intensity === 'medium' ? 5 : 3;
-      
-      for (let i = 0; i < numLines; i++) {
-        const offset = (i - numLines / 2) * 0.02; // Slight offset for parallel routes
-        
-        features.push({
-          type: 'Feature',
-          geometry: {
-            type: 'LineString',
-            coordinates: [
-              [route.start[0] + offset, route.start[1] + offset * 0.5],
-              [route.end[0] + offset, route.end[1] + offset * 0.5]
-            ]
-          },
-          properties: {
-            color: route.color,
-            intensity: route.intensity,
-            name: route.name,
-            width: route.intensity === 'high' ? 4 : route.intensity === 'medium' ? 3 : 2
-          }
-        });
-      }
-    });
-
-    return {
-      type: 'FeatureCollection',
-      features
-    };
-  };
-
-  // Generate synthetic vessel traffic
-  const generateVesselTraffic = (data?: MarineDataPoint[]): GeoJSON.Feature[] => {
-    const vessels: GeoJSON.Feature[] = [];
-    const shippingLanes = [
-      { start: [18.0686, 59.3293], end: [24.9384, 60.1699] },
-      { start: [18.6466, 54.3520], end: [12.5683, 55.6761] },
-      { start: [24.1052, 56.9496], end: [24.7536, 59.4370] }
-    ];
-
-    shippingLanes.forEach((lane, laneIndex) => {
-      for (let i = 0; i < 10; i++) {
-        const progress = Math.random();
-        const lng = lane.start[0] + (lane.end[0] - lane.start[0]) * progress;
-        const lat = lane.start[1] + (lane.end[1] - lane.start[1]) * progress;
-        
-        vessels.push({
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [lng + (Math.random() - 0.5) * 0.1, lat + (Math.random() - 0.5) * 0.1]
-          },
-          properties: {
-            intensity: 3 + Math.random() * 7,
-            vesselType: ['Container', 'Bulk Carrier', 'Tanker', 'Ferry'][Math.floor(Math.random() * 4)],
-            speed: Math.random() * 20 + 5,
-            course: Math.random() * 360
-          }
-        });
-      }
-    });
-
-    return vessels;
-  };
-
-  // Show popup with data
-  const showPopup = (lngLat: mapboxgl.LngLat, properties: any) => {
-    if (!map.current) return;
-
-    const popup = new mapboxgl.Popup()
-      .setLngLat(lngLat)
-      .setHTML(`
-        <div class="p-2">
-          <h3 class="font-semibold text-sm">${properties.name || properties.vesselType || 'Data Point'}</h3>
-          ${properties.speed ? `<p class="text-xs">Speed: ${properties.speed.toFixed(1)} m/s</p>` : ''}
-          ${properties.direction ? `<p class="text-xs">Direction: ${properties.direction}°</p>` : ''}
-          ${properties.intensity ? `<p class="text-xs">Intensity: ${properties.intensity.toFixed(1)}</p>` : ''}
-          ${properties.description ? `<p class="text-xs">${properties.description}</p>` : ''}
-        </div>
-      `)
-      .addTo(map.current);
-  };
-
-  // Toggle layer visibility
-  const toggleLayer = (layerId: string) => {
-    if (!map.current) return;
-
-    const layer = layers.find(l => l.id === layerId);
-    if (!layer) return;
-
-    try {
-      const visibility = map.current.getLayoutProperty(layerId, 'visibility');
-      const newVisibility = visibility === 'visible' ? 'none' : 'visible';
-      
-      map.current.setLayoutProperty(layerId, 'visibility', newVisibility);
-      
-      setLayers(prevLayers =>
-        prevLayers.map(l =>
-          l.id === layerId ? { ...l, enabled: newVisibility === 'visible' } : l
-        )
-      );
-
-      console.log(`Toggled layer ${layerId} to ${newVisibility}`);
-    } catch (error) {
-      console.error(`Error toggling layer ${layerId}:`, error);
-    }
-  };
-
-  // Start/stop animation
-  const toggleAnimation = () => {
-    setIsAnimating(!isAnimating);
-    // Animation logic would go here
-  };
-
-  // Initialize map when token is available
-  useEffect(() => {
-    if (mapboxToken && !tokenError) {
-      initializeMap(mapboxToken);
-    }
-  }, [mapboxToken, tokenError]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (map.current) {
-        map.current.remove();
-      }
-    };
-  }, []);
-
-  if (tokenError) {
-    return (
-      <Card className="w-full h-full">
-        <CardContent className="flex items-center justify-center h-full">
-          <div className="text-center">
-            <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-yellow-500" />
-            <h3 className="text-lg font-semibold mb-2">Mapbox Token Required</h3>
-            <p className="text-muted-foreground">Please configure your Mapbox token to enable the interactive map.</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <div className="w-full h-full relative">
-      {/* Map Container */}
-      <div ref={mapContainer} className="w-full h-full" />
-
-      {/* Enhanced Layer Controls */}
-      <Card className="absolute top-4 left-4 w-96 bg-card/95 backdrop-blur-sm shadow-xl border-2">
-        <CardHeader className="pb-3 border-b">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center text-base">
-              <Layers className="w-5 h-5 mr-2 text-primary" />
-              Data Layers
-            </CardTitle>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => setShowDataSources(!showDataSources)}
-            >
-              <Info className="w-4 h-4" />
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3 max-h-96 overflow-y-auto">
-          {layers.map((layer) => (
-            <div key={layer.id} className="p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center space-x-3">
-                  <div 
-                    className="w-8 h-8 rounded flex items-center justify-center" 
-                    style={{ backgroundColor: `${layer.color}20` }}
-                  >
-                    <layer.icon className="w-4 h-4" style={{ color: layer.color }} />
-                  </div>
-                  <div>
-                    <div className="font-medium text-sm">{layer.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {layerDescriptions[layer.id]?.unit}
-                    </div>
-                  </div>
-                </div>
-                <Switch
-                  checked={layer.enabled}
-                  onCheckedChange={() => toggleLayer(layer.id)}
-                />
-              </div>
-              {showDataSources && (
-                <div className="text-xs text-muted-foreground mt-2 pt-2 border-t">
-                  <div className="mb-1">{layerDescriptions[layer.id]?.description}</div>
-                  <div className="flex items-center gap-1">
-                    <Badge variant="outline" className="text-xs">
-                      {layerDescriptions[layer.id]?.source}
-                    </Badge>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      {/* Legend Panel */}
-      {showLegend && (
-        <Card className="absolute top-4 right-80 w-64 bg-card/95 backdrop-blur-sm shadow-xl border-2">
-          <CardHeader className="pb-3 border-b">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm flex items-center">
-                <Info className="w-4 h-4 mr-2 text-primary" />
-                Legend
-              </CardTitle>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => setShowLegend(false)}
-              >
-                ×
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4 text-xs">
-            {/* Wave Height Legend */}
-            {layers.find(l => l.id === 'waves')?.enabled && (
-              <div>
-                <div className="font-medium mb-2 flex items-center gap-2">
-                  <Waves className="w-3 h-3" />
-                  Wave Height
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <div className="w-16 h-3 rounded" style={{ background: 'linear-gradient(to right, rgba(6,182,212,0.3), rgba(30,64,175,0.9))' }}></div>
-                    <span className="text-muted-foreground">0 - 5m</span>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {/* Temperature Legend */}
-            {layers.find(l => l.id === 'sst')?.enabled && (
-              <div>
-                <div className="font-medium mb-2 flex items-center gap-2">
-                  <Thermometer className="w-3 h-3" />
-                  Sea Surface Temp
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <div className="w-16 h-3 rounded" style={{ background: 'linear-gradient(to right, rgba(245,158,11,0.3), rgba(153,27,27,0.9))' }}></div>
-                    <span className="text-muted-foreground">Cold - Warm</span>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {/* Vessel Traffic Legend */}
-            {layers.find(l => l.id === 'shipping')?.enabled && (
-              <div>
-                <div className="font-medium mb-2 flex items-center gap-2">
-                  <Ship className="w-3 h-3" />
-                  Vessel Traffic
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                    <span className="text-muted-foreground">Active Vessel</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Wind/Current Legend */}
-            {(layers.find(l => l.id === 'wind')?.enabled || layers.find(l => l.id === 'currents')?.enabled) && (
-              <div>
-                <div className="font-medium mb-2">Vector Direction</div>
-                <div className="text-muted-foreground">
-                  Arrows show direction and relative strength
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Animation Controls */}
-      <Card className="absolute bottom-4 left-4 bg-card/90 backdrop-blur-sm">
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleAnimation}
-            >
-              {isAnimating ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            </Button>
-            <div className="flex-1 min-w-32">
-              <Slider
-                value={[currentTime]}
-                onValueChange={(value) => setCurrentTime(value[0])}
-                max={24}
-                step={1}
-                className="w-full"
-              />
-            </div>
-            <span className="text-sm text-muted-foreground min-w-12">
-              +{currentTime}h
-            </span>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Enhanced Data Stats & Controls */}
-      <Card className="absolute top-4 right-4 w-72 bg-card/95 backdrop-blur-sm shadow-xl border-2">
-        <CardHeader className="pb-3 border-b">
-          <CardTitle className="flex items-center text-sm">
-            <Activity className="w-4 h-4 mr-2 text-green-600" />
-            Data Status
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center justify-between p-2 rounded-lg bg-green-50 dark:bg-green-950/20">
-            <span className="text-sm font-medium">Data Mode:</span>
-            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
-              MOCK DATA
-            </Badge>
-          </div>
-          
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Data Points:</span>
-              <Badge variant="secondary">{marineData.length}</Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Active Layers:</span>
-              <Badge variant="secondary">{layers.filter(l => l.enabled).length}/{layers.length}</Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Last Update:</span>
-              <span className="text-xs text-muted-foreground">
-                {new Date().toLocaleTimeString()}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Status:</span>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <Badge variant="outline" className="text-green-600 border-green-200">
-                  Live
-                </Badge>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-3 border-t space-y-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full"
-              onClick={() => setShowLegend(!showLegend)}
-            >
-              {showLegend ? 'Hide' : 'Show'} Legend
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full"
-              onClick={fetchMarineData}
-            >
-              <RotateCcw className="w-3 h-3 mr-2" />
-              Refresh Data
-            </Button>
-          </div>
-
-          <div className="pt-2 border-t">
-            <div className="text-xs text-muted-foreground">
-              <p className="mb-1 font-medium">Ready for API Integration</p>
-              <p>This map is configured to display data from multiple sources. Connect your APIs to start streaming real-time data.</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {!isMapReady && (
-        <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading interactive maritime map...</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import maplibregl, { Map as MapLibreMap } from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { motion } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Info, Layers, Upload, Play, Pause } from "lucide-react";
+
+/**
+ * Interactive maritime map for layers like wind, waves, vessel traffic, and grid infrastructure.
+ * - Built on MapLibre (no API key required). Uses OSM raster tiles by default.
+ * - Toggle layers, control opacity, load your own GeoJSON or XYZ raster tiles.
+ * - Demo vessel pings + heatmap (with basic time filtering).
+ * - Production note: use your own tile server / CDN and real data feeds.
+ */
+
+// --- Simple OSM light style using XYZ tiles (swap for your own) ---
+const lightStyle: any = {
+  version: 8,
+  sources: {
+    osm: {
+      type: "raster",
+      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      tileSize: 256,
+      attribution:
+        "© OpenStreetMap contributors | Basemap for demo only; use your own tiles in production.",
+    },
+  },
+  layers: [
+    { id: "osm", type: "raster", source: "osm", minzoom: 0, maxzoom: 19 },
+  ],
 };
 
-export default InteractiveMaritimeMap;
+// --- Tiny demo dataset: vessel pings in the Baltic (timestamps in epoch seconds) ---
+const demoVesselPings: GeoJSON.FeatureCollection<GeoJSON.Point> = {
+  type: "FeatureCollection",
+  features: [
+    // Gdańsk -> Gotland corridor (fake sample points)
+    { type: "Feature", properties: { ts: 1727395200, sog: 12 }, geometry: { type: "Point", coordinates: [18.65, 54.35] } },
+    { type: "Feature", properties: { ts: 1727398800, sog: 13 }, geometry: { type: "Point", coordinates: [19.2, 55.0] } },
+    { type: "Feature", properties: { ts: 1727402400, sog: 13 }, geometry: { type: "Point", coordinates: [19.9, 55.7] } },
+    { type: "Feature", properties: { ts: 1727406000, sog: 14 }, geometry: { type: "Point", coordinates: [20.6, 56.3] } },
+    { type: "Feature", properties: { ts: 1727409600, sog: 14 }, geometry: { type: "Point", coordinates: [21.4, 57.0] } },
+    { type: "Feature", properties: { ts: 1727413200, sog: 15 }, geometry: { type: "Point", coordinates: [21.9, 57.5] } },
+    { type: "Feature", properties: { ts: 1727416800, sog: 15 }, geometry: { type: "Point", coordinates: [18.07, 59.33] } }, // Stockholm (jump)
+  ],
+};
+
+// --- Tiny demo grid (HVDC cables and substations) ---
+const demoGrid: GeoJSON.FeatureCollection = {
+  type: "FeatureCollection",
+  features: [
+    {
+      type: "Feature",
+      properties: { name: "HVDC Cable (demo)" },
+      geometry: {
+        type: "LineString",
+        coordinates: [
+          [11.87, 57.7], // Gothenburg area
+          [12.7, 56.0],
+          [14.3, 55.4],
+          [16.0, 55.3], // south Baltic
+        ],
+      },
+    },
+    {
+      type: "Feature",
+      properties: { name: "Substation: Nynäshamn (demo)" },
+      geometry: { type: "Point", coordinates: [18.0, 58.9] },
+    },
+    {
+      type: "Feature",
+      properties: { name: "Offshore Hub (demo)" },
+      geometry: { type: "Point", coordinates: [19.8, 56.2] },
+    },
+  ],
+};
+
+// Utility to read uploaded GeoJSON files
+async function readGeoJSON(file: File): Promise<GeoJSON.FeatureCollection | null> {
+  const text = await file.text();
+  try {
+    const json = JSON.parse(text);
+    return json as GeoJSON.FeatureCollection;
+  } catch (e) {
+    console.error("Invalid GeoJSON", e);
+    return null;
+  }
+}
+
+// Layer configuration type
+type RasterLayerCfg = { id: string; url: string; opacity: number; visible: boolean };
+
+export default function InteractiveMaritimeMap() {
+  const mapRef = useRef<MapLibreMap | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const [isReady, setIsReady] = useState(false);
+
+  // Layer toggles & settings
+  const [showHeatmap, setShowHeatmap] = useState(true);
+  const [heatOpacity, setHeatOpacity] = useState(0.85);
+  const [showGrid, setShowGrid] = useState(true);
+  const [gridOpacity, setGridOpacity] = useState(0.9);
+
+  const [rasterLayers, setRasterLayers] = useState<RasterLayerCfg[]>([
+    // Example (commented out): { id: "wind-tiles", url: "https://.../{z}/{x}/{y}.png", opacity: 0.7, visible: false }
+  ]);
+
+  // Time filtering (hours window around demo epoch range)
+  const minTs = 1727395200; // demo start
+  const maxTs = 1727416800; // demo end
+  const [tsWindow, setTsWindow] = useState<[number, number]>([minTs, maxTs]);
+  const [play, setPlay] = useState(false);
+
+  // Initialize map
+  useEffect(() => {
+    if (mapContainerRef.current && !mapRef.current) {
+      const map = new maplibregl.Map({
+        container: mapContainerRef.current,
+        style: lightStyle as any,
+        center: [18.5, 56.3],
+        zoom: 4.5,
+        hash: true,
+      });
+      map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }));
+      map.addControl(new maplibregl.ScaleControl({ unit: "metric" }));
+
+      map.on("load", () => {
+        setIsReady(true);
+        mapRef.current = map;
+
+        // Add vessel pings source
+        map.addSource("vessel-pings", {
+          type: "geojson",
+          data: demoVesselPings,
+        });
+
+        // Heatmap layer
+        map.addLayer({
+          id: "vessel-heat",
+          type: "heatmap",
+          source: "vessel-pings",
+          maxzoom: 9,
+          paint: {
+            "heatmap-weight": ["interpolate", ["linear"], ["get", "sog"], 0, 0, 20, 1],
+            "heatmap-intensity": 1.2,
+            "heatmap-color": [
+              "interpolate",
+              ["linear"],
+              ["heatmap-density"],
+              0, "rgba(0,0,255,0)",
+              0.2, "#1e90ff",
+              0.4, "#00ffff",
+              0.6, "#39ff14",
+              0.8, "#ffd700",
+              1, "#ff4500",
+            ],
+            "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 2, 8, 24],
+            "heatmap-opacity": heatOpacity,
+          },
+        } as any);
+
+        // Grid source & layers
+        map.addSource("grid", { type: "geojson", data: demoGrid });
+        map.addLayer({
+          id: "grid-lines",
+          type: "line",
+          source: "grid",
+          filter: ["==", ["geometry-type"], "LineString"],
+          paint: { "line-color": "#ff0066", "line-width": 2.5, "line-opacity": gridOpacity },
+        });
+        map.addLayer({
+          id: "grid-points",
+          type: "circle",
+          source: "grid",
+          filter: ["==", ["geometry-type"], "Point"],
+          paint: {
+            "circle-radius": 6,
+            "circle-color": "#111",
+            "circle-stroke-color": "#ff0066",
+            "circle-stroke-width": 2,
+            "circle-opacity": gridOpacity,
+          },
+        });
+        map.addLayer({
+          id: "grid-labels",
+          type: "symbol",
+          source: "grid",
+          filter: ["==", ["geometry-type"], "Point"],
+          layout: { "text-field": ["get", "name"], "text-offset": [0, 1.2], "text-size": 12 },
+          paint: { "text-color": "#111", "text-halo-color": "#ffffff", "text-halo-width": 1.2, "text-opacity": gridOpacity },
+        });
+
+        // Initial time filter
+        map.setFilter("vessel-heat", ["all", [">=", ["get", "ts"], tsWindow[0]], ["<=", ["get", "ts"], tsWindow[1]]]);
+      });
+
+      return () => map.remove();
+    }
+  }, []);
+
+  // React to UI changes: opacity & visibility
+  useEffect(() => {
+    const m = mapRef.current; if (!m || !isReady) return;
+    if (m.getLayer("vessel-heat")) m.setPaintProperty("vessel-heat", "heatmap-opacity", showHeatmap ? heatOpacity : 0);
+  }, [heatOpacity, showHeatmap, isReady]);
+
+  useEffect(() => {
+    const m = mapRef.current; if (!m || !isReady) return;
+    ["grid-lines", "grid-points", "grid-labels"].forEach((id) => {
+      if (!m.getLayer(id)) return;
+      const prop = id.includes("labels") ? "text-opacity" : id.includes("points") ? "circle-opacity" : "line-opacity";
+      const val = showGrid ? gridOpacity : 0;
+      m.setPaintProperty(id, prop as any, val);
+    });
+  }, [gridOpacity, showGrid, isReady]);
+
+  // Time filter updates
+  useEffect(() => {
+    const m = mapRef.current; if (!m || !isReady) return;
+    if (m.getLayer("vessel-heat")) {
+      m.setFilter("vessel-heat", ["all", [">=", ["get", "ts"], tsWindow[0]], ["<=", ["get", "ts"], tsWindow[1]]]);
+    }
+  }, [tsWindow, isReady]);
+
+  // Simple playhead that moves the window forward
+  useEffect(() => {
+    if (!play) return;
+    const id = setInterval(() => {
+      setTsWindow(([a, b]) => {
+        const step = 600; // 10 minutes
+        const width = b - a;
+        let na = a + step;
+        let nb = b + step;
+        if (nb > maxTs) { na = minTs; nb = minTs + width; }
+        return [na, nb];
+      });
+    }, 500);
+    return () => clearInterval(id);
+  }, [play]);
+
+  // Raster layer add/remove
+  const addRaster = (url: string) => {
+    const id = `raster-${Math.random().toString(36).slice(2, 8)}`;
+    setRasterLayers((prev) => [...prev, { id, url, opacity: 0.75, visible: true }]);
+    const m = mapRef.current; if (!m || !isReady) return;
+    if (!m.getSource(id)) {
+      m.addSource(id, { type: "raster", tiles: [url], tileSize: 256 });
+      m.addLayer({ id, type: "raster", source: id, paint: { "raster-opacity": 0.75 } }, "vessel-heat");
+    }
+  };
+
+  useEffect(() => {
+    const m = mapRef.current; if (!m || !isReady) return;
+    rasterLayers.forEach((rl) => {
+      const exists = m.getSource(rl.id);
+      if (!exists) {
+        m.addSource(rl.id, { type: "raster", tiles: [rl.url], tileSize: 256 });
+        m.addLayer({ id: rl.id, type: "raster", source: rl.id, paint: { "raster-opacity": rl.opacity } }, "vessel-heat");
+      } else if (m.getLayer(rl.id)) {
+        m.setPaintProperty(rl.id, "raster-opacity", rl.visible ? rl.opacity : 0);
+      }
+    });
+  }, [rasterLayers, isReady]);
+
+  // Handle local GeoJSON upload (adds as a new source + layers)
+  const onGeoJSONUpload = async (file?: File | null) => {
+    if (!file) return;
+    const data = await readGeoJSON(file);
+    if (!data) return;
+    const id = `geojson-${Math.random().toString(36).slice(2, 8)}`;
+    const m = mapRef.current; if (!m || !isReady) return;
+    m.addSource(id, { type: "geojson", data });
+    m.addLayer({ id: `${id}-fill`, type: "fill", source: id, filter: ["==", ["geometry-type"], "Polygon"], paint: { "fill-color": "#2684ff", "fill-opacity": 0.25 } });
+    m.addLayer({ id: `${id}-line`, type: "line", source: id, filter: ["any", ["==", ["geometry-type"], "LineString"], ["==", ["geometry-type"], "MultiLineString"]], paint: { "line-color": "#2684ff", "line-width": 2 } });
+    m.addLayer({ id: `${id}-pt`, type: "circle", source: id, filter: ["==", ["geometry-type"], "Point"], paint: { "circle-color": "#111", "circle-stroke-color": "#2684ff", "circle-stroke-width": 2, "circle-radius": 5 } });
+  };
+
+  return (
+    <div className="w-full h-screen grid grid-cols-1 lg:grid-cols-[360px_1fr]">
+      {/* Left control panel */}
+      <motion.aside
+        initial={{ x: -20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.4 }}
+        className="bg-card/80 backdrop-blur border-r p-3 lg:p-4 overflow-y-auto"
+      >
+        <Card className="mb-3 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-lg"><Layers className="w-4 h-4"/>Layers</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Vessel heatmap */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="font-medium">Vessel traffic (heatmap)</Label>
+                <Switch checked={showHeatmap} onCheckedChange={setShowHeatmap} />
+              </div>
+              <div>
+                <Label>Opacity</Label>
+                <Slider value={[Math.round(heatOpacity * 100)]} onValueChange={(v) => setHeatOpacity(v[0] / 100)} step={1} min={0} max={100} />
+              </div>
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant={play ? "secondary" : "default"} onClick={() => setPlay((p) => !p)}>
+                  {play ? <Pause className="w-4 h-4 mr-1"/> : <Play className="w-4 h-4 mr-1"/>}{play ? "Pause" : "Play"}
+                </Button>
+                <div className="text-xs text-muted-foreground">Time window: {Math.round((tsWindow[1]-tsWindow[0])/60)} min</div>
+              </div>
+              <div>
+                <Label>Filter window</Label>
+                <Slider value={[((tsWindow[0]-minTs)/(maxTs-minTs))*100, ((tsWindow[1]-minTs)/(maxTs-minTs))*100]}
+                  onValueChange={(v) => {
+                    const toTs = (pct:number)=> minTs + (pct/100)*(maxTs-minTs);
+                    setTsWindow([toTs(v[0]), toTs(v[1])] as [number, number]);
+                  }} step={1} min={0} max={100} />
+              </div>
+            </div>
+
+            {/* Grid */}
+            <div className="space-y-2 pt-2 border-t">
+              <div className="flex items-center justify-between">
+                <Label className="font-medium">Energy grid (demo)</Label>
+                <Switch checked={showGrid} onCheckedChange={setShowGrid} />
+              </div>
+              <div>
+                <Label>Opacity</Label>
+                <Slider value={[Math.round(gridOpacity * 100)]} onValueChange={(v) => setGridOpacity(v[0] / 100)} step={1} min={0} max={100} />
+              </div>
+            </div>
+
+            {/* Raster add */}
+            <div className="space-y-3 pt-3 border-t">
+              <Label className="font-medium">Add raster tiles (XYZ)</Label>
+              <div className="flex gap-2">
+                <Input id="raster-url" placeholder="https://server/{z}/{x}/{y}.png or .mvt" />
+                <Button onClick={() => {
+                  const inp = document.getElementById("raster-url") as HTMLInputElement | null;
+                  if (inp && inp.value) addRaster(inp.value);
+                }}>Add</Button>
+              </div>
+              <div className="space-y-2">
+                {rasterLayers.map((rl, i) => (
+                  <div key={rl.id} className="rounded-lg border p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="truncate text-sm" title={rl.url}>{rl.url}</div>
+                      <Switch checked={rl.visible} onCheckedChange={(v) => setRasterLayers((prev) => prev.map((p, idx) => idx===i ? { ...p, visible: v } : p))} />
+                    </div>
+                    <div className="mt-1">
+                      <Label className="text-xs">Opacity</Label>
+                      <Slider value={[Math.round(rl.opacity * 100)]}
+                        onValueChange={(v) => setRasterLayers((prev) => prev.map((p, idx) => idx===i ? { ...p, opacity: v[0]/100 } : p))}
+                        step={1} min={0} max={100} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Upload */}
+            <div className="space-y-2 pt-3 border-t">
+              <Label className="font-medium flex items-center gap-2"><Upload className="w-4 h-4"/> Add GeoJSON (local)</Label>
+              <Input type="file" accept=".geojson,application/geo+json,application/json" onChange={(e)=> onGeoJSONUpload(e.target.files?.[0]) } />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-lg"><Info className="w-4 h-4"/>Tips</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm space-y-2 text-muted-foreground">
+            <p>• Paste a public XYZ URL for wind/wave tiles or WMS-proxied layers. Example pattern: <code>https://your-tiles/{"{z}"}/{"{x}"}/{"{y}"}.png</code>.</p>
+            <p>• Upload GeoJSON with a <code>ts</code> property to enable time filtering (used by the heatmap demo).</p>
+            <p>• Replace the basemap style or center/zoom to your AOI. For production, serve your own basemap tiles.</p>
+          </CardContent>
+        </Card>
+      </motion.aside>
+
+      {/* Map */}
+      <div ref={mapContainerRef} className="relative w-full h-[60vh] lg:h-full" />
+    </div>
+  );
+}
