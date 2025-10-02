@@ -253,6 +253,11 @@ const InteractiveMaritimeMap = () => {
       data: { type: 'FeatureCollection', features: [] }
     });
 
+    map.current.addSource('shipping-routes', {
+      type: 'geojson',
+      data: generateShippingRoutes()
+    });
+
     map.current.addSource('sst', {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] }
@@ -401,7 +406,46 @@ const InteractiveMaritimeMap = () => {
       layout: { 'visibility': 'visible' }
     });
 
-    // Vessel traffic layer
+    // Shipping routes - glow effect (background layer)
+    map.current.addLayer({
+      id: 'shipping-routes-glow',
+      type: 'line',
+      source: 'shipping-routes',
+      paint: {
+        'line-color': ['get', 'color'],
+        'line-width': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          4, ['*', ['get', 'width'], 3],
+          8, ['*', ['get', 'width'], 6]
+        ],
+        'line-blur': 8,
+        'line-opacity': 0.6
+      },
+      layout: { 'visibility': 'visible' }
+    });
+
+    // Shipping routes - main lines
+    map.current.addLayer({
+      id: 'shipping-routes',
+      type: 'line',
+      source: 'shipping-routes',
+      paint: {
+        'line-color': ['get', 'color'],
+        'line-width': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          4, ['get', 'width'],
+          8, ['*', ['get', 'width'], 2]
+        ],
+        'line-opacity': 0.95
+      },
+      layout: { 'visibility': 'visible' }
+    });
+
+    // Vessel traffic layer (points on routes)
     map.current.addLayer({
       id: 'shipping',
       type: 'circle',
@@ -440,6 +484,13 @@ const InteractiveMaritimeMap = () => {
     });
 
     // Add click handlers
+    map.current.on('click', 'shipping-routes', (e) => {
+      if (e.features && e.features[0]) {
+        const feature = e.features[0];
+        showPopup(e.lngLat, feature.properties);
+      }
+    });
+
     map.current.on('click', 'shipping', (e) => {
       if (e.features && e.features[0]) {
         const feature = e.features[0];
@@ -743,13 +794,62 @@ const InteractiveMaritimeMap = () => {
     }
   };
 
+  // Generate major shipping routes as flowing lines
+  const generateShippingRoutes = (): GeoJSON.FeatureCollection => {
+    const routes = [
+      // Major corridors - each with multiple parallel routes for density
+      { start: [18.0686, 59.3293], end: [24.9384, 60.1699], color: '#10b981', intensity: 'high', name: 'Stockholm-Helsinki' },
+      { start: [18.6466, 54.3520], end: [12.5683, 55.6761], color: '#3b82f6', intensity: 'high', name: 'Gdansk-Copenhagen' },
+      { start: [24.1052, 56.9496], end: [24.7536, 59.4370], color: '#8b5cf6', intensity: 'medium', name: 'Riga-Tallinn' },
+      { start: [10.7, 55.6], end: [18.7, 54.4], color: '#06b6d4', intensity: 'high', name: 'Kiel-Gdansk' },
+      { start: [24.9, 60.2], end: [28.2, 59.4], color: '#f59e0b', intensity: 'medium', name: 'Helsinki-St Petersburg' },
+      { start: [18.1, 59.3], end: [21.5, 57.0], color: '#22c55e', intensity: 'medium', name: 'Stockholm-Gotland' },
+      { start: [13.0, 55.4], end: [18.1, 59.3], color: '#14b8a6', intensity: 'high', name: 'Malmo-Stockholm' },
+      { start: [21.0, 65.6], end: [24.9, 60.2], color: '#6366f1', intensity: 'low', name: 'Lulea-Helsinki' },
+      { start: [11.0, 56.0], end: [13.0, 55.6], color: '#ec4899', intensity: 'medium', name: 'Gothenburg-Copenhagen' },
+    ];
+
+    const features: GeoJSON.Feature[] = [];
+
+    routes.forEach(route => {
+      // Create multiple parallel lines for each route to simulate traffic density
+      const numLines = route.intensity === 'high' ? 8 : route.intensity === 'medium' ? 5 : 3;
+      
+      for (let i = 0; i < numLines; i++) {
+        const offset = (i - numLines / 2) * 0.02; // Slight offset for parallel routes
+        
+        features.push({
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [route.start[0] + offset, route.start[1] + offset * 0.5],
+              [route.end[0] + offset, route.end[1] + offset * 0.5]
+            ]
+          },
+          properties: {
+            color: route.color,
+            intensity: route.intensity,
+            name: route.name,
+            width: route.intensity === 'high' ? 4 : route.intensity === 'medium' ? 3 : 2
+          }
+        });
+      }
+    });
+
+    return {
+      type: 'FeatureCollection',
+      features
+    };
+  };
+
   // Generate synthetic vessel traffic
   const generateVesselTraffic = (data?: MarineDataPoint[]): GeoJSON.Feature[] => {
     const vessels: GeoJSON.Feature[] = [];
     const shippingLanes = [
-      { start: [18.0686, 59.3293], end: [24.9384, 60.1699] }, // Stockholm-Helsinki
-      { start: [18.6466, 54.3520], end: [12.5683, 55.6761] }, // Gdansk-Copenhagen
-      { start: [24.1052, 56.9496], end: [24.7536, 59.4370] }  // Riga-Tallinn
+      { start: [18.0686, 59.3293], end: [24.9384, 60.1699] },
+      { start: [18.6466, 54.3520], end: [12.5683, 55.6761] },
+      { start: [24.1052, 56.9496], end: [24.7536, 59.4370] }
     ];
 
     shippingLanes.forEach((lane, laneIndex) => {
