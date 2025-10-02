@@ -32,13 +32,47 @@ const lightStyle: any = {
       type: "raster",
       tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
       tileSize: 256,
-      attribution:
-        "© OpenStreetMap contributors | Basemap for demo only; use your own tiles in production.",
+      attribution: "© OpenStreetMap contributors",
     },
   },
-  layers: [
-    { id: "osm", type: "raster", source: "osm", minzoom: 0, maxzoom: 19 },
-  ],
+  layers: [{ id: "osm", type: "raster", source: "osm", minzoom: 0, maxzoom: 19 }],
+};
+
+// ---- PRODUCTION API CONFIG (edit these or load from env) ----
+const API = {
+  // Vessel presence/heatmap tiles (PNG or MVT). Example with token as query param.
+  GFW_AIS_TILES: "https://YOUR_GFW_TILE_SERVER/vessel-presence/{z}/{x}/{y}.png?style=presence&start={START}&end={END}&key=${GFW_TOKEN}",
+
+  // CMEMS proxy endpoints you host that return XYZ tiles for wave height, wind speed, surface currents
+  CMEMS_WAVE_TILES: "https://your-proxy.example.com/cmems/wave-hs/{z}/{x}/{y}.png?time={ISO}",
+  CMEMS_WIND_VECTOR: "https://your-proxy.example.com/cmems/wind-arrows/{z}/{x}/{y}.mvt?time={ISO}",
+  CMEMS_CURRENT_VECTOR: "https://your-proxy.example.com/cmems/currents/{z}/{x}/{y}.mvt?time={ISO}",
+
+  // EMODnet Human Activities WMS/WFS proxy -> XYZ/MVT you host (recommended for speed)
+  EMODNET_GRID_CABLES_MVT: "https://your-proxy.example.com/emodnet/grid-cables/{z}/{x}/{y}.mvt",
+  EMODNET_WINDFARMS_MVT: "https://your-proxy.example.com/emodnet/windfarms/{z}/{x}/{y}.mvt",
+
+  // CAMS air-quality tiles (via your proxy)
+  CAMS_NO2_TILES: "https://your-proxy.example.com/cams/no2/{z}/{x}/{y}.png?time={ISO}",
+};
+
+// Resolve tokens: read from window.ENV or local storage
+const getToken = (name: string) => (window as any)?.ENV?.[name] || localStorage.getItem(name) || "";
+
+// Little helper to add headers to all requests (MapLibre supports transformRequest)
+const authTransformRequest = (url: string, resourceType?: string) => {
+  const headers: Record<string, string> = {};
+  // Examples: attach Authorization only for your domains
+  if (url.includes("your-proxy.example.com")) {
+    const token = getToken("API_BEARER");
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+  }
+  if (url.includes("YOUR_GFW_TILE_SERVER")) {
+    // If GFW uses header auth instead of query param
+    const gfw = getToken("GFW_TOKEN");
+    if (gfw) headers["x-api-key"] = gfw;
+  }
+  return { url, headers };
 };
 
 // --- Tiny demo dataset: vessel pings in the Baltic (timestamps in epoch seconds) ---
@@ -86,6 +120,20 @@ const demoGrid: GeoJSON.FeatureCollection = {
   ],
 };
 
+// Generic JSON fetch with retry/backoff + error surface
+async function fetchJSON<T = any>(url: string, opts: RequestInit = {}, retries = 2): Promise<T> {
+  try {
+    const res = await fetch(url, { ...opts, headers: { "Accept": "application/json", ...(opts.headers||{}) } });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    return await res.json();
+  } catch (e) {
+    if (retries > 0) {
+      await new Promise(r => setTimeout(r, 400 * (3 - retries)));
+      return fetchJSON(url, opts, retries - 1);
+    }
+    throw e;
+  }
+}
 // Utility to read uploaded GeoJSON files
 async function readGeoJSON(file: File): Promise<GeoJSON.FeatureCollection | null> {
   const text = await file.text();
@@ -166,6 +214,7 @@ export default function MarineOpsMap() {
         center: [19.2, 57.3],
         zoom: 4.8,
         hash: true,
+        transformRequest: authTransformRequest,
       });
       map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }));
       map.addControl(new maplibregl.ScaleControl({ unit: "metric" }));
@@ -270,6 +319,81 @@ export default function MarineOpsMap() {
     </div>
   );
 
+  // API status display
+  const [apiStatus, setApiStatus] = useState<Record<string, string>>({});
+
+  // Example: connect real APIs on demand
+  async function connectAPIs() {
+    const m = mapRef.current; if (!m || !isReady) return;
+
+    // 1) Vessel heatmap via tiles
+    try {
+      setApiStatus(s => ({ ...s, gfw: "Connecting..." }));
+      const start = new Date(1727395200000).toISOString();
+      const end = new Date(1727416800000).toISOString();
+      const token = getToken("GFW_TOKEN") || "YOUR_TOKEN";
+      const url = API.GFW_AIS_TILES
+        .replace("${GFW_TOKEN}", encodeURIComponent(token))
+        .replace("{START}", encodeURIComponent(start))
+        .replace("{END}", encodeURIComponent(end));
+      const id = "gfw-vessel-tiles";
+      if (!m.getSource(id)) {
+        m.addSource(id, { type: "raster", tiles: [url], tileSize: 256 });
+        m.addLayer({ id, type: "raster", source: id, paint: { "raster-opacity": 0.9 } }, "vessel-heat");
+      }
+      setApiStatus(s => ({ ...s, gfw: "Live" }));
+    } catch (e:any) {
+      console.error(e);
+      setApiStatus(s => ({ ...s, gfw: `Error: ${e.message||e}` }));
+    }
+
+    // 2) EMODnet cables (vector)
+    try {
+      setApiStatus(s => ({ ...s, emodnet: "Connecting..." }));
+      const id = "emodnet-cables";
+      if (!m.getSource(id)) {
+        m.addSource(id, { type: "vector", tiles: [API.EMODNET_GRID_CABLES_MVT], minzoom: 0, maxzoom: 12 });
+        m.addLayer({ id: `${id}-line`, type: "line", source: id, "source-layer": "layer0", paint: { "line-color": "#ff2f92", "line-width": 2.2, "line-opacity": 0.95 } }, "grid-lines");
+      }
+      setApiStatus(s => ({ ...s, emodnet: "Live" }));
+    } catch (e:any) {
+      console.error(e);
+      setApiStatus(s => ({ ...s, emodnet: `Error: ${e.message||e}` }));
+    }
+
+    // 3) CMEMS Wave tiles
+    try {
+      setApiStatus(s => ({ ...s, cmemsWave: "Connecting..." }));
+      const iso = new Date(1727402400000).toISOString();
+      const id = "cmems-wave";
+      if (!m.getSource(id)) {
+        const tiles = [API.CMEMS_WAVE_TILES.replace("{ISO}", encodeURIComponent(iso))];
+        m.addSource(id, { type: "raster", tiles, tileSize: 256 });
+        m.addLayer({ id, type: "raster", source: id, paint: { "raster-opacity": 0.65 } }, "vessel-heat");
+      }
+      setApiStatus(s => ({ ...s, cmemsWave: "Live" }));
+    } catch (e:any) {
+      console.error(e);
+      setApiStatus(s => ({ ...s, cmemsWave: `Error: ${e.message||e}` }));
+    }
+
+    // 4) CAMS NO2 tiles
+    try {
+      setApiStatus(s => ({ ...s, cams: "Connecting..." }));
+      const iso = new Date(1727402400000).toISOString();
+      const id = "cams-no2";
+      if (!m.getSource(id)) {
+        const tiles = [API.CAMS_NO2_TILES.replace("{ISO}", encodeURIComponent(iso))];
+        m.addSource(id, { type: "raster", tiles, tileSize: 256 });
+        m.addLayer({ id, type: "raster", source: id, paint: { "raster-opacity": 0.55 } }, "vessel-heat");
+      }
+      setApiStatus(s => ({ ...s, cams: "Live" }));
+    } catch (e:any) {
+      console.error(e);
+      setApiStatus(s => ({ ...s, cams: `Error: ${e.message||e}` }));
+    }
+  }
+
   return (
     <div className="w-full h-screen grid grid-cols-1 lg:grid-cols-[380px_1fr]">
       {/* Left control panel */}
@@ -327,10 +451,17 @@ export default function MarineOpsMap() {
 
         <Card className="shadow-sm bg-transparent border-white/10">
           <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-lg"><Info className="w-4 h-4"/>Status</CardTitle></CardHeader>
-          <CardContent className="text-sm space-y-2 text-white/80">
+          <CardContent className="text-sm space-y-3 text-white/80">
             <div className="flex justify-between"><span>Active layers</span><span>{[showHeatmap, showGrid, showEmissionZones].filter(Boolean).length}/3</span></div>
-            <div className="flex justify-between"><span>Map mode</span><span>Mock data (wired for API)</span></div>
+            <div className="flex justify-between"><span>Map mode</span><span>{Object.values(apiStatus).some(v=>v==="Live")? "Live" : "Mock"}</span></div>
             <div className="flex justify-between"><span>Center</span><span>Baltic AOI</span></div>
+            <Button onClick={connectAPIs} className="w-full">Connect APIs</Button>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="rounded bg-black/30 p-2"><div className="opacity-70">Vessel tiles</div><div>{apiStatus.gfw || "—"}</div></div>
+              <div className="rounded bg-black/30 p-2"><div className="opacity-70">EMODnet grid</div><div>{apiStatus.emodnet || "—"}</div></div>
+              <div className="rounded bg-black/30 p-2"><div className="opacity-70">CMEMS wave</div><div>{apiStatus.cmemsWave || "—"}</div></div>
+              <div className="rounded bg-black/30 p-2"><div className="opacity-70">CAMS NO₂</div><div>{apiStatus.cams || "—"}</div></div>
+            </div>
           </CardContent>
         </Card>
       </motion.aside>
