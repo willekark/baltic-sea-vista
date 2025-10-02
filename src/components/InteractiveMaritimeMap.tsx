@@ -298,6 +298,19 @@ export default function MarineOpsMap() {
           },
         } as any);
 
+        // Debug layer - shows actual vessel ping points
+        map.addLayer({
+          id: "vessel-debug-points",
+          type: "circle",
+          source: "vessel-pings",
+          paint: {
+            "circle-radius": 6,
+            "circle-color": "#00ffd1",
+            "circle-stroke-color": "#111",
+            "circle-stroke-width": 1.5
+          }
+        });
+
         // Grid
         map.addSource("grid", { type: "geojson", data: demoGrid });
         map.addLayer({ id: "grid-lines", type: "line", source: "grid", filter: ["==", ["geometry-type"], "LineString"], paint: { "line-color": PALETTE.gridLine, "line-width": 2.8, "line-opacity": gridOpacity } });
