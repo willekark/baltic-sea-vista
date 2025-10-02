@@ -348,16 +348,11 @@ export default function MarineOpsMap() {
   useEffect(() => {
     const m = mapRef.current;
     if (!m || !isReady) return;
-    ["vessel-heat", "vessel-heat-glow", "vessel-heat-core"].forEach(id => {
-      if (!m.getLayer(id)) return;
-      const val = !showHeatmap
-        ? 0
-        : id.includes("core")
-          ? heatOpacity
-          : id === "vessel-heat"
-            ? 0.02     // keep old layer invisible
-            : Math.min(0.6, heatOpacity * 0.7); // glow
-      m.setPaintProperty(id, "heatmap-opacity", val);
+    // opacity effect
+    ["vessel-heat-glow","vessel-heat-core"].forEach(id=>{
+      if (m.getLayer(id)) {
+        m.setPaintProperty(id, "heatmap-opacity", showHeatmap ? (id.includes("core") ? heatOpacity : Math.min(0.6, heatOpacity*0.7)) : 0);
+      }
     });
   }, [heatOpacity, showHeatmap, isReady]);
   useEffect(() => { const m = mapRef.current; if (!m || !isReady) return; ["grid-lines","grid-points","grid-labels"].forEach((id)=>{ if (!m.getLayer(id)) return; const prop = id.includes("labels")?"text-opacity": id.includes("points")?"circle-opacity":"line-opacity"; const val = showGrid? gridOpacity: 0; m.setPaintProperty(id, prop as any, val); }); }, [gridOpacity, showGrid, isReady]);
@@ -365,10 +360,9 @@ export default function MarineOpsMap() {
   useEffect(() => {
     const m = mapRef.current;
     if (!m || !isReady) return;
-    ["vessel-heat", "vessel-heat-glow", "vessel-heat-core"].forEach(id => {
-      if (m.getLayer(id)) {
-        m.setFilter(id, ["all", [">=", ["get", "ts"], tsWindow[0]], ["<=", ["get", "ts"], tsWindow[1]]] as any);
-      }
+    // time filter effect
+    ["vessel-heat-glow","vessel-heat-core"].forEach(id=>{
+      if (m.getLayer(id)) m.setFilter(id, ["all", [">=", ["get","ts"], tsWindow[0]], ["<=", ["get","ts"], tsWindow[1]]] as any);
     });
   }, [tsWindow, isReady]);
   useEffect(() => { if (!play) return; const id = setInterval(() => { setTsWindow(([a,b])=>{ const step=600; const width=b-a; let na=a+step, nb=b+step; if (nb>maxTs){na=minTs; nb=minTs+width;} return [na,nb]; }); }, 450); return () => clearInterval(id); }, [play]);
