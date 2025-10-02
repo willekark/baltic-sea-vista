@@ -225,6 +225,8 @@ export default function MarineOpsMap() {
 
         // Vessel pings
         map.addSource("vessel-pings", { type: "geojson", data: demoVesselPings });
+        
+        // Base heatmap layer (kept invisible, serves as base)
         map.addLayer({
           id: "vessel-heat",
           type: "heatmap",
@@ -244,6 +246,54 @@ export default function MarineOpsMap() {
               1.00, PALETTE.heat[6],
             ],
             "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 2, 9, 28],
+            "heatmap-opacity": 0.02,
+          },
+        } as any);
+
+        // Glow layer (softer, wider spread)
+        map.addLayer({
+          id: "vessel-heat-glow",
+          type: "heatmap",
+          source: "vessel-pings",
+          maxzoom: 10,
+          paint: {
+            "heatmap-weight": ["interpolate", ["linear"], ["get", "sog"], 0, 0, 25, 1],
+            "heatmap-intensity": 0.8,
+            "heatmap-color": [
+              "interpolate", ["linear"], ["heatmap-density"],
+              0.00, "rgba(0,0,0,0)",
+              0.10, "rgba(0,255,209,0.15)",
+              0.30, "rgba(43,255,0,0.2)",
+              0.50, "rgba(181,255,0,0.25)",
+              0.70, "rgba(255,212,0,0.3)",
+              0.90, "rgba(255,106,0,0.35)",
+              1.00, "rgba(255,0,51,0.4)",
+            ],
+            "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 4, 9, 36],
+            "heatmap-opacity": Math.min(0.6, heatOpacity * 0.7),
+          },
+        } as any);
+
+        // Core layer (bright, focused hotspots)
+        map.addLayer({
+          id: "vessel-heat-core",
+          type: "heatmap",
+          source: "vessel-pings",
+          maxzoom: 10,
+          paint: {
+            "heatmap-weight": ["interpolate", ["linear"], ["get", "sog"], 0, 0, 25, 1],
+            "heatmap-intensity": 1.8,
+            "heatmap-color": [
+              "interpolate", ["linear"], ["heatmap-density"],
+              0.00, PALETTE.heat[0],
+              0.20, PALETTE.heat[1],
+              0.40, PALETTE.heat[2],
+              0.60, PALETTE.heat[3],
+              0.75, PALETTE.heat[4],
+              0.90, PALETTE.heat[5],
+              1.00, PALETTE.heat[6],
+            ],
+            "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5, 9, 20],
             "heatmap-opacity": heatOpacity,
           },
         } as any);
@@ -259,8 +309,11 @@ export default function MarineOpsMap() {
         map.addLayer({ id: "eca-fill", type: "fill", source: "eca", paint: { "fill-color": "#6a5acd", "fill-opacity": 0.12 } });
         map.addLayer({ id: "eca-line", type: "line", source: "eca", paint: { "line-color": "#a994ff", "line-width": 1.5, "line-dasharray": [2, 2], "line-opacity": 0.9 } });
 
-        // Time filter
-        map.setFilter("vessel-heat", ["all", [">=", ["get", "ts"], tsWindow[0]], ["<=", ["get", "ts"], tsWindow[1]]]);
+        // Time filter - apply to all vessel layers
+        const timeFilter = ["all", [">=", ["get", "ts"], tsWindow[0]], ["<=", ["get", "ts"], tsWindow[1]]] as any;
+        ["vessel-heat", "vessel-heat-glow", "vessel-heat-core"].forEach(id => {
+          if (map.getLayer(id)) map.setFilter(id, timeFilter);
+        });
 
         // Cursor feedback
         map.on("mouseenter", "grid-points", () => map.getCanvas().style.cursor = "pointer");
@@ -280,10 +333,31 @@ export default function MarineOpsMap() {
   }, []);
 
   // UI reactions
-  useEffect(() => { const m = mapRef.current; if (!m || !isReady) return; if (m.getLayer("vessel-heat")) m.setPaintProperty("vessel-heat", "heatmap-opacity", showHeatmap ? heatOpacity : 0); }, [heatOpacity, showHeatmap, isReady]);
+  useEffect(() => {
+    const m = mapRef.current;
+    if (!m || !isReady) return;
+    ["vessel-heat", "vessel-heat-glow", "vessel-heat-core"].forEach(id => {
+      if (!m.getLayer(id)) return;
+      const val = !showHeatmap
+        ? 0
+        : id.includes("core")
+          ? heatOpacity
+          : id === "vessel-heat"
+            ? 0.02     // keep old layer invisible
+            : Math.min(0.6, heatOpacity * 0.7); // glow
+      m.setPaintProperty(id, "heatmap-opacity", val);
+    });
+  }, [heatOpacity, showHeatmap, isReady]);
   useEffect(() => { const m = mapRef.current; if (!m || !isReady) return; ["grid-lines","grid-points","grid-labels"].forEach((id)=>{ if (!m.getLayer(id)) return; const prop = id.includes("labels")?"text-opacity": id.includes("points")?"circle-opacity":"line-opacity"; const val = showGrid? gridOpacity: 0; m.setPaintProperty(id, prop as any, val); }); }, [gridOpacity, showGrid, isReady]);
   useEffect(() => { const m = mapRef.current; if (!m || !isReady) return; const v = showEmissionZones ? 1 : 0; if (m.getLayer("eca-fill")) m.setPaintProperty("eca-fill", "fill-opacity", showEmissionZones ? 0.12 : 0); if (m.getLayer("eca-line")) m.setPaintProperty("eca-line", "line-opacity", v); }, [showEmissionZones, isReady]);
-  useEffect(() => { const m = mapRef.current; if (!m || !isReady) return; if (m.getLayer("vessel-heat")) m.setFilter("vessel-heat", ["all", [">=", ["get", "ts"], tsWindow[0]], ["<=", ["get", "ts"], tsWindow[1]]]); }, [tsWindow, isReady]);
+  useEffect(() => {
+    const m = mapRef.current;
+    if (!m || !isReady) return;
+    const timeFilter = ["all", [">=", ["get", "ts"], tsWindow[0]], ["<=", ["get", "ts"], tsWindow[1]]] as any;
+    ["vessel-heat", "vessel-heat-glow", "vessel-heat-core"].forEach(id => {
+      if (m.getLayer(id)) m.setFilter(id, timeFilter);
+    });
+  }, [tsWindow, isReady]);
   useEffect(() => { if (!play) return; const id = setInterval(() => { setTsWindow(([a,b])=>{ const step=600; const width=b-a; let na=a+step, nb=b+step; if (nb>maxTs){na=minTs; nb=minTs+width;} return [na,nb]; }); }, 450); return () => clearInterval(id); }, [play]);
 
   // Raster layer add/remove
