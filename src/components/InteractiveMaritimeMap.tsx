@@ -476,9 +476,19 @@ export default function MarineOpsMap() {
   }
 
   return (
-    <div className="w-full h-screen grid grid-cols-1 lg:grid-cols-[380px_1fr]">
-      {/* Left control panel */}
-      <motion.aside initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.4 }} className="bg-[#0b0b0bcc] text-white backdrop-blur border-r border-white/10 p-3 lg:p-4 overflow-y-auto">
+    <div className="relative w-full h-full">
+      {/* Full-screen map */}
+      <div className="absolute inset-0">
+        <div ref={mapContainerRef} className="absolute inset-0" />
+      </div>
+
+      {/* Floating control panel overlay */}
+      <motion.aside 
+        initial={{ x: -20, opacity: 0 }} 
+        animate={{ x: 0, opacity: 1 }} 
+        transition={{ duration: 0.4 }} 
+        className="absolute left-4 top-4 bottom-4 w-[380px] bg-[#0b0b0bcc] text-white backdrop-blur border border-white/10 rounded-xl p-4 overflow-y-auto shadow-2xl z-10"
+      >
         <Card className="mb-3 shadow-sm bg-transparent border-white/10">
           <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-lg"><Layers className="w-4 h-4"/>Data Layers</CardTitle></CardHeader>
           <CardContent className="space-y-4">
@@ -547,10 +557,9 @@ export default function MarineOpsMap() {
         </Card>
       </motion.aside>
 
-      {/* Map slot */}
-      <div className="relative w-full h-[60vh] lg:h-full">
-        <div ref={mapContainerRef} className="absolute inset-0" />
-        <div className="absolute right-3 bottom-3"><Legend/></div>
+      {/* Legend overlay */}
+      <div className="absolute right-4 bottom-4 z-10">
+        <Legend/>
       </div>
     </div>
   );
