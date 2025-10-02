@@ -65,6 +65,9 @@ const InteractiveMaritimeMap = () => {
   const tokenError = !mapboxToken && !tokenLoading;
   const { toast } = useToast();
 
+  const [showLegend, setShowLegend] = useState(true);
+  const [showDataSources, setShowDataSources] = useState(false);
+
   const [layers, setLayers] = useState<LayerConfig[]>([
     { id: 'currents', name: 'Surface Currents', icon: Activity, enabled: true, opacity: 0.7, color: '#3b82f6', dataType: 'vector' },
     { id: 'waves', name: 'Wave Height', icon: Waves, enabled: true, opacity: 0.6, color: '#06b6d4', dataType: 'raster' },
@@ -75,6 +78,17 @@ const InteractiveMaritimeMap = () => {
     { id: 'chlorophyll', name: 'Chlorophyll-a', icon: Eye, enabled: false, opacity: 0.5, color: '#22c55e', dataType: 'raster' },
     { id: 'infrastructure', name: 'Ports & Infrastructure', icon: Anchor, enabled: true, opacity: 1.0, color: '#6b7280', dataType: 'vector' }
   ]);
+
+  const layerDescriptions: Record<string, { description: string; source: string; unit: string }> = {
+    currents: { description: 'Ocean current speed and direction', source: 'CMEMS / SMHI', unit: 'm/s' },
+    waves: { description: 'Significant wave height', source: 'CMEMS / NOAA', unit: 'meters' },
+    wind: { description: 'Wind speed and direction at 10m', source: 'SMHI / NCEP', unit: 'm/s' },
+    sst: { description: 'Sea surface temperature anomalies', source: 'CMEMS / Sentinel-3', unit: '°C' },
+    shipping: { description: 'Real-time vessel positions and traffic', source: 'MarineTraffic / Spire AIS', unit: 'vessels' },
+    oxygen: { description: 'Dissolved oxygen concentration', source: 'CMEMS / ERDDAP', unit: 'mg/L' },
+    chlorophyll: { description: 'Chlorophyll-a concentration (algae)', source: 'Sentinel-3 / CMEMS', unit: 'µg/L' },
+    infrastructure: { description: 'Ports, terminals, and maritime infrastructure', source: 'OpenStreetMap / EEA', unit: 'locations' }
+  };
 
   // Fetch real-time marine data
   const fetchMarineData = async () => {
@@ -847,29 +861,140 @@ const InteractiveMaritimeMap = () => {
       {/* Map Container */}
       <div ref={mapContainer} className="w-full h-full" />
 
-      {/* Layer Controls */}
-      <Card className="absolute top-4 left-4 w-80 bg-card/90 backdrop-blur-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center text-sm">
-            <Layers className="w-4 h-4 mr-2" />
-            Data Layers
-          </CardTitle>
+      {/* Enhanced Layer Controls */}
+      <Card className="absolute top-4 left-4 w-96 bg-card/95 backdrop-blur-sm shadow-xl border-2">
+        <CardHeader className="pb-3 border-b">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center text-base">
+              <Layers className="w-5 h-5 mr-2 text-primary" />
+              Data Layers
+            </CardTitle>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => setShowDataSources(!showDataSources)}
+            >
+              <Info className="w-4 h-4" />
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3 max-h-96 overflow-y-auto">
           {layers.map((layer) => (
-            <div key={layer.id} className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <layer.icon className="w-4 h-4" style={{ color: layer.color }} />
-                <span className="text-sm">{layer.name}</span>
+            <div key={layer.id} className="p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-3">
+                  <div 
+                    className="w-8 h-8 rounded flex items-center justify-center" 
+                    style={{ backgroundColor: `${layer.color}20` }}
+                  >
+                    <layer.icon className="w-4 h-4" style={{ color: layer.color }} />
+                  </div>
+                  <div>
+                    <div className="font-medium text-sm">{layer.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {layerDescriptions[layer.id]?.unit}
+                    </div>
+                  </div>
+                </div>
+                <Switch
+                  checked={layer.enabled}
+                  onCheckedChange={() => toggleLayer(layer.id)}
+                />
               </div>
-              <Switch
-                checked={layer.enabled}
-                onCheckedChange={() => toggleLayer(layer.id)}
-              />
+              {showDataSources && (
+                <div className="text-xs text-muted-foreground mt-2 pt-2 border-t">
+                  <div className="mb-1">{layerDescriptions[layer.id]?.description}</div>
+                  <div className="flex items-center gap-1">
+                    <Badge variant="outline" className="text-xs">
+                      {layerDescriptions[layer.id]?.source}
+                    </Badge>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </CardContent>
       </Card>
+
+      {/* Legend Panel */}
+      {showLegend && (
+        <Card className="absolute top-4 right-80 w-64 bg-card/95 backdrop-blur-sm shadow-xl border-2">
+          <CardHeader className="pb-3 border-b">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm flex items-center">
+                <Info className="w-4 h-4 mr-2 text-primary" />
+                Legend
+              </CardTitle>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowLegend(false)}
+              >
+                ×
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4 text-xs">
+            {/* Wave Height Legend */}
+            {layers.find(l => l.id === 'waves')?.enabled && (
+              <div>
+                <div className="font-medium mb-2 flex items-center gap-2">
+                  <Waves className="w-3 h-3" />
+                  Wave Height
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <div className="w-16 h-3 rounded" style={{ background: 'linear-gradient(to right, rgba(6,182,212,0.3), rgba(30,64,175,0.9))' }}></div>
+                    <span className="text-muted-foreground">0 - 5m</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Temperature Legend */}
+            {layers.find(l => l.id === 'sst')?.enabled && (
+              <div>
+                <div className="font-medium mb-2 flex items-center gap-2">
+                  <Thermometer className="w-3 h-3" />
+                  Sea Surface Temp
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <div className="w-16 h-3 rounded" style={{ background: 'linear-gradient(to right, rgba(245,158,11,0.3), rgba(153,27,27,0.9))' }}></div>
+                    <span className="text-muted-foreground">Cold - Warm</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Vessel Traffic Legend */}
+            {layers.find(l => l.id === 'shipping')?.enabled && (
+              <div>
+                <div className="font-medium mb-2 flex items-center gap-2">
+                  <Ship className="w-3 h-3" />
+                  Vessel Traffic
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <span className="text-muted-foreground">Active Vessel</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Wind/Current Legend */}
+            {(layers.find(l => l.id === 'wind')?.enabled || layers.find(l => l.id === 'currents')?.enabled) && (
+              <div>
+                <div className="font-medium mb-2">Vector Direction</div>
+                <div className="text-muted-foreground">
+                  Arrows show direction and relative strength
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Animation Controls */}
       <Card className="absolute bottom-4 left-4 bg-card/90 backdrop-blur-sm">
@@ -898,30 +1023,73 @@ const InteractiveMaritimeMap = () => {
         </CardContent>
       </Card>
 
-      {/* Data Stats */}
-      <Card className="absolute top-4 right-4 w-64 bg-card/90 backdrop-blur-sm">
-        <CardHeader className="pb-3">
+      {/* Enhanced Data Stats & Controls */}
+      <Card className="absolute top-4 right-4 w-72 bg-card/95 backdrop-blur-sm shadow-xl border-2">
+        <CardHeader className="pb-3 border-b">
           <CardTitle className="flex items-center text-sm">
-            <Activity className="w-4 h-4 mr-2" />
-            Live Data Feed
+            <Activity className="w-4 h-4 mr-2 text-green-600" />
+            Data Status
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex justify-between text-xs">
-            <span>Data Points:</span>
-            <Badge variant="outline">{marineData.length}</Badge>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span>Last Update:</span>
-            <span className="text-muted-foreground">
-              {new Date().toLocaleTimeString()}
-            </span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span>Status:</span>
-            <Badge variant="outline" className="text-green-600 border-green-200">
-              Live
+        <CardContent className="space-y-3">
+          <div className="flex items-center justify-between p-2 rounded-lg bg-green-50 dark:bg-green-950/20">
+            <span className="text-sm font-medium">Data Mode:</span>
+            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+              MOCK DATA
             </Badge>
+          </div>
+          
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Data Points:</span>
+              <Badge variant="secondary">{marineData.length}</Badge>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Active Layers:</span>
+              <Badge variant="secondary">{layers.filter(l => l.enabled).length}/{layers.length}</Badge>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Last Update:</span>
+              <span className="text-xs text-muted-foreground">
+                {new Date().toLocaleTimeString()}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Status:</span>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <Badge variant="outline" className="text-green-600 border-green-200">
+                  Live
+                </Badge>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-3 border-t space-y-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => setShowLegend(!showLegend)}
+            >
+              {showLegend ? 'Hide' : 'Show'} Legend
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={fetchMarineData}
+            >
+              <RotateCcw className="w-3 h-3 mr-2" />
+              Refresh Data
+            </Button>
+          </div>
+
+          <div className="pt-2 border-t">
+            <div className="text-xs text-muted-foreground">
+              <p className="mb-1 font-medium">Ready for API Integration</p>
+              <p>This map is configured to display data from multiple sources. Connect your APIs to start streaming real-time data.</p>
+            </div>
           </div>
         </CardContent>
       </Card>
