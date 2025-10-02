@@ -322,6 +322,43 @@ export default function MarineOpsMap() {
         map.addLayer({ id: "grid-points", type: "circle", source: "grid", filter: ["==", ["geometry-type"], "Point"], paint: { "circle-radius": 6, "circle-color": PALETTE.gridPoint, "circle-stroke-color": PALETTE.gridLine, "circle-stroke-width": 2, "circle-opacity": gridOpacity } });
         map.addLayer({ id: "grid-labels", type: "symbol", source: "grid", filter: ["==", ["geometry-type"], "Point"], layout: { "text-field": ["get", "name"], "text-offset": [0, 1.2], "text-size": 12 }, paint: { "text-color": PALETTE.label, "text-halo-color": "#0b0b0b", "text-halo-width": 1.4, "text-opacity": gridOpacity } });
 
+        // Pipelines (demo) – dashed cyan line
+        const demoPipelines: GeoJSON.FeatureCollection = {
+          type: "FeatureCollection",
+          features: [
+            { type: "Feature", properties: { name: "Pipeline (demo)" }, geometry: { type: "LineString",
+              coordinates: [[13.0,55.4],[15.0,55.3],[17.5,55.5],[19.5,55.8],[21.0,56.2]] } }
+          ]
+        };
+        map.addSource("pipelines", { type: "geojson", data: demoPipelines });
+        map.addLayer({
+          id: "pipelines-line",
+          type: "line",
+          source: "pipelines",
+          paint: { "line-color": "#33c3ff", "line-width": 2.6, "line-opacity": pipelinesOpacity, "line-dasharray": [2,1] }
+        });
+
+        // Wind infrastructure (demo farm polygon + turbines)
+        const demoWindInfra: GeoJSON.FeatureCollection = {
+          type: "FeatureCollection",
+          features: [
+            { type: "Feature", properties: { name: "Wind farm area (demo)" }, geometry: { type: "Polygon",
+              coordinates: [[[19.2,56.1],[19.6,56.1],[19.6,56.4],[19.2,56.4],[19.2,56.1]]] } },
+            { type: "Feature", properties: { name: "Turbine (demo)" }, geometry: { type: "Point", coordinates: [19.35,56.25] } },
+            { type: "Feature", properties: { name: "Turbine (demo)" }, geometry: { type: "Point", coordinates: [19.45,56.28] } }
+          ]
+        };
+        map.addSource("wind-infra", { type: "geojson", data: demoWindInfra });
+        map.addLayer({ id: "wind-farm-fill", type: "fill", source: "wind-infra",
+          filter: ["==", ["geometry-type"], "Polygon"],
+          paint: { "fill-color": "#00ffd1", "fill-opacity": 0.12 } });
+        map.addLayer({ id: "wind-farm-line", type: "line", source: "wind-infra",
+          filter: ["==", ["geometry-type"], "Polygon"],
+          paint: { "line-color": "#00ffd1", "line-opacity": windOpacity, "line-width": 1.5, "line-dasharray": [3,2] } });
+        map.addLayer({ id: "turbines", type: "circle", source: "wind-infra",
+          filter: ["==", ["geometry-type"], "Point"],
+          paint: { "circle-radius": 3, "circle-color": "#141414", "circle-stroke-color": "#00ffd1", "circle-stroke-width": 1.5, "circle-opacity": windOpacity } });
+
         // Emission control area
         map.addSource("eca", { type: "geojson", data: demoECA });
         map.addLayer({ id: "eca-fill", type: "fill", source: "eca", paint: { "fill-color": "#6a5acd", "fill-opacity": 0.12 } });
@@ -364,6 +401,23 @@ export default function MarineOpsMap() {
   }, [heatOpacity, showHeatmap, isReady]);
   useEffect(() => { const m = mapRef.current; if (!m || !isReady) return; ["grid-lines","grid-points","grid-labels"].forEach((id)=>{ if (!m.getLayer(id)) return; const prop = id.includes("labels")?"text-opacity": id.includes("points")?"circle-opacity":"line-opacity"; const val = showGrid? gridOpacity: 0; m.setPaintProperty(id, prop as any, val); }); }, [gridOpacity, showGrid, isReady]);
   useEffect(() => { const m = mapRef.current; if (!m || !isReady) return; const v = showEmissionZones ? 1 : 0; if (m.getLayer("eca-fill")) m.setPaintProperty("eca-fill", "fill-opacity", showEmissionZones ? 0.12 : 0); if (m.getLayer("eca-line")) m.setPaintProperty("eca-line", "line-opacity", v); }, [showEmissionZones, isReady]);
+  useEffect(() => { 
+    const m = mapRef.current; 
+    if (!m || !isReady) return; 
+    if (m.getLayer("pipelines-line")) {
+      m.setPaintProperty("pipelines-line", "line-opacity", showPipelines ? pipelinesOpacity : 0);
+    }
+  }, [showPipelines, pipelinesOpacity, isReady]);
+  useEffect(() => { 
+    const m = mapRef.current; 
+    if (!m || !isReady) return; 
+    ["wind-farm-fill", "wind-farm-line", "turbines"].forEach((id) => {
+      if (!m.getLayer(id)) return;
+      const prop = id === "wind-farm-fill" ? "fill-opacity" : id === "wind-farm-line" ? "line-opacity" : "circle-opacity";
+      const val = showWindInfra ? (id === "wind-farm-fill" ? 0.12 : windOpacity) : 0;
+      m.setPaintProperty(id, prop as any, val);
+    });
+  }, [showWindInfra, windOpacity, isReady]);
   useEffect(() => {
     const m = mapRef.current;
     if (!m || !isReady) return;
@@ -402,6 +456,9 @@ export default function MarineOpsMap() {
         </div>
         <div className="flex items-center gap-2"><span className="h-0.5 w-6" style={{ background: PALETTE.gridLine }} /> <span>HV cable / line</span></div>
         <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full border-2" style={{ borderColor: PALETTE.gridLine }} /> <span>Substation / hub</span></div>
+        <div className="flex items-center gap-2"><span className="h-0.5 w-6 bg-[#33c3ff]" style={{ backgroundImage: "repeating-linear-gradient(90deg, #33c3ff 0, #33c3ff 4px, transparent 4px, transparent 6px)" }} /> <span>Pipeline</span></div>
+        <div className="flex items-center gap-2"><span className="h-2 w-6 rounded bg-[#00ffd1]/20 border border-[#00ffd1]"/> <span>Wind farm area</span></div>
+        <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full border-2 border-[#00ffd1]" style={{ backgroundColor: "#141414" }} /> <span>Turbine</span></div>
         <div className="flex items-center gap-2"><span className="h-2 w-6 rounded bg-[#6a5acd]"/> <span>ECA (SECA/NECA)</span></div>
       </div>
     </div>
@@ -521,6 +578,16 @@ export default function MarineOpsMap() {
               <div className="flex items-center justify-between"><Label className="font-medium text-white">Emission Control Areas</Label><Switch checked={showEmissionZones} onCheckedChange={setShowEmissionZones} /></div>
             </div>
 
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <div className="flex items-center justify-between"><Label className="font-medium text-white">Pipelines</Label><Switch checked={showPipelines} onCheckedChange={setShowPipelines} /></div>
+              <div><Label>Opacity</Label><Slider value={[Math.round(pipelinesOpacity * 100)]} onValueChange={(v) => setPipelinesOpacity(v[0]/100)} step={1} min={0} max={100}/></div>
+            </div>
+
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <div className="flex items-center justify-between"><Label className="font-medium text-white">Wind Infrastructure</Label><Switch checked={showWindInfra} onCheckedChange={setShowWindInfra} /></div>
+              <div><Label>Opacity</Label><Slider value={[Math.round(windOpacity * 100)]} onValueChange={(v) => setWindOpacity(v[0]/100)} step={1} min={0} max={100}/></div>
+            </div>
+
             <div className="space-y-3 pt-3 border-t border-white/10">
               <Label className="font-medium">Add raster tiles (XYZ)</Label>
               <div className="flex gap-2">
@@ -550,7 +617,7 @@ export default function MarineOpsMap() {
         <Card className="shadow-sm bg-transparent border-white/10">
           <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-lg"><Info className="w-4 h-4"/>Status</CardTitle></CardHeader>
           <CardContent className="text-sm space-y-3 text-white/80">
-            <div className="flex justify-between"><span>Active layers</span><span>{[showHeatmap, showGrid, showEmissionZones].filter(Boolean).length}/3</span></div>
+            <div className="flex justify-between"><span>Active layers</span><span>{[showHeatmap, showGrid, showEmissionZones, showPipelines, showWindInfra].filter(Boolean).length}/5</span></div>
             <div className="flex justify-between"><span>Map mode</span><span>{Object.values(apiStatus).some(v=>v==="Live")? "Live" : "Mock"}</span></div>
             <div className="flex justify-between"><span>Center</span><span>Baltic AOI</span></div>
             <Button onClick={connectAPIs} className="w-full">Connect APIs</Button>
