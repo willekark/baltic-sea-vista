@@ -404,17 +404,23 @@ export default function MarineOpsMap() {
   useEffect(() => { 
     const m = mapRef.current; 
     if (!m || !isReady) return; 
-    if (m.getLayer("pipelines-line")) {
-      m.setPaintProperty("pipelines-line", "line-opacity", showPipelines ? pipelinesOpacity : 0);
-    }
+    // Control both demo and real API pipeline layers
+    ["pipelines-line", "emodnet-pipelines-line"].forEach(id => {
+      if (m.getLayer(id)) {
+        m.setPaintProperty(id, "line-opacity", showPipelines ? pipelinesOpacity : 0);
+      }
+    });
   }, [showPipelines, pipelinesOpacity, isReady]);
   useEffect(() => { 
     const m = mapRef.current; 
     if (!m || !isReady) return; 
-    ["wind-farm-fill", "wind-farm-line", "turbines"].forEach((id) => {
+    // Control both demo and real API wind infrastructure layers
+    const demoLayers = ["wind-farm-fill", "wind-farm-line", "turbines"];
+    const apiLayers = ["emodnet-windfarms-fill", "emodnet-windfarms-line", "emodnet-turbines-pt"];
+    [...demoLayers, ...apiLayers].forEach((id) => {
       if (!m.getLayer(id)) return;
-      const prop = id === "wind-farm-fill" ? "fill-opacity" : id === "wind-farm-line" ? "line-opacity" : "circle-opacity";
-      const val = showWindInfra ? (id === "wind-farm-fill" ? 0.12 : windOpacity) : 0;
+      const prop = id.includes("fill") ? "fill-opacity" : id.includes("line") ? "line-opacity" : "circle-opacity";
+      const val = showWindInfra ? (id.includes("fill") ? 0.12 : windOpacity) : 0;
       m.setPaintProperty(id, prop as any, val);
     });
   }, [showWindInfra, windOpacity, isReady]);
@@ -537,6 +543,54 @@ export default function MarineOpsMap() {
       console.error(e);
       setApiStatus(s => ({ ...s, cams: `Error: ${e.message||e}` }));
     }
+
+    // 5) Pipelines (EMODnet -> MVT)
+    try {
+      setApiStatus(s => ({ ...s, pipelines: "Connecting..." }));
+      const pid = "emodnet-pipelines";
+      if (!m.getSource(pid)) {
+        m.addSource(pid, { type: "vector", tiles: [API.EMODNET_PIPELINES_MVT], minzoom: 0, maxzoom: 12 });
+        m.addLayer({ id: `${pid}-line`, type: "line", source: pid, "source-layer": "layer0",
+          paint: { "line-color": "#33c3ff", "line-width": 2.2, "line-opacity": pipelinesOpacity, "line-dasharray": [2,1] }
+        }, "grid-lines");
+      }
+      setApiStatus(s => ({ ...s, pipelines: "Live" }));
+    } catch (e:any) {
+      console.error(e);
+      setApiStatus(s => ({ ...s, pipelines: `Error: ${e.message||e}` }));
+    }
+
+    // 6) Wind farms (polygons)
+    try {
+      setApiStatus(s => ({ ...s, windfarms: "Connecting..." }));
+      const wid = "emodnet-windfarms";
+      if (!m.getSource(wid)) {
+        m.addSource(wid, { type: "vector", tiles: [API.EMODNET_WINDFARMS_MVT], minzoom: 0, maxzoom: 12 });
+        m.addLayer({ id: `${wid}-fill`, type: "fill", source: wid, "source-layer": "layer0",
+          paint: { "fill-color": "#00ffd1", "fill-opacity": 0.12 } }, "grid-lines");
+        m.addLayer({ id: `${wid}-line`, type: "line", source: wid, "source-layer": "layer0",
+          paint: { "line-color": "#00ffd1", "line-opacity": windOpacity, "line-width": 1.4, "line-dasharray": [3,2] } });
+      }
+      setApiStatus(s => ({ ...s, windfarms: "Live" }));
+    } catch (e:any) {
+      console.error(e);
+      setApiStatus(s => ({ ...s, windfarms: `Error: ${e.message||e}` }));
+    }
+
+    // 7) Turbines (points)
+    try {
+      setApiStatus(s => ({ ...s, turbines: "Connecting..." }));
+      const tid = "emodnet-turbines";
+      if (!m.getSource(tid)) {
+        m.addSource(tid, { type: "vector", tiles: [API.EMODNET_TURBINES_MVT], minzoom: 0, maxzoom: 12 });
+        m.addLayer({ id: `${tid}-pt`, type: "circle", source: tid, "source-layer": "layer0",
+          paint: { "circle-radius": 3, "circle-color": "#141414", "circle-stroke-color": "#00ffd1", "circle-stroke-width": 1.5, "circle-opacity": windOpacity } });
+      }
+      setApiStatus(s => ({ ...s, turbines: "Live" }));
+    } catch (e:any) {
+      console.error(e);
+      setApiStatus(s => ({ ...s, turbines: `Error: ${e.message||e}` }));
+    }
   }
 
   return (
@@ -633,6 +687,9 @@ export default function MarineOpsMap() {
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="rounded bg-black/30 p-2"><div className="opacity-70">Vessel tiles</div><div>{apiStatus.gfw || "—"}</div></div>
               <div className="rounded bg-black/30 p-2"><div className="opacity-70">EMODnet grid</div><div>{apiStatus.emodnet || "—"}</div></div>
+              <div className="rounded bg-black/30 p-2"><div className="opacity-70">Pipelines</div><div>{apiStatus.pipelines || "—"}</div></div>
+              <div className="rounded bg-black/30 p-2"><div className="opacity-70">Wind farms</div><div>{apiStatus.windfarms || "—"}</div></div>
+              <div className="rounded bg-black/30 p-2"><div className="opacity-70">Turbines</div><div>{apiStatus.turbines || "—"}</div></div>
               <div className="rounded bg-black/30 p-2"><div className="opacity-70">CMEMS wave</div><div>{apiStatus.cmemsWave || "—"}</div></div>
               <div className="rounded bg-black/30 p-2"><div className="opacity-70">CAMS NO₂</div><div>{apiStatus.cams || "—"}</div></div>
             </div>
