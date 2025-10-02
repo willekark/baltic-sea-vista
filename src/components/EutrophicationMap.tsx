@@ -7,6 +7,7 @@ import { Droplets, AlertTriangle, MapPin, Activity } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useMapboxToken } from "@/hooks/useMapboxToken";
 
 interface EutrophicationMapProps {
   areas?: any[];
@@ -15,9 +16,10 @@ interface EutrophicationMapProps {
 const EutrophicationMap: React.FC<EutrophicationMapProps> = ({ areas = [] }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState('');
+  const [inputToken, setInputToken] = useState('');
   const [isMapReady, setIsMapReady] = useState(false);
   const { toast } = useToast();
+  const { token, saveToken, isValidToken, isLoading } = useMapboxToken();
 
   // Generate day/night polygon data based on current time
   const generateDayNightData = (date: Date) => {
@@ -281,7 +283,7 @@ const EutrophicationMap: React.FC<EutrophicationMapProps> = ({ areas = [] }) => 
       e.stopPropagation();
     }
     
-    if (!mapboxToken.trim()) {
+    if (!inputToken.trim()) {
       toast({
         title: "Token Required",
         description: "Please enter your Mapbox public token",
@@ -290,7 +292,7 @@ const EutrophicationMap: React.FC<EutrophicationMapProps> = ({ areas = [] }) => 
       return;
     }
 
-    if (!mapboxToken.startsWith('pk.')) {
+    if (!isValidToken(inputToken)) {
       toast({
         title: "Invalid Token Format",
         description: "Mapbox tokens should start with 'pk.'",
@@ -299,58 +301,22 @@ const EutrophicationMap: React.FC<EutrophicationMapProps> = ({ areas = [] }) => 
       return;
     }
 
-    localStorage.setItem('mapbox_token', mapboxToken);
-    console.log('EutrophicationMap - Token saved to localStorage');
-    
-    try {
-      initializeMap(mapboxToken);
-    } catch (error) {
-      console.error('EutrophicationMap - Map initialization error:', error);
+    if (saveToken(inputToken)) {
+      initializeMap(inputToken);
       toast({
-        title: "Map Initialization Failed",
-        description: "Please check your Mapbox token and try again",
-        variant: "destructive",
+        title: "Map Activated",
+        description: "Eutrophication map is now active. Token saved for future sessions.",
       });
     }
   };
 
-  // Load token from localStorage and auto-initialize map
+  // Auto-initialize map if token exists
   useEffect(() => {
-    console.log('EutrophicationMap - Component mounted, checking for saved token...');
-    
-    // Add a small delay to ensure localStorage is ready
-    setTimeout(() => {
-      try {
-        const savedToken = localStorage.getItem('mapbox_token');
-        console.log('EutrophicationMap - localStorage check result:', savedToken ? `Token found: ${savedToken.substring(0, 10)}...` : 'No token found');
-        
-        if (savedToken && savedToken.startsWith('pk.')) {
-          console.log('EutrophicationMap - Valid token found, setting state and initializing map...');
-          setMapboxToken(savedToken);
-          
-          // Only initialize if map hasn't been created yet
-          if (!map.current && !isMapReady) {
-            console.log('EutrophicationMap - Map not yet created, initializing now...');
-            initializeMap(savedToken);
-          } else {
-            console.log('EutrophicationMap - Map already exists or ready:', { mapCurrent: !!map.current, isMapReady });
-          }
-        } else {
-          console.log('EutrophicationMap - No valid token found in localStorage');
-        }
-      } catch (error) {
-        console.error('EutrophicationMap - Error accessing localStorage:', error);
-      }
-    }, 100);
-  }, []);
-
-  // Auto-load map when token changes
-  useEffect(() => {
-    if (mapboxToken && mapboxToken.startsWith('pk.') && !map.current && !isMapReady) {
-      console.log('EutrophicationMap - Auto-loading map with token change');
-      initializeMap(mapboxToken);
+    if (token && isValidToken(token) && !isLoading) {
+      console.log('EutrophicationMap - Using saved token');
+      initializeMap(token);
     }
-  }, [mapboxToken, isMapReady]);
+  }, [token, isLoading]);
 
   useEffect(() => {
     return () => {
@@ -398,8 +364,8 @@ const EutrophicationMap: React.FC<EutrophicationMapProps> = ({ areas = [] }) => 
                 <Input
                   type="text"
                   placeholder="pk.eyJ1IjoibXl1c2VybmFtZSIsImEiOiJjbG..."
-                  value={mapboxToken}
-                  onChange={(e) => setMapboxToken(e.target.value)}
+                  value={inputToken}
+                  onChange={(e) => setInputToken(e.target.value)}
                   className="flex-1 bg-white"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
