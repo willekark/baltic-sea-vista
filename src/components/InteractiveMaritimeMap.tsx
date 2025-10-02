@@ -129,10 +129,10 @@ const InteractiveMaritimeMap = () => {
         console.log('Processed map data:', mapData);
         setMarineData(mapData);
         
-        if (map.current && isMapReady) {
-          console.log('Updating map layers with data');
-          updateMapLayers(mapData);
-        }
+          if (map.current) {
+            console.log('Updating map layers with data (immediate)');
+            updateMapLayers(mapData);
+          }
 
         toast({
           title: "Data Updated",
