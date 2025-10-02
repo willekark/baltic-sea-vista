@@ -359,6 +359,18 @@ export default function MarineOpsMap() {
           filter: ["==", ["geometry-type"], "Point"],
           paint: { "circle-radius": 3, "circle-color": "#141414", "circle-stroke-color": "#00ffd1", "circle-stroke-width": 1.5, "circle-opacity": windOpacity } });
 
+        // Nord Stream (demo)
+        const nordStream: GeoJSON.FeatureCollection = {
+          type: "FeatureCollection",
+          features: [
+            { type: "Feature", properties: { name: "Nord Stream (demo)" }, geometry: { type: "LineString",
+              coordinates: [[13.9,55.3],[15.8,55.4],[18.5,55.8],[20.7,56.4],[23.1,57.4]] } }
+          ]
+        };
+        map.addSource("nord-stream", { type: "geojson", data: nordStream });
+        map.addLayer({ id: "nord-stream-line", type: "line", source: "nord-stream",
+          paint: { "line-color": "#00a7ff", "line-width": 3.6, "line-opacity": 1 } }, "pipelines-line");
+
         // Emission control area
         map.addSource("eca", { type: "geojson", data: demoECA });
         map.addLayer({ id: "eca-fill", type: "fill", source: "eca", paint: { "fill-color": "#6a5acd", "fill-opacity": 0.12 } });
@@ -463,6 +475,7 @@ export default function MarineOpsMap() {
         <div className="flex items-center gap-2"><span className="h-0.5 w-6" style={{ background: PALETTE.gridLine }} /> <span>HV cable / line</span></div>
         <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full border-2" style={{ borderColor: PALETTE.gridLine }} /> <span>Substation / hub</span></div>
         <div className="flex items-center gap-2"><span className="h-0.5 w-6" style={{ background: '#33c3ff' }} /> <span>Pipeline</span></div>
+        <div className="flex items-center gap-2"><span className="h-1 w-6" style={{ background: '#00a7ff' }} /> <span>Nord Stream</span></div>
         <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full border" style={{ borderColor: '#00ffd1' }} /> <span>Wind turbine</span></div>
         <div className="flex items-center gap-2"><span className="h-2 w-6 rounded" style={{ background: '#00ffd1' }} /> <span>Wind farm area</span></div>
         <div className="flex items-center gap-2"><span className="h-2 w-6 rounded bg-[#6a5acd]"/> <span>ECA (SECA/NECA)</span></div>
