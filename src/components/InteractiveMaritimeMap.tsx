@@ -69,13 +69,13 @@ const InteractiveMaritimeMap = () => {
   const [showDataSources, setShowDataSources] = useState(false);
 
   const [layers, setLayers] = useState<LayerConfig[]>([
-    { id: 'currents', name: 'Surface Currents', icon: Activity, enabled: true, opacity: 0.7, color: '#1e40af', dataType: 'vector' },
-    { id: 'waves', name: 'Wave Height', icon: Waves, enabled: true, opacity: 0.6, color: '#0891b2', dataType: 'raster' },
-    { id: 'wind', name: 'Wind Speed', icon: Wind, enabled: true, opacity: 0.5, color: '#84cc16', dataType: 'vector' },
-    { id: 'sst', name: 'Sea Surface Temp', icon: Thermometer, enabled: false, opacity: 0.6, color: '#dc2626', dataType: 'raster' },
-    { id: 'shipping', name: 'Vessel Traffic', icon: Ship, enabled: true, opacity: 0.8, color: '#f97316', dataType: 'real-time' },
-    { id: 'oxygen', name: 'Dissolved Oxygen', icon: Droplets, enabled: false, opacity: 0.5, color: '#a855f7', dataType: 'raster' },
-    { id: 'chlorophyll', name: 'Chlorophyll-a', icon: Eye, enabled: false, opacity: 0.5, color: '#16a34a', dataType: 'raster' },
+    { id: 'currents', name: 'Surface Currents', icon: Activity, enabled: true, opacity: 0.9, color: '#1e40af', dataType: 'vector' },
+    { id: 'waves', name: 'Wave Height', icon: Waves, enabled: true, opacity: 0.8, color: '#0891b2', dataType: 'raster' },
+    { id: 'wind', name: 'Wind Speed', icon: Wind, enabled: true, opacity: 0.8, color: '#84cc16', dataType: 'vector' },
+    { id: 'sst', name: 'Sea Surface Temp', icon: Thermometer, enabled: true, opacity: 0.8, color: '#dc2626', dataType: 'raster' },
+    { id: 'shipping', name: 'Vessel Traffic', icon: Ship, enabled: true, opacity: 0.9, color: '#f97316', dataType: 'real-time' },
+    { id: 'oxygen', name: 'Dissolved Oxygen', icon: Droplets, enabled: true, opacity: 0.7, color: '#a855f7', dataType: 'raster' },
+    { id: 'chlorophyll', name: 'Chlorophyll-a', icon: Eye, enabled: true, opacity: 0.7, color: '#16a34a', dataType: 'raster' },
     { id: 'infrastructure', name: 'Ports & Infrastructure', icon: Anchor, enabled: true, opacity: 1.0, color: '#64748b', dataType: 'vector' }
   ]);
 
@@ -282,8 +282,8 @@ const InteractiveMaritimeMap = () => {
       source: 'currents',
       paint: {
         'line-color': '#1e40af',
-        'line-width': 3,
-        'line-opacity': 0.7
+        'line-width': 4,
+        'line-opacity': 0.9
       },
       layout: { 'visibility': 'visible' }
     });
@@ -295,20 +295,20 @@ const InteractiveMaritimeMap = () => {
       source: 'waves',
       paint: {
         'heatmap-weight': ['case', ['has', 'intensity'], ['get', 'intensity'], 1],
-        'heatmap-intensity': 1,
+        'heatmap-intensity': 1.2,
         'heatmap-color': [
           'interpolate',
           ['linear'],
           ['heatmap-density'],
           0, 'rgba(8, 145, 178, 0)',
-          0.2, 'rgba(8, 145, 178, 0.3)',
-          0.4, 'rgba(6, 182, 212, 0.5)',
-          0.6, 'rgba(34, 211, 238, 0.7)',
-          0.8, 'rgba(103, 232, 249, 0.8)',
-          1, 'rgba(165, 243, 252, 0.9)'
+          0.2, 'rgba(8, 145, 178, 0.5)',
+          0.4, 'rgba(6, 182, 212, 0.7)',
+          0.6, 'rgba(34, 211, 238, 0.85)',
+          0.8, 'rgba(103, 232, 249, 0.9)',
+          1, 'rgba(165, 243, 252, 1)'
         ],
-        'heatmap-radius': 30,
-        'heatmap-opacity': 0.6
+        'heatmap-radius': 40,
+        'heatmap-opacity': 0.8
       },
       layout: { 'visibility': 'visible' }
     });
@@ -320,8 +320,8 @@ const InteractiveMaritimeMap = () => {
       source: 'wind',
       paint: {
         'line-color': '#84cc16',
-        'line-width': 2,
-        'line-opacity': 0.5
+        'line-width': 3,
+        'line-opacity': 0.8
       },
       layout: { 'visibility': 'visible' }
     });
@@ -333,22 +333,22 @@ const InteractiveMaritimeMap = () => {
       source: 'sst',
       paint: {
         'heatmap-weight': ['case', ['has', 'temperature'], ['get', 'temperature'], 1],
-        'heatmap-intensity': 0.8,
+        'heatmap-intensity': 1.2,
         'heatmap-color': [
           'interpolate',
           ['linear'],
           ['heatmap-density'],
           0, 'rgba(220, 38, 38, 0)',
-          0.2, 'rgba(220, 38, 38, 0.3)',
-          0.4, 'rgba(239, 68, 68, 0.5)',
-          0.6, 'rgba(248, 113, 113, 0.7)',
-          0.8, 'rgba(252, 165, 165, 0.8)',
-          1, 'rgba(254, 202, 202, 0.9)'
+          0.2, 'rgba(220, 38, 38, 0.5)',
+          0.4, 'rgba(239, 68, 68, 0.7)',
+          0.6, 'rgba(248, 113, 113, 0.85)',
+          0.8, 'rgba(252, 165, 165, 0.9)',
+          1, 'rgba(254, 202, 202, 1)'
         ],
-        'heatmap-radius': 25,
-        'heatmap-opacity': 0.6
+        'heatmap-radius': 35,
+        'heatmap-opacity': 0.8
       },
-      layout: { 'visibility': 'none' }
+      layout: { 'visibility': 'visible' }
     });
 
     // Dissolved Oxygen layer
@@ -358,22 +358,22 @@ const InteractiveMaritimeMap = () => {
       source: 'oxygen',
       paint: {
         'heatmap-weight': ['case', ['has', 'oxygen'], ['get', 'oxygen'], 1],
-        'heatmap-intensity': 0.7,
+        'heatmap-intensity': 1.0,
         'heatmap-color': [
           'interpolate',
           ['linear'],
           ['heatmap-density'],
           0, 'rgba(168, 85, 247, 0)',
-          0.2, 'rgba(168, 85, 247, 0.3)',
-          0.4, 'rgba(192, 132, 252, 0.5)',
-          0.6, 'rgba(216, 180, 254, 0.7)',
-          0.8, 'rgba(233, 213, 255, 0.8)',
-          1, 'rgba(250, 245, 255, 0.9)'
+          0.2, 'rgba(168, 85, 247, 0.5)',
+          0.4, 'rgba(192, 132, 252, 0.7)',
+          0.6, 'rgba(216, 180, 254, 0.85)',
+          0.8, 'rgba(233, 213, 255, 0.9)',
+          1, 'rgba(250, 245, 255, 1)'
         ],
-        'heatmap-radius': 20,
-        'heatmap-opacity': 0.5
+        'heatmap-radius': 30,
+        'heatmap-opacity': 0.7
       },
-      layout: { 'visibility': 'none' }
+      layout: { 'visibility': 'visible' }
     });
 
     // Chlorophyll-a layer
@@ -383,22 +383,22 @@ const InteractiveMaritimeMap = () => {
       source: 'chlorophyll',
       paint: {
         'heatmap-weight': ['case', ['has', 'chlorophyll'], ['get', 'chlorophyll'], 1],
-        'heatmap-intensity': 0.6,
+        'heatmap-intensity': 1.0,
         'heatmap-color': [
           'interpolate',
           ['linear'],
           ['heatmap-density'],
           0, 'rgba(22, 163, 74, 0)',
-          0.2, 'rgba(22, 163, 74, 0.3)',
-          0.4, 'rgba(34, 197, 94, 0.5)',
-          0.6, 'rgba(74, 222, 128, 0.7)',
-          0.8, 'rgba(134, 239, 172, 0.8)',
-          1, 'rgba(187, 247, 208, 0.9)'
+          0.2, 'rgba(22, 163, 74, 0.5)',
+          0.4, 'rgba(34, 197, 94, 0.7)',
+          0.6, 'rgba(74, 222, 128, 0.85)',
+          0.8, 'rgba(134, 239, 172, 0.9)',
+          1, 'rgba(187, 247, 208, 1)'
         ],
-        'heatmap-radius': 18,
-        'heatmap-opacity': 0.5
+        'heatmap-radius': 28,
+        'heatmap-opacity': 0.7
       },
-      layout: { 'visibility': 'none' }
+      layout: { 'visibility': 'visible' }
     });
 
     // Vessel traffic layer
@@ -407,10 +407,10 @@ const InteractiveMaritimeMap = () => {
       type: 'circle',
       source: 'vessels',
       paint: {
-        'circle-radius': ['case', ['has', 'intensity'], ['interpolate', ['linear'], ['get', 'intensity'], 1, 4, 10, 12], 6],
+        'circle-radius': ['case', ['has', 'intensity'], ['interpolate', ['linear'], ['get', 'intensity'], 1, 5, 10, 14], 7],
         'circle-color': '#f97316',
-        'circle-opacity': 0.8,
-        'circle-stroke-width': 1,
+        'circle-opacity': 0.9,
+        'circle-stroke-width': 2,
         'circle-stroke-color': '#ffffff'
       },
       layout: { 'visibility': 'visible' }
