@@ -275,128 +275,128 @@ const InteractiveMaritimeMap = () => {
 
     // Add all map layers
     
-    // Current vectors layer
+    // Current vectors layer - make it MUCH more visible
     map.current.addLayer({
       id: 'currents',
       type: 'line',
       source: 'currents',
       paint: {
-        'line-color': '#1e40af',
-        'line-width': 4,
-        'line-opacity': 0.9
+        'line-color': '#60a5fa',
+        'line-width': 6,
+        'line-opacity': 1.0
       },
       layout: { 'visibility': 'visible' }
     });
 
-    // Wave heatmap layer
+    // Wave heatmap layer - MORE VISIBLE
     map.current.addLayer({
       id: 'waves',
       type: 'heatmap',
       source: 'waves',
       paint: {
         'heatmap-weight': ['case', ['has', 'intensity'], ['get', 'intensity'], 1],
-        'heatmap-intensity': 1.2,
+        'heatmap-intensity': 2.5,
         'heatmap-color': [
           'interpolate',
           ['linear'],
           ['heatmap-density'],
           0, 'rgba(8, 145, 178, 0)',
-          0.2, 'rgba(8, 145, 178, 0.5)',
-          0.4, 'rgba(6, 182, 212, 0.7)',
-          0.6, 'rgba(34, 211, 238, 0.85)',
-          0.8, 'rgba(103, 232, 249, 0.9)',
+          0.2, 'rgba(8, 145, 178, 0.7)',
+          0.4, 'rgba(6, 182, 212, 0.85)',
+          0.6, 'rgba(34, 211, 238, 0.95)',
+          0.8, 'rgba(103, 232, 249, 1)',
           1, 'rgba(165, 243, 252, 1)'
         ],
-        'heatmap-radius': 40,
-        'heatmap-opacity': 0.8
+        'heatmap-radius': 60,
+        'heatmap-opacity': 0.95
       },
       layout: { 'visibility': 'visible' }
     });
 
-    // Wind vectors layer
+    // Wind vectors layer - make it MUCH more visible
     map.current.addLayer({
       id: 'wind',
       type: 'line',
       source: 'wind',
       paint: {
-        'line-color': '#84cc16',
-        'line-width': 3,
-        'line-opacity': 0.8
+        'line-color': '#bef264',
+        'line-width': 5,
+        'line-opacity': 1.0
       },
       layout: { 'visibility': 'visible' }
     });
 
-    // Sea Surface Temperature heatmap
+    // Sea Surface Temperature heatmap - MORE VISIBLE
     map.current.addLayer({
       id: 'sst',
       type: 'heatmap',
       source: 'sst',
       paint: {
         'heatmap-weight': ['case', ['has', 'temperature'], ['get', 'temperature'], 1],
-        'heatmap-intensity': 1.2,
+        'heatmap-intensity': 2.5,
         'heatmap-color': [
           'interpolate',
           ['linear'],
           ['heatmap-density'],
           0, 'rgba(220, 38, 38, 0)',
-          0.2, 'rgba(220, 38, 38, 0.5)',
-          0.4, 'rgba(239, 68, 68, 0.7)',
-          0.6, 'rgba(248, 113, 113, 0.85)',
-          0.8, 'rgba(252, 165, 165, 0.9)',
+          0.2, 'rgba(220, 38, 38, 0.7)',
+          0.4, 'rgba(239, 68, 68, 0.85)',
+          0.6, 'rgba(248, 113, 113, 0.95)',
+          0.8, 'rgba(252, 165, 165, 1)',
           1, 'rgba(254, 202, 202, 1)'
         ],
-        'heatmap-radius': 35,
-        'heatmap-opacity': 0.8
+        'heatmap-radius': 55,
+        'heatmap-opacity': 0.95
       },
       layout: { 'visibility': 'visible' }
     });
 
-    // Dissolved Oxygen layer
+    // Dissolved Oxygen layer - MORE VISIBLE
     map.current.addLayer({
       id: 'oxygen',
       type: 'heatmap',
       source: 'oxygen',
       paint: {
         'heatmap-weight': ['case', ['has', 'oxygen'], ['get', 'oxygen'], 1],
-        'heatmap-intensity': 1.0,
+        'heatmap-intensity': 2.2,
         'heatmap-color': [
           'interpolate',
           ['linear'],
           ['heatmap-density'],
           0, 'rgba(168, 85, 247, 0)',
-          0.2, 'rgba(168, 85, 247, 0.5)',
-          0.4, 'rgba(192, 132, 252, 0.7)',
-          0.6, 'rgba(216, 180, 254, 0.85)',
-          0.8, 'rgba(233, 213, 255, 0.9)',
+          0.2, 'rgba(168, 85, 247, 0.7)',
+          0.4, 'rgba(192, 132, 252, 0.85)',
+          0.6, 'rgba(216, 180, 254, 0.95)',
+          0.8, 'rgba(233, 213, 255, 1)',
           1, 'rgba(250, 245, 255, 1)'
         ],
-        'heatmap-radius': 30,
-        'heatmap-opacity': 0.7
+        'heatmap-radius': 50,
+        'heatmap-opacity': 0.9
       },
       layout: { 'visibility': 'visible' }
     });
 
-    // Chlorophyll-a layer
+    // Chlorophyll-a layer - MORE VISIBLE
     map.current.addLayer({
       id: 'chlorophyll',
       type: 'heatmap',
       source: 'chlorophyll',
       paint: {
         'heatmap-weight': ['case', ['has', 'chlorophyll'], ['get', 'chlorophyll'], 1],
-        'heatmap-intensity': 1.0,
+        'heatmap-intensity': 2.2,
         'heatmap-color': [
           'interpolate',
           ['linear'],
           ['heatmap-density'],
           0, 'rgba(22, 163, 74, 0)',
-          0.2, 'rgba(22, 163, 74, 0.5)',
-          0.4, 'rgba(34, 197, 94, 0.7)',
-          0.6, 'rgba(74, 222, 128, 0.85)',
-          0.8, 'rgba(134, 239, 172, 0.9)',
+          0.2, 'rgba(22, 163, 74, 0.7)',
+          0.4, 'rgba(34, 197, 94, 0.85)',
+          0.6, 'rgba(74, 222, 128, 0.95)',
+          0.8, 'rgba(134, 239, 172, 1)',
           1, 'rgba(187, 247, 208, 1)'
         ],
-        'heatmap-radius': 28,
-        'heatmap-opacity': 0.7
+        'heatmap-radius': 48,
+        'heatmap-opacity': 0.9
       },
       layout: { 'visibility': 'visible' }
     });
@@ -521,10 +521,10 @@ const InteractiveMaritimeMap = () => {
     const points: GeoJSON.Feature[] = [];
     const baseIntensity = dataPoint.primaryValue / 5; // Normalize wave height
 
-    // Generate multiple points around the location for better heatmap effect
-    for (let i = 0; i < 5; i++) {
-      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 0.5;
-      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 0.5;
+    // Generate MANY more points around the location for visible heatmap
+    for (let i = 0; i < 30; i++) {
+      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 1.5;
+      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 1.5;
       
       points.push({
         type: 'Feature',
@@ -579,9 +579,9 @@ const InteractiveMaritimeMap = () => {
     const points: GeoJSON.Feature[] = [];
     const baseIntensity = Math.max(0.1, Math.min(1.0, dataPoint.primaryValue / 25)); // Normalize temperature
 
-    for (let i = 0; i < 8; i++) {
-      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 0.8;
-      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 0.8;
+    for (let i = 0; i < 35; i++) {
+      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 1.5;
+      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 1.5;
       
       points.push({
         type: 'Feature',
@@ -606,9 +606,9 @@ const InteractiveMaritimeMap = () => {
     const points: GeoJSON.Feature[] = [];
     const baseIntensity = Math.max(0.1, Math.min(1.0, dataPoint.primaryValue / 12)); // Normalize oxygen
 
-    for (let i = 0; i < 6; i++) {
-      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 0.6;
-      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 0.6;
+    for (let i = 0; i < 28; i++) {
+      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 1.2;
+      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 1.2;
       
       points.push({
         type: 'Feature',
@@ -633,9 +633,9 @@ const InteractiveMaritimeMap = () => {
     const points: GeoJSON.Feature[] = [];
     const baseIntensity = Math.max(0.1, Math.min(1.0, dataPoint.primaryValue / 20)); // Normalize chlorophyll
 
-    for (let i = 0; i < 7; i++) {
-      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 0.7;
-      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 0.7;
+    for (let i = 0; i < 32; i++) {
+      const offsetLat = dataPoint.location.lat + (Math.random() - 0.5) * 1.4;
+      const offsetLng = dataPoint.location.lng + (Math.random() - 0.5) * 1.4;
       
       points.push({
         type: 'Feature',
