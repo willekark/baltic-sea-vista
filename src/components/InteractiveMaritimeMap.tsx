@@ -180,6 +180,11 @@ export default function MarineOpsMap() {
   const [gridOpacity, setGridOpacity] = useState(0.95);
   const [showEmissionZones, setShowEmissionZones] = useState(true);
 
+  const [showPipelines, setShowPipelines] = useState(true);
+  const [pipelinesOpacity, setPipelinesOpacity] = useState(0.95);
+  const [showWindInfra, setShowWindInfra] = useState(true);
+  const [windOpacity, setWindOpacity] = useState(0.9);
+
   const [rasterLayers, setRasterLayers] = useState<RasterLayerCfg[]>([]);
 
   // Time filtering
