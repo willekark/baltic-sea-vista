@@ -29,6 +29,23 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
+            <Button
+              variant="ghost"
+              className="text-foreground hover:text-primary transition-colors"
+              onClick={() => {
+                if (location.pathname !== '/') {
+                  navigate('/');
+                  setTimeout(() => {
+                    document.getElementById('interactive-map-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                } else {
+                  document.getElementById('interactive-map-section')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              data-testid="nav-map"
+            >
+              🗺️ Map
+            </Button>
             {HEADER_NAV.map((item) => (
               <Button
                 key={item.testId}
@@ -60,6 +77,24 @@ const Header = () => {
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
           <nav className="md:hidden py-4 space-y-2 border-t border-border/50">
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-foreground hover:text-primary transition-colors"
+              onClick={() => {
+                if (location.pathname !== '/') {
+                  navigate('/');
+                  setTimeout(() => {
+                    document.getElementById('interactive-map-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                } else {
+                  document.getElementById('interactive-map-section')?.scrollIntoView({ behavior: 'smooth' });
+                }
+                setIsMobileMenuOpen(false);
+              }}
+              data-testid="nav-map"
+            >
+              🗺️ Map
+            </Button>
             {HEADER_NAV.map((item) => (
               <Button
                 key={item.testId}
