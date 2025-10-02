@@ -369,11 +369,11 @@ export default function MarineOpsMap() {
     const m = mapRef.current; if (!m || !isReady) return;
     if (!m.getSource(id)) {
       m.addSource(id, { type: "raster", tiles: [url], tileSize: 256 });
-      m.addLayer({ id, type: "raster", source: id, paint: { "raster-opacity": 0.75 } }, "vessel-heat");
+      m.addLayer({ id, type: "raster", source: id, paint: { "raster-opacity": 0.75 } }, "vessel-heat-glow");
     }
   };
 
-  useEffect(() => { const m = mapRef.current; if (!m || !isReady) return; rasterLayers.forEach((rl)=>{ const exists = m.getSource(rl.id); if (!exists){ m.addSource(rl.id,{ type:"raster", tiles:[rl.url], tileSize:256}); m.addLayer({ id: rl.id, type:"raster", source: rl.id, paint:{"raster-opacity": rl.opacity}}, "vessel-heat"); } else if (m.getLayer(rl.id)){ m.setPaintProperty(rl.id, "raster-opacity", rl.visible ? rl.opacity : 0);} }); }, [rasterLayers, isReady]);
+  useEffect(() => { const m = mapRef.current; if (!m || !isReady) return; rasterLayers.forEach((rl)=>{ const exists = m.getSource(rl.id); if (!exists){ m.addSource(rl.id,{ type:"raster", tiles:[rl.url], tileSize:256}); m.addLayer({ id: rl.id, type:"raster", source: rl.id, paint:{"raster-opacity": rl.opacity}}, "vessel-heat-glow"); } else if (m.getLayer(rl.id)){ m.setPaintProperty(rl.id, "raster-opacity", rl.visible ? rl.opacity : 0);} }); }, [rasterLayers, isReady]);
 
   const onGeoJSONUpload = async (file?: File | null) => { if (!file) return; const data = await readGeoJSON(file); if (!data) return; const id = `geojson-${Math.random().toString(36).slice(2, 8)}`; const m = mapRef.current; if (!m || !isReady) return; m.addSource(id, { type: "geojson", data }); m.addLayer({ id: `${id}-fill`, type: "fill", source: id, filter: ["==", ["geometry-type"], "Polygon"], paint: { "fill-color": "#2684ff", "fill-opacity": 0.25 } }); m.addLayer({ id: `${id}-line`, type: "line", source: id, filter: ["any", ["==", ["geometry-type"], "LineString"], ["==", ["geometry-type"], "MultiLineString"]], paint: { "line-color": "#2684ff", "line-width": 2 } }); m.addLayer({ id: `${id}-pt`, type: "circle", source: id, filter: ["==", ["geometry-type"], "Point"], paint: { "circle-color": "#111", "circle-stroke-color": "#2684ff", "circle-stroke-width": 2, "circle-radius": 5 } }); };
 
