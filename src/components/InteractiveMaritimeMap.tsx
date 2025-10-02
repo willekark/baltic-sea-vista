@@ -462,9 +462,9 @@ export default function MarineOpsMap() {
         </div>
         <div className="flex items-center gap-2"><span className="h-0.5 w-6" style={{ background: PALETTE.gridLine }} /> <span>HV cable / line</span></div>
         <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full border-2" style={{ borderColor: PALETTE.gridLine }} /> <span>Substation / hub</span></div>
-        <div className="flex items-center gap-2"><span className="h-0.5 w-6 bg-[#33c3ff]" style={{ backgroundImage: "repeating-linear-gradient(90deg, #33c3ff 0, #33c3ff 4px, transparent 4px, transparent 6px)" }} /> <span>Pipeline</span></div>
-        <div className="flex items-center gap-2"><span className="h-2 w-6 rounded bg-[#00ffd1]/20 border border-[#00ffd1]"/> <span>Wind farm area</span></div>
-        <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full border-2 border-[#00ffd1]" style={{ backgroundColor: "#141414" }} /> <span>Turbine</span></div>
+        <div className="flex items-center gap-2"><span className="h-0.5 w-6" style={{ background: '#33c3ff' }} /> <span>Pipeline</span></div>
+        <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full border" style={{ borderColor: '#00ffd1' }} /> <span>Wind turbine</span></div>
+        <div className="flex items-center gap-2"><span className="h-2 w-6 rounded" style={{ background: '#00ffd1' }} /> <span>Wind farm area</span></div>
         <div className="flex items-center gap-2"><span className="h-2 w-6 rounded bg-[#6a5acd]"/> <span>ECA (SECA/NECA)</span></div>
       </div>
     </div>
