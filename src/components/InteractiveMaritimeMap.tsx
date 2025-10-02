@@ -24,15 +24,15 @@ import { Info, Layers, Upload, Wand2, Play, Pause } from "lucide-react";
  * - Production note: use your own tile server / CDN and real data feeds.
  */
 
-// --- Simple OSM light style using XYZ tiles (swap for your own) ---
+// --- Dark basemap using CartoDB tiles ---
 const lightStyle: any = {
   version: 8,
   sources: {
     osm: {
       type: "raster",
-      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      tiles: ["https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"],
       tileSize: 256,
-      attribution: "© OpenStreetMap contributors",
+      attribution: "© OpenStreetMap contributors © CARTO",
     },
   },
   layers: [{ id: "osm", type: "raster", source: "osm", minzoom: 0, maxzoom: 19 }],
