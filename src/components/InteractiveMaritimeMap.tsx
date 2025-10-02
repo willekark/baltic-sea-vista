@@ -13,7 +13,8 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Info, Layers, Upload, Play, Pause } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Info, Layers, Upload, Wand2, Play, Pause } from "lucide-react";
 
 /**
  * Interactive maritime map for layers like wind, waves, vessel traffic, and grid infrastructure.
@@ -100,27 +101,61 @@ async function readGeoJSON(file: File): Promise<GeoJSON.FeatureCollection | null
 // Layer configuration type
 type RasterLayerCfg = { id: string; url: string; opacity: number; visible: boolean };
 
-export default function InteractiveMaritimeMap() {
+export default function MarineOpsMap() {
   const mapRef = useRef<MapLibreMap | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [isReady, setIsReady] = useState(false);
 
+  // THEME: dark glass UI + Baltic neon palette
+  const PALETTE = {
+    heat: [
+      "rgba(0,0,0,0)",
+      "#00ffd1", // mint
+      "#2bff00", // neon green lanes
+      "#b5ff00",
+      "#ffd400",
+      "#ff6a00",
+      "#ff0033", // hotspot red
+    ],
+    gridLine: "#ff2f92",
+    gridPoint: "#141414",
+    label: "#eaeaea",
+  } as const;
+
   // Layer toggles & settings
   const [showHeatmap, setShowHeatmap] = useState(true);
-  const [heatOpacity, setHeatOpacity] = useState(0.85);
+  const [heatOpacity, setHeatOpacity] = useState(0.9);
   const [showGrid, setShowGrid] = useState(true);
-  const [gridOpacity, setGridOpacity] = useState(0.9);
+  const [gridOpacity, setGridOpacity] = useState(0.95);
+  const [showEmissionZones, setShowEmissionZones] = useState(true);
 
-  const [rasterLayers, setRasterLayers] = useState<RasterLayerCfg[]>([
-    // Example (commented out): { id: "wind-tiles", url: "https://.../{z}/{x}/{y}.png", opacity: 0.7, visible: false }
-  ]);
+  const [rasterLayers, setRasterLayers] = useState<RasterLayerCfg[]>([]);
 
-  // Time filtering (hours window around demo epoch range)
+  // Time filtering
   const minTs = 1727395200; // demo start
   const maxTs = 1727416800; // demo end
   const [tsWindow, setTsWindow] = useState<[number, number]>([minTs, maxTs]);
   const [play, setPlay] = useState(false);
+
+  // Emission zones (demo Baltic SECA/NECA envelope)
+  const demoECA: GeoJSON.FeatureCollection = {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        properties: { name: "Baltic SECA/NECA (demo)", sox: "≤0.10% m/m", nox: "Tier III (newbuilds ≥2021)" },
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [9.0, 54.5], [14.5, 54.3], [18.8, 54.3], [21.0, 55.0], [24.5, 57.0], [28.0, 59.6], [26.0, 60.8], [24.1, 60.2], [20.1, 59.5], [18.5, 59.7], [16.0, 57.8], [12.0, 55.5], [9.0, 54.5]
+            ],
+          ],
+        },
+      },
+    ],
+  };
 
   // Initialize map
   useEffect(() => {
@@ -128,8 +163,8 @@ export default function InteractiveMaritimeMap() {
       const map = new maplibregl.Map({
         container: mapContainerRef.current,
         style: lightStyle as any,
-        center: [18.5, 56.3],
-        zoom: 4.5,
+        center: [19.2, 57.3],
+        zoom: 4.8,
         hash: true,
       });
       map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }));
@@ -139,115 +174,68 @@ export default function InteractiveMaritimeMap() {
         setIsReady(true);
         mapRef.current = map;
 
-        // Add vessel pings source
-        map.addSource("vessel-pings", {
-          type: "geojson",
-          data: demoVesselPings,
-        });
-
-        // Heatmap layer
+        // Vessel pings
+        map.addSource("vessel-pings", { type: "geojson", data: demoVesselPings });
         map.addLayer({
           id: "vessel-heat",
           type: "heatmap",
           source: "vessel-pings",
-          maxzoom: 9,
+          maxzoom: 10,
           paint: {
-            "heatmap-weight": ["interpolate", ["linear"], ["get", "sog"], 0, 0, 20, 1],
-            "heatmap-intensity": 1.2,
+            "heatmap-weight": ["interpolate", ["linear"], ["get", "sog"], 0, 0, 25, 1],
+            "heatmap-intensity": 1.3,
             "heatmap-color": [
-              "interpolate",
-              ["linear"],
-              ["heatmap-density"],
-              0, "rgba(0,0,255,0)",
-              0.2, "#1e90ff",
-              0.4, "#00ffff",
-              0.6, "#39ff14",
-              0.8, "#ffd700",
-              1, "#ff4500",
+              "interpolate", ["linear"], ["heatmap-density"],
+              0.00, PALETTE.heat[0],
+              0.15, PALETTE.heat[1],
+              0.35, PALETTE.heat[2],
+              0.55, PALETTE.heat[3],
+              0.75, PALETTE.heat[4],
+              0.90, PALETTE.heat[5],
+              1.00, PALETTE.heat[6],
             ],
-            "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 2, 8, 24],
+            "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 2, 9, 28],
             "heatmap-opacity": heatOpacity,
           },
         } as any);
 
-        // Grid source & layers
+        // Grid
         map.addSource("grid", { type: "geojson", data: demoGrid });
-        map.addLayer({
-          id: "grid-lines",
-          type: "line",
-          source: "grid",
-          filter: ["==", ["geometry-type"], "LineString"],
-          paint: { "line-color": "#ff0066", "line-width": 2.5, "line-opacity": gridOpacity },
-        });
-        map.addLayer({
-          id: "grid-points",
-          type: "circle",
-          source: "grid",
-          filter: ["==", ["geometry-type"], "Point"],
-          paint: {
-            "circle-radius": 6,
-            "circle-color": "#111",
-            "circle-stroke-color": "#ff0066",
-            "circle-stroke-width": 2,
-            "circle-opacity": gridOpacity,
-          },
-        });
-        map.addLayer({
-          id: "grid-labels",
-          type: "symbol",
-          source: "grid",
-          filter: ["==", ["geometry-type"], "Point"],
-          layout: { "text-field": ["get", "name"], "text-offset": [0, 1.2], "text-size": 12 },
-          paint: { "text-color": "#111", "text-halo-color": "#ffffff", "text-halo-width": 1.2, "text-opacity": gridOpacity },
-        });
+        map.addLayer({ id: "grid-lines", type: "line", source: "grid", filter: ["==", ["geometry-type"], "LineString"], paint: { "line-color": PALETTE.gridLine, "line-width": 2.8, "line-opacity": gridOpacity } });
+        map.addLayer({ id: "grid-points", type: "circle", source: "grid", filter: ["==", ["geometry-type"], "Point"], paint: { "circle-radius": 6, "circle-color": PALETTE.gridPoint, "circle-stroke-color": PALETTE.gridLine, "circle-stroke-width": 2, "circle-opacity": gridOpacity } });
+        map.addLayer({ id: "grid-labels", type: "symbol", source: "grid", filter: ["==", ["geometry-type"], "Point"], layout: { "text-field": ["get", "name"], "text-offset": [0, 1.2], "text-size": 12 }, paint: { "text-color": PALETTE.label, "text-halo-color": "#0b0b0b", "text-halo-width": 1.4, "text-opacity": gridOpacity } });
 
-        // Initial time filter
+        // Emission control area
+        map.addSource("eca", { type: "geojson", data: demoECA });
+        map.addLayer({ id: "eca-fill", type: "fill", source: "eca", paint: { "fill-color": "#6a5acd", "fill-opacity": 0.12 } });
+        map.addLayer({ id: "eca-line", type: "line", source: "eca", paint: { "line-color": "#a994ff", "line-width": 1.5, "line-dasharray": [2, 2], "line-opacity": 0.9 } });
+
+        // Time filter
         map.setFilter("vessel-heat", ["all", [">=", ["get", "ts"], tsWindow[0]], ["<=", ["get", "ts"], tsWindow[1]]]);
+
+        // Cursor feedback
+        map.on("mouseenter", "grid-points", () => map.getCanvas().style.cursor = "pointer");
+        map.on("mouseleave", "grid-points", () => map.getCanvas().style.cursor = "");
+        map.on("click", "grid-points", (e) => {
+          const f = e.features?.[0];
+          if (!f) return;
+          new maplibregl.Popup({ closeButton: true })
+            .setLngLat((f.geometry as any).coordinates)
+            .setHTML(`<div class='font-medium'>${f.properties?.name || "Asset"}</div><div class='text-xs opacity-80'>Energy infrastructure</div>`) 
+            .addTo(map);
+        });
       });
 
       return () => map.remove();
     }
   }, []);
 
-  // React to UI changes: opacity & visibility
-  useEffect(() => {
-    const m = mapRef.current; if (!m || !isReady) return;
-    if (m.getLayer("vessel-heat")) m.setPaintProperty("vessel-heat", "heatmap-opacity", showHeatmap ? heatOpacity : 0);
-  }, [heatOpacity, showHeatmap, isReady]);
-
-  useEffect(() => {
-    const m = mapRef.current; if (!m || !isReady) return;
-    ["grid-lines", "grid-points", "grid-labels"].forEach((id) => {
-      if (!m.getLayer(id)) return;
-      const prop = id.includes("labels") ? "text-opacity" : id.includes("points") ? "circle-opacity" : "line-opacity";
-      const val = showGrid ? gridOpacity : 0;
-      m.setPaintProperty(id, prop as any, val);
-    });
-  }, [gridOpacity, showGrid, isReady]);
-
-  // Time filter updates
-  useEffect(() => {
-    const m = mapRef.current; if (!m || !isReady) return;
-    if (m.getLayer("vessel-heat")) {
-      m.setFilter("vessel-heat", ["all", [">=", ["get", "ts"], tsWindow[0]], ["<=", ["get", "ts"], tsWindow[1]]]);
-    }
-  }, [tsWindow, isReady]);
-
-  // Simple playhead that moves the window forward
-  useEffect(() => {
-    if (!play) return;
-    const id = setInterval(() => {
-      setTsWindow(([a, b]) => {
-        const step = 600; // 10 minutes
-        const width = b - a;
-        let na = a + step;
-        let nb = b + step;
-        if (nb > maxTs) { na = minTs; nb = minTs + width; }
-        return [na, nb];
-      });
-    }, 500);
-    return () => clearInterval(id);
-  }, [play]);
+  // UI reactions
+  useEffect(() => { const m = mapRef.current; if (!m || !isReady) return; if (m.getLayer("vessel-heat")) m.setPaintProperty("vessel-heat", "heatmap-opacity", showHeatmap ? heatOpacity : 0); }, [heatOpacity, showHeatmap, isReady]);
+  useEffect(() => { const m = mapRef.current; if (!m || !isReady) return; ["grid-lines","grid-points","grid-labels"].forEach((id)=>{ if (!m.getLayer(id)) return; const prop = id.includes("labels")?"text-opacity": id.includes("points")?"circle-opacity":"line-opacity"; const val = showGrid? gridOpacity: 0; m.setPaintProperty(id, prop as any, val); }); }, [gridOpacity, showGrid, isReady]);
+  useEffect(() => { const m = mapRef.current; if (!m || !isReady) return; const v = showEmissionZones ? 1 : 0; if (m.getLayer("eca-fill")) m.setPaintProperty("eca-fill", "fill-opacity", showEmissionZones ? 0.12 : 0); if (m.getLayer("eca-line")) m.setPaintProperty("eca-line", "line-opacity", v); }, [showEmissionZones, isReady]);
+  useEffect(() => { const m = mapRef.current; if (!m || !isReady) return; if (m.getLayer("vessel-heat")) m.setFilter("vessel-heat", ["all", [">=", ["get", "ts"], tsWindow[0]], ["<=", ["get", "ts"], tsWindow[1]]]); }, [tsWindow, isReady]);
+  useEffect(() => { if (!play) return; const id = setInterval(() => { setTsWindow(([a,b])=>{ const step=600; const width=b-a; let na=a+step, nb=b+step; if (nb>maxTs){na=minTs; nb=minTs+width;} return [na,nb]; }); }, 450); return () => clearInterval(id); }, [play]);
 
   // Raster layer add/remove
   const addRaster = (url: string) => {
@@ -260,134 +248,98 @@ export default function InteractiveMaritimeMap() {
     }
   };
 
-  useEffect(() => {
-    const m = mapRef.current; if (!m || !isReady) return;
-    rasterLayers.forEach((rl) => {
-      const exists = m.getSource(rl.id);
-      if (!exists) {
-        m.addSource(rl.id, { type: "raster", tiles: [rl.url], tileSize: 256 });
-        m.addLayer({ id: rl.id, type: "raster", source: rl.id, paint: { "raster-opacity": rl.opacity } }, "vessel-heat");
-      } else if (m.getLayer(rl.id)) {
-        m.setPaintProperty(rl.id, "raster-opacity", rl.visible ? rl.opacity : 0);
-      }
-    });
-  }, [rasterLayers, isReady]);
+  useEffect(() => { const m = mapRef.current; if (!m || !isReady) return; rasterLayers.forEach((rl)=>{ const exists = m.getSource(rl.id); if (!exists){ m.addSource(rl.id,{ type:"raster", tiles:[rl.url], tileSize:256}); m.addLayer({ id: rl.id, type:"raster", source: rl.id, paint:{"raster-opacity": rl.opacity}}, "vessel-heat"); } else if (m.getLayer(rl.id)){ m.setPaintProperty(rl.id, "raster-opacity", rl.visible ? rl.opacity : 0);} }); }, [rasterLayers, isReady]);
 
-  // Handle local GeoJSON upload (adds as a new source + layers)
-  const onGeoJSONUpload = async (file?: File | null) => {
-    if (!file) return;
-    const data = await readGeoJSON(file);
-    if (!data) return;
-    const id = `geojson-${Math.random().toString(36).slice(2, 8)}`;
-    const m = mapRef.current; if (!m || !isReady) return;
-    m.addSource(id, { type: "geojson", data });
-    m.addLayer({ id: `${id}-fill`, type: "fill", source: id, filter: ["==", ["geometry-type"], "Polygon"], paint: { "fill-color": "#2684ff", "fill-opacity": 0.25 } });
-    m.addLayer({ id: `${id}-line`, type: "line", source: id, filter: ["any", ["==", ["geometry-type"], "LineString"], ["==", ["geometry-type"], "MultiLineString"]], paint: { "line-color": "#2684ff", "line-width": 2 } });
-    m.addLayer({ id: `${id}-pt`, type: "circle", source: id, filter: ["==", ["geometry-type"], "Point"], paint: { "circle-color": "#111", "circle-stroke-color": "#2684ff", "circle-stroke-width": 2, "circle-radius": 5 } });
-  };
+  const onGeoJSONUpload = async (file?: File | null) => { if (!file) return; const data = await readGeoJSON(file); if (!data) return; const id = `geojson-${Math.random().toString(36).slice(2, 8)}`; const m = mapRef.current; if (!m || !isReady) return; m.addSource(id, { type: "geojson", data }); m.addLayer({ id: `${id}-fill`, type: "fill", source: id, filter: ["==", ["geometry-type"], "Polygon"], paint: { "fill-color": "#2684ff", "fill-opacity": 0.25 } }); m.addLayer({ id: `${id}-line`, type: "line", source: id, filter: ["any", ["==", ["geometry-type"], "LineString"], ["==", ["geometry-type"], "MultiLineString"]], paint: { "line-color": "#2684ff", "line-width": 2 } }); m.addLayer({ id: `${id}-pt`, type: "circle", source: id, filter: ["==", ["geometry-type"], "Point"], paint: { "circle-color": "#111", "circle-stroke-color": "#2684ff", "circle-stroke-width": 2, "circle-radius": 5 } }); };
+
+  // Legend component (static for demo; dynamic in prod)
+  const Legend = () => (
+    <div className="pointer-events-auto rounded-2xl bg-[#0b0b0bcc] text-white p-3 shadow-xl border border-white/10">
+      <div className="font-semibold mb-2">Legend</div>
+      <div className="text-xs space-y-2">
+        <div>
+          <div className="opacity-80">Vessel density</div>
+          <div className="flex items-center gap-1 mt-1">
+            {PALETTE.heat.slice(1).map((c, i) => (<span key={i} className="h-2 w-6 rounded" style={{ background: c }} />))}
+          </div>
+        </div>
+        <div className="flex items-center gap-2"><span className="h-0.5 w-6" style={{ background: PALETTE.gridLine }} /> <span>HV cable / line</span></div>
+        <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full border-2" style={{ borderColor: PALETTE.gridLine }} /> <span>Substation / hub</span></div>
+        <div className="flex items-center gap-2"><span className="h-2 w-6 rounded bg-[#6a5acd]"/> <span>ECA (SECA/NECA)</span></div>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="w-full h-screen grid grid-cols-1 lg:grid-cols-[360px_1fr]">
+    <div className="w-full h-screen grid grid-cols-1 lg:grid-cols-[380px_1fr]">
       {/* Left control panel */}
-      <motion.aside
-        initial={{ x: -20, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.4 }}
-        className="bg-card/80 backdrop-blur border-r p-3 lg:p-4 overflow-y-auto"
-      >
-        <Card className="mb-3 shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-lg"><Layers className="w-4 h-4"/>Layers</CardTitle>
-          </CardHeader>
+      <motion.aside initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.4 }} className="bg-[#0b0b0bcc] text-white backdrop-blur border-r border-white/10 p-3 lg:p-4 overflow-y-auto">
+        <Card className="mb-3 shadow-sm bg-transparent border-white/10">
+          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-lg"><Layers className="w-4 h-4"/>Data Layers</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            {/* Vessel heatmap */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="font-medium">Vessel traffic (heatmap)</Label>
-                <Switch checked={showHeatmap} onCheckedChange={setShowHeatmap} />
-              </div>
-              <div>
-                <Label>Opacity</Label>
-                <Slider value={[Math.round(heatOpacity * 100)]} onValueChange={(v) => setHeatOpacity(v[0] / 100)} step={1} min={0} max={100} />
-              </div>
+              <div className="flex items-center justify-between"><Label className="font-medium text-white">Vessel Traffic</Label><Switch checked={showHeatmap} onCheckedChange={setShowHeatmap} /></div>
+              <div><Label>Opacity</Label><Slider value={[Math.round(heatOpacity * 100)]} onValueChange={(v) => setHeatOpacity(v[0]/100)} step={1} min={0} max={100}/></div>
               <div className="flex items-center gap-2">
-                <Button size="sm" variant={play ? "secondary" : "default"} onClick={() => setPlay((p) => !p)}>
-                  {play ? <Pause className="w-4 h-4 mr-1"/> : <Play className="w-4 h-4 mr-1"/>}{play ? "Pause" : "Play"}
-                </Button>
-                <div className="text-xs text-muted-foreground">Time window: {Math.round((tsWindow[1]-tsWindow[0])/60)} min</div>
+                <Button size="sm" variant={play?"secondary":"default"} onClick={() => setPlay(p=>!p)}>{play? <Pause className="w-4 h-4 mr-1"/>:<Play className="w-4 h-4 mr-1"/>}{play?"Pause":"Play"}</Button>
+                <div className="text-xs opacity-80">Window: {Math.round((tsWindow[1]-tsWindow[0])/60)} min</div>
               </div>
               <div>
                 <Label>Filter window</Label>
-                <Slider value={[((tsWindow[0]-minTs)/(maxTs-minTs))*100, ((tsWindow[1]-minTs)/(maxTs-minTs))*100]}
-                  onValueChange={(v) => {
-                    const toTs = (pct:number)=> minTs + (pct/100)*(maxTs-minTs);
-                    setTsWindow([toTs(v[0]), toTs(v[1])] as [number, number]);
-                  }} step={1} min={0} max={100} />
+                <Slider value={[((tsWindow[0]-minTs)/(maxTs-minTs))*100, ((tsWindow[1]-minTs)/(maxTs-minTs))*100]} onValueChange={(v)=>{ const toTs=(pct:number)=> minTs + (pct/100)*(maxTs-minTs); setTsWindow([toTs(v[0]), toTs(v[1])] as [number, number]); }} step={1} min={0} max={100}/>
               </div>
             </div>
 
-            {/* Grid */}
-            <div className="space-y-2 pt-2 border-t">
-              <div className="flex items-center justify-between">
-                <Label className="font-medium">Energy grid (demo)</Label>
-                <Switch checked={showGrid} onCheckedChange={setShowGrid} />
-              </div>
-              <div>
-                <Label>Opacity</Label>
-                <Slider value={[Math.round(gridOpacity * 100)]} onValueChange={(v) => setGridOpacity(v[0] / 100)} step={1} min={0} max={100} />
-              </div>
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <div className="flex items-center justify-between"><Label className="font-medium text-white">Energy Grid</Label><Switch checked={showGrid} onCheckedChange={setShowGrid} /></div>
+              <div><Label>Opacity</Label><Slider value={[Math.round(gridOpacity * 100)]} onValueChange={(v) => setGridOpacity(v[0]/100)} step={1} min={0} max={100}/></div>
             </div>
 
-            {/* Raster add */}
-            <div className="space-y-3 pt-3 border-t">
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <div className="flex items-center justify-between"><Label className="font-medium text-white">Emission Control Areas</Label><Switch checked={showEmissionZones} onCheckedChange={setShowEmissionZones} /></div>
+            </div>
+
+            <div className="space-y-3 pt-3 border-t border-white/10">
               <Label className="font-medium">Add raster tiles (XYZ)</Label>
               <div className="flex gap-2">
-                <Input id="raster-url" placeholder="https://server/{z}/{x}/{y}.png or .mvt" />
-                <Button onClick={() => {
-                  const inp = document.getElementById("raster-url") as HTMLInputElement | null;
-                  if (inp && inp.value) addRaster(inp.value);
-                }}>Add</Button>
+                <Input id="raster-url" placeholder="https://server/{z}/{x}/{y}.png" className="bg-black/20 border-white/10 text-white placeholder:text-white/40"/>
+                <Button onClick={() => { const inp = document.getElementById("raster-url") as HTMLInputElement | null; if (inp && inp.value) addRaster(inp.value); }}>Add</Button>
               </div>
               <div className="space-y-2">
                 {rasterLayers.map((rl, i) => (
-                  <div key={rl.id} className="rounded-lg border p-2">
+                  <div key={rl.id} className="rounded-lg border border-white/10 p-2 bg-black/20">
                     <div className="flex items-center justify-between gap-2">
                       <div className="truncate text-sm" title={rl.url}>{rl.url}</div>
-                      <Switch checked={rl.visible} onCheckedChange={(v) => setRasterLayers((prev) => prev.map((p, idx) => idx===i ? { ...p, visible: v } : p))} />
+                      <Switch checked={rl.visible} onCheckedChange={(v)=> setRasterLayers(prev => prev.map((p,idx)=> idx===i? { ...p, visible: v }: p))}/>
                     </div>
-                    <div className="mt-1">
-                      <Label className="text-xs">Opacity</Label>
-                      <Slider value={[Math.round(rl.opacity * 100)]}
-                        onValueChange={(v) => setRasterLayers((prev) => prev.map((p, idx) => idx===i ? { ...p, opacity: v[0]/100 } : p))}
-                        step={1} min={0} max={100} />
-                    </div>
+                    <div className="mt-1"><Label className="text-xs">Opacity</Label><Slider value={[Math.round(rl.opacity*100)]} onValueChange={(v)=> setRasterLayers(prev => prev.map((p,idx)=> idx===i? { ...p, opacity: v[0]/100 }: p))} step={1} min={0} max={100}/></div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Upload */}
-            <div className="space-y-2 pt-3 border-t">
-              <Label className="font-medium flex items-center gap-2"><Upload className="w-4 h-4"/> Add GeoJSON (local)</Label>
-              <Input type="file" accept=".geojson,application/geo+json,application/json" onChange={(e)=> onGeoJSONUpload(e.target.files?.[0]) } />
+            <div className="space-y-2 pt-3 border-t border-white/10">
+              <Label className="font-medium">Add GeoJSON (local)</Label>
+              <Input type="file" accept=".geojson,application/geo+json,application/json" onChange={(e)=> onGeoJSONUpload(e.target.files?.[0]) } className="bg-black/20 border-white/10 text-white file:text-white"/>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-lg"><Info className="w-4 h-4"/>Tips</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm space-y-2 text-muted-foreground">
-            <p>• Paste a public XYZ URL for wind/wave tiles or WMS-proxied layers. Example pattern: <code>https://your-tiles/{"{z}"}/{"{x}"}/{"{y}"}.png</code>.</p>
-            <p>• Upload GeoJSON with a <code>ts</code> property to enable time filtering (used by the heatmap demo).</p>
-            <p>• Replace the basemap style or center/zoom to your AOI. For production, serve your own basemap tiles.</p>
+        <Card className="shadow-sm bg-transparent border-white/10">
+          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-lg"><Info className="w-4 h-4"/>Status</CardTitle></CardHeader>
+          <CardContent className="text-sm space-y-2 text-white/80">
+            <div className="flex justify-between"><span>Active layers</span><span>{[showHeatmap, showGrid, showEmissionZones].filter(Boolean).length}/3</span></div>
+            <div className="flex justify-between"><span>Map mode</span><span>Mock data (wired for API)</span></div>
+            <div className="flex justify-between"><span>Center</span><span>Baltic AOI</span></div>
           </CardContent>
         </Card>
       </motion.aside>
 
-      {/* Map */}
-      <div ref={mapContainerRef} className="relative w-full h-[60vh] lg:h-full" />
+      {/* Map slot */}
+      <div className="relative w-full h-[60vh] lg:h-full">
+        <div ref={mapContainerRef} className="absolute inset-0" />
+        <div className="absolute right-3 bottom-3"><Legend/></div>
+      </div>
     </div>
   );
 }
