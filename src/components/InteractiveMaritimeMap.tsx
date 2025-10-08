@@ -85,7 +85,7 @@ export default function MarineOpsMap() {
   const [apiStatus, setApiStatus] = useState<Record<string, string>>({});
 
   // Helper: call API source and layer, with error diagnostics
-  async function addApiLayer({ id, type, tiles, tileSize, sourceLayer, paint, minzoom, maxzoom, beforeLayer }) {
+  async function addApiLayer({ id, type, tiles, tileSize, sourceLayer, paint, minzoom, maxzoom, beforeLayer }: any) {
     const m = mapRef.current;
     if (!m || !isReady) return;
     try {
@@ -95,7 +95,12 @@ export default function MarineOpsMap() {
         } else {
           m.addSource(id, { type, tiles, tileSize });
         }
-        let layerConfig = { id, type: paint.rasterOpacity ? "raster" : paint.circleRadius ? "circle" : paint.lineColor ? "line" : "fill", source: id, paint };
+        
+        const layerType = paint["raster-opacity"] !== undefined ? "raster" : 
+                         paint["circle-radius"] !== undefined ? "circle" : 
+                         paint["line-color"] !== undefined ? "line" : "fill";
+        
+        const layerConfig: any = { id, type: layerType, source: id, paint };
         if (sourceLayer) layerConfig["source-layer"] = sourceLayer;
         m.addLayer(layerConfig, beforeLayer);
       }
@@ -121,7 +126,11 @@ export default function MarineOpsMap() {
         .replace("{START}", encodeURIComponent(new Date(1727395200000).toISOString()))
         .replace("{END}", encodeURIComponent(new Date(1727416800000).toISOString()))],
       tileSize: 256,
-      paint: { "raster-opacity": 0.85 }
+      paint: { "raster-opacity": 0.85 },
+      minzoom: undefined,
+      maxzoom: undefined,
+      sourceLayer: undefined,
+      beforeLayer: undefined
     });
 
     // EMODNET cables (vector)
@@ -132,7 +141,9 @@ export default function MarineOpsMap() {
       minzoom: 0,
       maxzoom: 12,
       sourceLayer: "layer0",
-      paint: { "line-color": "#ff2f92", "line-width": 2.2, "line-opacity": 0.95 }
+      paint: { "line-color": "#ff2f92", "line-width": 2.2, "line-opacity": 0.95 },
+      tileSize: undefined,
+      beforeLayer: undefined
     });
 
     // Pipelines (vector)
@@ -143,7 +154,9 @@ export default function MarineOpsMap() {
       minzoom: 0,
       maxzoom: 12,
       sourceLayer: "layer0",
-      paint: { "line-color": "#33c3ff", "line-width": 2.2, "line-opacity": pipelinesOpacity, "line-dasharray": [2, 1] }
+      paint: { "line-color": "#33c3ff", "line-width": 2.2, "line-opacity": pipelinesOpacity, "line-dasharray": [2, 1] },
+      tileSize: undefined,
+      beforeLayer: undefined
     });
 
     // Wind farm polygons
@@ -154,7 +167,9 @@ export default function MarineOpsMap() {
       minzoom: 0,
       maxzoom: 12,
       sourceLayer: "layer0",
-      paint: { "fill-color": "#00ffd1", "fill-opacity": 0.12 }
+      paint: { "fill-color": "#00ffd1", "fill-opacity": 0.12 },
+      tileSize: undefined,
+      beforeLayer: undefined
     });
 
     // Turbines (vector, points)
@@ -165,7 +180,9 @@ export default function MarineOpsMap() {
       minzoom: 0,
       maxzoom: 12,
       sourceLayer: "layer0",
-      paint: { "circle-radius": 3, "circle-color": "#141414", "circle-stroke-color": "#00ffd1", "circle-stroke-width": 1.5, "circle-opacity": windOpacity }
+      paint: { "circle-radius": 3, "circle-color": "#141414", "circle-stroke-color": "#00ffd1", "circle-stroke-width": 1.5, "circle-opacity": windOpacity },
+      tileSize: undefined,
+      beforeLayer: undefined
     });
 
     // CMEMS wave
@@ -174,7 +191,11 @@ export default function MarineOpsMap() {
       type: "raster",
       tiles: [API.CMEMS_WAVE_TILES.replace("{ISO}", encodeURIComponent(new Date(1727402400000).toISOString()))],
       tileSize: 256,
-      paint: { "raster-opacity": 0.65 }
+      paint: { "raster-opacity": 0.65 },
+      minzoom: undefined,
+      maxzoom: undefined,
+      sourceLayer: undefined,
+      beforeLayer: undefined
     });
 
     // CAMS NO2
@@ -183,7 +204,11 @@ export default function MarineOpsMap() {
       type: "raster",
       tiles: [API.CAMS_NO2_TILES.replace("{ISO}", encodeURIComponent(new Date(1727402400000).toISOString()))],
       tileSize: 256,
-      paint: { "raster-opacity": 0.55 }
+      paint: { "raster-opacity": 0.55 },
+      minzoom: undefined,
+      maxzoom: undefined,
+      sourceLayer: undefined,
+      beforeLayer: undefined
     });
 
     setApiStatus(s => ({ ...s, all: "Connected" }));
