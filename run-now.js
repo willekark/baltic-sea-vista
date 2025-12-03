@@ -1,1 +1,0 @@
-require('./test-validation.js');
