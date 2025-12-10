@@ -4,7 +4,13 @@
  * @module components/Sidebar
  */
 
-import { type Vessel, VESSEL_COLORS, getVesselColor } from "./lib/vessel";
+import {
+  type Vessel,
+  type VesselFilter,
+  VESSEL_COLORS,
+  getVesselColor,
+} from "./lib/vessel";
+import FilterPanel from "./filter-panel";
 
 /** Legend items mapping status labels to their colors */
 const LEGEND = [
@@ -17,13 +23,19 @@ const LEGEND = [
 /**
  * Sidebar displaying vessel legend and clickable vessel list.
  * @param vessels - Array of vessels to display in the list
+ * @param filter - Current filter settings
+ * @param onFilterChange - Callback when filters are modified
  * @param onVesselClick - Callback when a vessel is clicked (for map navigation)
  */
 export default function Sidebar({
   vessels,
+  filter,
+  onFilterChange,
   onVesselClick,
 }: {
   vessels: Vessel[];
+  filter: VesselFilter;
+  onFilterChange: (f: VesselFilter) => void;
   onVesselClick?: (v: Vessel) => void;
 }) {
   return (
@@ -35,6 +47,13 @@ export default function Sidebar({
         <p className="text-xs text-muted-foreground mt-1">
           Shadow Fleet Tracking
         </p>
+      </div>
+
+      <div className="p-4 border-b border-panel-border">
+        <h2 className="text-xs font-medium text-muted-foreground uppercase mb-3">
+          Filters
+        </h2>
+        <FilterPanel filter={filter} onChange={onFilterChange} />
       </div>
 
       <div className="p-4 border-b border-panel-border">

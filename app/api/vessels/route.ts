@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-// Baltic Sea bounding box center (approximately)
-const BALTIC_CENTER = { lat: 58.5, lon: 20 };
-const RADIUS_NM = 50; // Max allowed by API
+/** Default Baltic Sea center coordinates */
+const DEFAULT_CENTER = { lat: 58.5, lon: 20 };
+const DEFAULT_RADIUS = 50;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const apiKey = process.env.DATALASTIC_API_KEY;
 
   if (!apiKey) {
@@ -14,8 +14,20 @@ export async function GET() {
     );
   }
 
+  const { searchParams } = new URL(request.url);
+  const lat = searchParams.get("lat") || DEFAULT_CENTER.lat;
+  const lon = searchParams.get("lon") || DEFAULT_CENTER.lon;
+  const radius = Math.min(
+    Number(searchParams.get("radius")) || DEFAULT_RADIUS,
+    50
+  );
+  const type = searchParams.get("type");
+  const navStatus = searchParams.get("nav_status");
+
   try {
-    const url = `https://api.datalastic.com/api/v0/vessel_inradius?api-key=${apiKey}&lat=${BALTIC_CENTER.lat}&lon=${BALTIC_CENTER.lon}&radius=${RADIUS_NM}`;
+    let url = `https://api.datalastic.com/api/v0/vessel_inradius?api-key=${apiKey}&lat=${lat}&lon=${lon}&radius=${radius}`;
+    if (type) url += `&type=${encodeURIComponent(type)}`;
+    if (navStatus) url += `&nav_status=${navStatus}`;
 
     const res = await fetch(url, { next: { revalidate: 60 } });
 

@@ -13,7 +13,7 @@
  * @property COG - Course Over Ground in degrees (optional)
  * @property HEADING - True heading in degrees (optional)
  * @property NAVSTAT - Navigation status code (optional)
- * @property TYPE - Vessel type code (optional)
+ * @property TYPE - Vessel type string (optional)
  * @property isShadowFleet - Whether vessel is flagged as shadow fleet
  */
 export interface Vessel {
@@ -25,9 +25,57 @@ export interface Vessel {
   COG?: number;
   HEADING?: number;
   NAVSTAT?: number;
-  TYPE?: number;
+  TYPE?: string;
   isShadowFleet?: boolean;
 }
+
+/** Historical position point for vessel route display */
+export interface VesselPosition {
+  lat: number;
+  lon: number;
+  speed: number;
+  course: number;
+  heading: number;
+  timestamp: string;
+}
+
+/** Filter parameters for vessel queries */
+export interface VesselFilter {
+  type?: string;
+  navStatus?: number;
+  radius?: number;
+  lat?: number;
+  lon?: number;
+}
+
+/** Available vessel types from Datalastic API */
+export const VESSEL_TYPES = [
+  "Cargo",
+  "Tanker",
+  "Passenger",
+  "Fishing",
+  "Tug",
+  "Dredger",
+  "Military Ops",
+  "Sailing Vessel",
+  "Pleasure Craft",
+  "Pilot Vessel",
+  "SAR",
+  "Law Enforce",
+] as const;
+
+/** Navigation status codes and their descriptions */
+export const NAV_STATUS = [
+  { code: 0, label: "Under way using engine" },
+  { code: 1, label: "At anchor" },
+  { code: 2, label: "Not under command" },
+  { code: 3, label: "Restricted manoeuvrability" },
+  { code: 4, label: "Constrained by draught" },
+  { code: 5, label: "Moored" },
+  { code: 6, label: "Aground" },
+  { code: 7, label: "Engaged in fishing" },
+  { code: 8, label: "Under way sailing" },
+] as const;
 
 /**
  * Vessel status colors mapped to CSS variables from globals.css.
