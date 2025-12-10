@@ -4,7 +4,7 @@
  * @module components/VesselPanel
  */
 
-import { type Vessel, getVesselColor } from "./lib/vessel";
+import { type Vessel, getFlagEmoji } from "./lib/vessel";
 
 /**
  * Floating panel showing vessel details with close button.
@@ -21,37 +21,41 @@ export default function VesselPanel({
   return (
     <div
       key={vessel.MMSI}
-      className="absolute top-1/2 -translate-y-1/2 right-4 w-80 bg-panel-bg backdrop-blur-md border border-panel-border rounded-xl z-10 overflow-hidden animate-[panel-pop_0.15s_ease-out]"
+      className="absolute top-1/2 -translate-y-1/2 right-4 w-96 bg-panel-bg backdrop-blur-md border border-panel-border rounded-xl z-10 overflow-hidden animate-[panel-pop_0.15s_ease-out]"
     >
-      <div className="p-4 border-b border-panel-border flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span
-            className="w-3 h-3 rounded-full"
-            style={{ background: getVesselColor(vessel) }}
-          />
-          <h2 className="text-lg font-semibold text-foreground truncate">
-            {vessel.NAME || "Unknown Vessel"}
-          </h2>
-        </div>
-        <button
-          onClick={onClose}
-          className="text-muted-foreground hover:text-foreground p-1"
-          aria-label="Close panel"
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <div className="p-4 border-b border-panel-border">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-foreground truncate">
+              {vessel.NAME || "Unknown Vessel"}
+            </h2>
+            <span className="text-xl" title={vessel.COUNTRY || "Unknown"}>
+              {getFlagEmoji(vessel.FLAG)}
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground p-1"
+            aria-label="Close panel"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+        <p className="text-sm text-muted-foreground mt-1">
+          {vessel.TYPE || "Vessel"} · {vessel.COUNTRY || "Unknown Flag"}
+        </p>
       </div>
 
       <div className="p-4 border-b border-panel-border">

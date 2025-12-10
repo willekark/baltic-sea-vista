@@ -14,6 +14,8 @@
  * @property HEADING - True heading in degrees (optional)
  * @property NAVSTAT - Navigation status code (optional)
  * @property TYPE - Vessel type string (optional)
+ * @property FLAG - ISO country code of vessel flag (optional)
+ * @property COUNTRY - Full country name of vessel flag (optional)
  * @property isShadowFleet - Whether vessel is flagged as shadow fleet
  */
 export interface Vessel {
@@ -26,8 +28,19 @@ export interface Vessel {
   HEADING?: number;
   NAVSTAT?: number;
   TYPE?: string;
+  FLAG?: string;
+  COUNTRY?: string;
   isShadowFleet?: boolean;
 }
+
+/** Map ISO country codes to flag emojis */
+export const getFlagEmoji = (countryCode?: string): string => {
+  if (!countryCode || countryCode.length !== 2) return "🏳️";
+  const code = countryCode.toUpperCase();
+  return String.fromCodePoint(
+    ...code.split("").map((c) => 0x1f1e6 + c.charCodeAt(0) - 65)
+  );
+};
 
 /** Historical position point for vessel route display */
 export interface VesselPosition {

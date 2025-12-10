@@ -59,6 +59,8 @@ export async function GET(request: NextRequest) {
         HEADING: v.heading,
         NAVSTAT: v.navigation_status,
         TYPE: v.type,
+        FLAG: v.country_iso,
+        COUNTRY: v.country,
       }))
       .filter((v: { MMSI: number }) => {
         if (v.MMSI <= 0 || seen.has(v.MMSI)) return false;
