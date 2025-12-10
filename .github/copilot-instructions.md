@@ -44,6 +44,7 @@ npm run lint   # Run ESLint (flat config)
 3. **Tailwind-First Styling**: Always use Tailwind CSS for styling. No custom CSS unless absolutely necessary.
 4. **Protected Main Branch**: Never commit directly to `main`. Always work in feature branches.
 5. **Conventional Commits**: Use the format `type: description` (e.g., `feat: added button`, `fix: resolved navigation bug`, `refactor: extracted shared logic`)
+6. **Documentation**: Always include JSDoc documentation for all functions, components, interfaces, and exported constants. Use concise descriptions that explain purpose and usage.
 
 ## Coding Conventions
 
@@ -71,6 +72,36 @@ npm run lint   # Run ESLint (flat config)
 - Server Components by default (no `"use client"` needed unless using hooks/event handlers)
 - Font loading: Use `next/font/google` with CSS variables (see `app/layout.tsx`)
 - Image optimization: Always use `next/image` component with `priority` for above-fold images
+
+### Documentation
+
+All code must include JSDoc documentation:
+
+```tsx
+/** Vessel data from Datalastic API */
+export interface Vessel {
+  /** Maritime Mobile Service Identity */
+  mmsi: string;
+  /** Vessel name */
+  name: string;
+}
+
+/**
+ * Returns the appropriate color for a vessel based on speed
+ * @param speed - Vessel speed in knots
+ * @returns CSS variable color string
+ */
+export function getVesselColor(speed: number): string {
+  return speed > 0.5 ? "var(--vessel-moving)" : "var(--vessel-stationary)";
+}
+
+/**
+ * Sidebar displaying vessel list with status legend
+ * @param props.vessels - Array of vessel data to display
+ * @param props.onVesselClick - Callback when vessel is clicked
+ */
+export function Sidebar({ vessels, onVesselClick }: SidebarProps) {}
+```
 
 ### ESLint Configuration
 
