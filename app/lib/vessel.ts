@@ -11,11 +11,12 @@ export interface Vessel {
   isShadowFleet?: boolean;
 }
 
+// CSS variable values - keep in sync with globals.css
 export const VESSEL_COLORS = {
-  active: "#3fb950",
-  idle: "#d29922",
-  shadow: "#f85149",
-  anchored: "#a371f7",
+  active: "var(--vessel-active)",
+  idle: "var(--vessel-idle)",
+  shadow: "var(--vessel-shadow)",
+  anchored: "var(--vessel-anchored)",
 } as const;
 
 export const getVesselColor = (v: Vessel) =>

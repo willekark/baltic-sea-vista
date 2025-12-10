@@ -52,7 +52,7 @@ const Map = forwardRef<MapHandle, { onVesselsLoaded?: (v: Vessel[]) => void }>(
               .setLngLat([v.LONGITUDE, v.LATITUDE])
               .setPopup(
                 new mapboxgl.Popup({ offset: 10 }).setHTML(
-                  `<div style="color:#fff;font-size:12px"><strong>${
+                  `<div style="color:var(--foreground);font-size:12px"><strong>${
                     v.NAME || "Unknown"
                   }</strong><br/>MMSI: ${v.MMSI}<br/>Speed: ${
                     v.SOG ?? 0
