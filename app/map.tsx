@@ -47,17 +47,25 @@ const Map = forwardRef<MapHandle, MapProps>(({ onVesselsLoaded }, ref) => {
 
         vessels.forEach((v) => {
           const color = v.isShadowFleet ? "#f85149" : "#3fb950";
+          const heading = v.HEADING ?? v.COG ?? 0;
+          const isMoving = (v.SOG ?? 0) >= 0.5;
 
           const el = document.createElement("div");
-          el.className = "vessel-marker";
           el.style.cssText = `
-            width: 12px;
-            height: 12px;
-            background: ${color};
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.3);
+            width: 20px;
+            height: 20px;
             cursor: pointer;
+            transform: rotate(${heading}deg);
           `;
+
+          // Triangle SVG for moving vessels, diamond for stationary
+          el.innerHTML = isMoving
+            ? `<svg viewBox="0 0 20 20" fill="${color}">
+                <path d="M10 2 L18 18 L10 14 L2 18 Z" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+               </svg>`
+            : `<svg viewBox="0 0 20 20" fill="${color}">
+                <path d="M10 2 L18 10 L10 18 L2 10 Z" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+               </svg>`;
 
           new mapboxgl.Marker({ element: el })
             .setLngLat([v.LONGITUDE, v.LATITUDE])
