@@ -26,8 +26,10 @@ export interface MapHandle {
 }
 
 /** Route source and layer IDs */
-const HISTORY_SOURCE = "vessel-history";
-const HISTORY_LAYER = "vessel-history-line";
+const ALL_ROUTES_SOURCE = "all-vessel-routes";
+const ALL_ROUTES_LAYER = "all-vessel-routes-line";
+const SELECTED_ROUTE_SOURCE = "selected-vessel-route";
+const SELECTED_ROUTE_LAYER = "selected-vessel-route-line";
 const PROJECTED_SOURCE = "vessel-projected";
 const PROJECTED_LAYER = "vessel-projected-line";
 
@@ -119,6 +121,104 @@ const Map = forwardRef<
       ).then((r) => r.json());
       onVesselsLoaded?.(vessels);
 
+      // Fetch all vessel histories in parallel
+      const historyPromises = vessels.map((v) =>
+        fetch(`/api/vessels/${v.MMSI}/history?days=7`)
+          .then((r) => r.json())
+          .then((positions: VesselPosition[]) => ({
+            mmsi: v.MMSI,
+            coords: positions.map((p) => [p.lon, p.lat]),
+          }))
+          .catch(() => ({ mmsi: v.MMSI, coords: [] as number[][] }))
+      );
+      const allHistories = await Promise.all(historyPromises);
+      const vesselHistoryMap: Record<number, number[][]> = {};
+      allHistories.forEach((h) => {
+        vesselHistoryMap[h.mmsi] = h.coords;
+      });
+
+      // Draw all routes as dark grey
+      const allFeatures: GeoJSON.Feature<GeoJSON.LineString>[] = allHistories
+        .filter((h) => h.coords.length > 1)
+        .map((h) => ({
+          type: "Feature" as const,
+          properties: { mmsi: h.mmsi },
+          geometry: { type: "LineString" as const, coordinates: h.coords },
+        }));
+
+      const allRoutesData: GeoJSON.FeatureCollection<GeoJSON.LineString> = {
+        type: "FeatureCollection",
+        features: allFeatures,
+      };
+
+      const allSrc = map.getSource(ALL_ROUTES_SOURCE) as mapboxgl.GeoJSONSource;
+      if (allSrc) {
+        allSrc.setData(allRoutesData);
+      } else {
+        map.addSource(ALL_ROUTES_SOURCE, {
+          type: "geojson",
+          data: allRoutesData,
+        });
+        map.addLayer({
+          id: ALL_ROUTES_LAYER,
+          type: "line",
+          source: ALL_ROUTES_SOURCE,
+          paint: {
+            "line-color": "#4b5563", // dark grey
+            "line-width": 1.5,
+            "line-opacity": 0.6,
+          },
+        });
+      }
+
+      // Initialize empty selected route layer
+      const selSrc = map.getSource(
+        SELECTED_ROUTE_SOURCE
+      ) as mapboxgl.GeoJSONSource;
+      if (!selSrc) {
+        map.addSource(SELECTED_ROUTE_SOURCE, {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: {},
+            geometry: { type: "LineString", coordinates: [] },
+          },
+        });
+        map.addLayer({
+          id: SELECTED_ROUTE_LAYER,
+          type: "line",
+          source: SELECTED_ROUTE_SOURCE,
+          paint: {
+            "line-color": "#e5e7eb", // bright grey
+            "line-width": 3,
+            "line-opacity": 0.9,
+          },
+        });
+      }
+
+      // Initialize empty projected route layer
+      const projSrc = map.getSource(PROJECTED_SOURCE) as mapboxgl.GeoJSONSource;
+      if (!projSrc) {
+        map.addSource(PROJECTED_SOURCE, {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: {},
+            geometry: { type: "LineString", coordinates: [] },
+          },
+        });
+        map.addLayer({
+          id: PROJECTED_LAYER,
+          type: "line",
+          source: PROJECTED_SOURCE,
+          paint: {
+            "line-color": "#67e8f9", // bright cyan
+            "line-width": 3,
+            "line-opacity": 0.9,
+          },
+        });
+      }
+
       vessels.forEach((v) => {
         const el = document.createElement("div");
         el.style.cssText = "width:20px;height:20px;cursor:pointer";
@@ -127,9 +227,9 @@ const Map = forwardRef<
           v.HEADING ?? v.COG ?? 0,
           (v.SOG ?? 0) >= 0.5
         );
-        el.addEventListener("click", async () => {
+        el.addEventListener("click", () => {
           onVesselSelect?.(v);
-          await showVesselRoutes(map, v);
+          highlightVesselRoute(map, v, vesselHistoryMap[v.MMSI] || []);
         });
 
         const marker = new mapboxgl.Marker({ element: el })
@@ -142,97 +242,49 @@ const Map = forwardRef<
     }
   };
 
-  /** Update or create a GeoJSON line layer */
-  const setLineLayer = (
+  /** Highlight selected vessel route and show projected course */
+  const highlightVesselRoute = (
     map: mapboxgl.Map,
-    sourceId: string,
-    layerId: string,
-    coordinates: number[][],
-    color: string,
-    dashed: boolean
+    vessel: Vessel,
+    coords: number[][]
   ) => {
-    const data: GeoJSON.Feature<GeoJSON.LineString> = {
-      type: "Feature",
-      properties: {},
-      geometry: { type: "LineString", coordinates },
-    };
-    const source = map.getSource(sourceId) as mapboxgl.GeoJSONSource;
-    if (source) {
-      source.setData(data);
-    } else {
-      map.addSource(sourceId, { type: "geojson", data });
-      map.addLayer({
-        id: layerId,
-        type: "line",
-        source: sourceId,
-        paint: {
-          "line-color": color,
-          "line-width": 3,
-          "line-opacity": 0.9,
-          ...(dashed ? { "line-dasharray": [4, 2] } : {}),
-        },
+    // Highlight historical route
+    const selSrc = map.getSource(
+      SELECTED_ROUTE_SOURCE
+    ) as mapboxgl.GeoJSONSource;
+    if (selSrc && coords.length > 1) {
+      selSrc.setData({
+        type: "Feature",
+        properties: {},
+        geometry: { type: "LineString", coordinates: coords },
       });
     }
-  };
 
-  /** Fetch and display vessel historical route + projected route */
-  const showVesselRoutes = async (map: mapboxgl.Map, vessel: Vessel) => {
-    // Draw projected route (1 hour ahead based on SOG/COG)
+    // Draw projected route
     const speed = vessel.SOG ?? 0;
     const course = vessel.COG ?? vessel.HEADING ?? 0;
-    if (speed > 0.5) {
-      const distanceNm = speed; // 1 hour projection
+    const projSrc = map.getSource(PROJECTED_SOURCE) as mapboxgl.GeoJSONSource;
+    if (speed > 0.5 && projSrc) {
       const dest = destinationPoint(
         vessel.LATITUDE,
         vessel.LONGITUDE,
         course,
-        distanceNm
+        speed
       );
-      setLineLayer(
-        map,
-        PROJECTED_SOURCE,
-        PROJECTED_LAYER,
-        [[vessel.LONGITUDE, vessel.LATITUDE], dest],
-        "#67e8f9", // bright cyan for projected
-        false
-      );
-    } else {
-      // Clear projected route if vessel is stationary
-      const src = map.getSource(PROJECTED_SOURCE) as mapboxgl.GeoJSONSource;
-      if (src)
-        src.setData({
-          type: "Feature",
-          properties: {},
-          geometry: { type: "LineString", coordinates: [] },
-        });
-    }
-
-    // Fetch and draw historical route
-    try {
-      const positions: VesselPosition[] = await fetch(
-        `/api/vessels/${vessel.MMSI}/history?days=7`
-      ).then((r) => r.json());
-
-      console.log(
-        "History positions:",
-        positions.length,
-        positions.slice(0, 3)
-      );
-
-      if (positions.length) {
-        const coords = positions.map((p) => [p.lon, p.lat]);
-        console.log("Drawing route with coords:", coords.length);
-        setLineLayer(
-          map,
-          HISTORY_SOURCE,
-          HISTORY_LAYER,
-          coords,
-          "#d1d5db", // light grey for history
-          true
-        );
-      }
-    } catch (e) {
-      console.error("Failed to load route:", e);
+      projSrc.setData({
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "LineString",
+          coordinates: [[vessel.LONGITUDE, vessel.LATITUDE], dest],
+        },
+      });
+    } else if (projSrc) {
+      projSrc.setData({
+        type: "Feature",
+        properties: {},
+        geometry: { type: "LineString", coordinates: [] },
+      });
     }
   };
 
