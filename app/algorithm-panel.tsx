@@ -143,7 +143,7 @@ export default function AlgorithmPanel({
   };
 
   return (
-    <div className="w-80 h-full bg-panel-bg backdrop-blur-md border border-panel-border rounded-xl overflow-hidden flex flex-col animate-[panel-pop_0.15s_ease-out]">
+    <div className="w-80 h-full bg-panel-bg backdrop-blur-md border border-panel-border rounded-xl overflow-hidden flex flex-col animate-[panel-slide-in_0.2s_ease-out]">
       <div className="p-4 border-b border-panel-border">
         <div className="flex items-center justify-between">
           <div>

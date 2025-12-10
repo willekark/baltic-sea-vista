@@ -116,6 +116,17 @@ body {
   scrollbar-color: var(--border) var(--muted);
 }
 
+@keyframes panel-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @keyframes panel-pop {
   0% {
     transform: translateY(-50%) scale(0.98);

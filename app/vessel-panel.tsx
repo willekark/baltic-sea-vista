@@ -25,7 +25,7 @@ export default function VesselPanel({
   return (
     <div
       key={vessel.MMSI}
-      className="w-96 h-fit max-h-full bg-panel-bg backdrop-blur-md border border-panel-border rounded-xl overflow-hidden animate-[panel-pop_0.15s_ease-out]"
+      className="w-96 h-fit max-h-full bg-panel-bg backdrop-blur-md border border-panel-border rounded-xl overflow-hidden animate-[panel-slide-in_0.2s_ease-out]"
     >
       <div className="p-4 border-b border-panel-border">
         <div className="flex items-center justify-between">
