@@ -1,13 +1,27 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { Vessel } from "./types/vessel";
 
-export default function Map() {
+export interface MapHandle {
+  flyTo: (lng: number, lat: number) => void;
+}
+
+interface MapProps {
+  onVesselsLoaded?: (vessels: Vessel[]) => void;
+}
+
+const Map = forwardRef<MapHandle, MapProps>(({ onVesselsLoaded }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    flyTo: (lng, lat) => {
+      mapRef.current?.flyTo({ center: [lng, lat], zoom: 10 });
+    },
+  }));
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -28,6 +42,8 @@ export default function Map() {
       try {
         const res = await fetch("/api/vessels");
         const vessels: Vessel[] = await res.json();
+
+        onVesselsLoaded?.(vessels);
 
         vessels.forEach((v) => {
           const color = v.isShadowFleet ? "#f85149" : "#3fb950";
@@ -65,7 +81,10 @@ export default function Map() {
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [onVesselsLoaded]);
 
   return <div ref={containerRef} className="w-full h-full" />;
-}
+});
+
+Map.displayName = "Map";
+export default Map;

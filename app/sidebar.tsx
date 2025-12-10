@@ -1,4 +1,11 @@
-export default function Sidebar() {
+import type { Vessel } from "./types/vessel";
+
+interface SidebarProps {
+  vessels: Vessel[];
+  onVesselClick?: (vessel: Vessel) => void;
+}
+
+export default function Sidebar({ vessels, onVesselClick }: SidebarProps) {
   return (
     <aside className="w-72 h-full bg-[#0d1117] border-r border-[#30363d] flex flex-col">
       {/* Header */}
@@ -32,12 +39,39 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Vessel List Placeholder */}
+      {/* Vessel List */}
       <div className="flex-1 overflow-y-auto p-4">
         <h2 className="text-xs font-medium text-[#8b949e] uppercase mb-3">
-          Vessels
+          Vessels ({vessels.length})
         </h2>
-        <p className="text-sm text-[#6e7681]">Loading vessels...</p>
+        {vessels.length === 0 ? (
+          <p className="text-sm text-[#6e7681]">Loading vessels...</p>
+        ) : (
+          <div className="space-y-2">
+            {vessels.map((v) => (
+              <button
+                key={v.MMSI}
+                onClick={() => onVesselClick?.(v)}
+                className="w-full text-left p-2 rounded hover:bg-[#21262d] transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{
+                      background: v.isShadowFleet ? "#f85149" : "#3fb950",
+                    }}
+                  />
+                  <span className="text-sm text-[#c9d1d9] truncate">
+                    {v.NAME || "Unknown"}
+                  </span>
+                </div>
+                <div className="text-xs text-[#6e7681] mt-1 pl-4">
+                  {v.SOG ?? 0} kn · {v.MMSI}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </aside>
   );
