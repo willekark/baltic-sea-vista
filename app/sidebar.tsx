@@ -27,8 +27,8 @@ export default function Sidebar({
   onVesselClick?: (v: Vessel) => void;
 }) {
   return (
-    <aside className="w-72 h-full bg-background border-r border-border flex flex-col">
-      <div className="p-4 border-b border-border">
+    <aside className="absolute top-4 left-4 bottom-4 w-72 bg-panel-bg backdrop-blur-md border border-panel-border rounded-xl flex flex-col z-10 overflow-hidden">
+      <div className="p-4 border-b border-panel-border">
         <h1 className="text-lg font-semibold text-foreground">
           Baltic Sea Vista
         </h1>
@@ -37,7 +37,7 @@ export default function Sidebar({
         </p>
       </div>
 
-      <div className="p-4 border-b border-border">
+      <div className="p-4 border-b border-panel-border">
         <h2 className="text-xs font-medium text-muted-foreground uppercase mb-3">
           Status
         </h2>

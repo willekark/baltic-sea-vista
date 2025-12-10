@@ -10,16 +10,14 @@ export default function Page() {
   const mapRef = useRef<MapHandle>(null);
 
   return (
-    <div className="flex h-screen">
+    <div className="relative h-screen">
+      <Map ref={mapRef} onVesselsLoaded={setVessels} />
       <Sidebar
         vessels={vessels}
         onVesselClick={(v: Vessel) =>
           mapRef.current?.flyTo(v.LONGITUDE, v.LATITUDE)
         }
       />
-      <main className="flex-1">
-        <Map ref={mapRef} onVesselsLoaded={setVessels} />
-      </main>
     </div>
   );
 }

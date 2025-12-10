@@ -41,7 +41,7 @@
   --vessel-anchored-glow: #8957e5;
 
   /* Panel UI */
-  --panel-bg: rgba(22, 27, 34, 0.95);
+  --panel-bg: rgba(22, 27, 34, 0.35);
   --panel-border: #30363d;
   --panel-hover: #21262d;
 }
