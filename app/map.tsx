@@ -75,15 +75,6 @@ const Map = forwardRef<
 
           new mapboxgl.Marker({ element: el })
             .setLngLat([v.LONGITUDE, v.LATITUDE])
-            .setPopup(
-              new mapboxgl.Popup({ offset: 10 }).setHTML(
-                `<div style="color:var(--foreground);font-size:12px"><strong>${
-                  v.NAME || "Unknown"
-                }</strong><br/>MMSI: ${v.MMSI}<br/>Speed: ${
-                  v.SOG ?? 0
-                } kn</div>`
-              )
-            )
             .addTo(map);
         });
       } catch (e) {
@@ -95,7 +86,7 @@ const Map = forwardRef<
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, [onVesselsLoaded]);
+  }, [onVesselsLoaded, onVesselSelect]);
 
   return <div ref={containerRef} className="w-full h-full" />;
 });
