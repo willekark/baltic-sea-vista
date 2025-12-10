@@ -45,18 +45,20 @@ export default function Page() {
           mapRef.current?.flyTo(v.LONGITUDE, v.LATITUDE)
         }
       />
-      {selectedVessel && !showAlgorithmPanel && (
-        <VesselPanel
-          vessel={selectedVessel}
-          onClose={() => setSelectedVessel(null)}
-        />
-      )}
-      {showAlgorithmPanel && (
-        <AlgorithmPanel
-          onWeightsChange={handleWeightsChange}
-          onClose={() => setShowAlgorithmPanel(false)}
-        />
-      )}
+      <div className="absolute top-4 right-4 bottom-4 flex flex-row-reverse gap-4 z-10">
+        {selectedVessel && (
+          <VesselPanel
+            vessel={selectedVessel}
+            onClose={() => setSelectedVessel(null)}
+          />
+        )}
+        {showAlgorithmPanel && (
+          <AlgorithmPanel
+            onWeightsChange={handleWeightsChange}
+            onClose={() => setShowAlgorithmPanel(false)}
+          />
+        )}
+      </div>
     </div>
   );
 }

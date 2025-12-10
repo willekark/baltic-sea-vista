@@ -1,4 +1,4 @@
- /**
+/**
  * Algorithm tuning panel for adjusting shadow fleet scoring weights.
  * Provides sliders to modify model parameters in real-time.
  * @module components/AlgorithmPanel
@@ -143,7 +143,7 @@ export default function AlgorithmPanel({
   };
 
   return (
-    <div className="absolute top-4 right-4 bottom-4 w-80 bg-panel-bg backdrop-blur-md border border-panel-border rounded-xl z-10 overflow-hidden flex flex-col animate-[panel-pop_0.15s_ease-out]">
+    <div className="w-80 h-full bg-panel-bg backdrop-blur-md border border-panel-border rounded-xl overflow-hidden flex flex-col animate-[panel-pop_0.15s_ease-out]">
       <div className="p-4 border-b border-panel-border">
         <div className="flex items-center justify-between">
           <div>
