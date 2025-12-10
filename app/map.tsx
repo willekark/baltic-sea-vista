@@ -26,8 +26,47 @@ export interface MapHandle {
 }
 
 /** Route source and layer IDs */
-const ROUTE_SOURCE = "vessel-route";
-const ROUTE_LAYER = "vessel-route-line";
+const HISTORY_SOURCE = "vessel-history";
+const HISTORY_LAYER = "vessel-history-line";
+const PROJECTED_SOURCE = "vessel-projected";
+const PROJECTED_LAYER = "vessel-projected-line";
+
+/** Earth radius in nautical miles */
+const EARTH_RADIUS_NM = 3440.065;
+
+/**
+ * Calculate destination point given start, bearing and distance.
+ * @param lat - Starting latitude in degrees
+ * @param lon - Starting longitude in degrees
+ * @param bearing - Bearing in degrees
+ * @param distanceNm - Distance in nautical miles
+ * @returns [longitude, latitude] coordinate pair
+ */
+const destinationPoint = (
+  lat: number,
+  lon: number,
+  bearing: number,
+  distanceNm: number
+): [number, number] => {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const toDeg = (r: number) => (r * 180) / Math.PI;
+  const φ1 = toRad(lat);
+  const λ1 = toRad(lon);
+  const θ = toRad(bearing);
+  const δ = distanceNm / EARTH_RADIUS_NM;
+
+  const φ2 = Math.asin(
+    Math.sin(φ1) * Math.cos(δ) + Math.cos(φ1) * Math.sin(δ) * Math.cos(θ)
+  );
+  const λ2 =
+    λ1 +
+    Math.atan2(
+      Math.sin(θ) * Math.sin(δ) * Math.cos(φ1),
+      Math.cos(δ) - Math.sin(φ1) * Math.sin(φ2)
+    );
+
+  return [toDeg(λ2), toDeg(φ2)];
+};
 
 /**
  * Map component with vessel markers and navigation controls.
@@ -90,7 +129,7 @@ const Map = forwardRef<
         );
         el.addEventListener("click", async () => {
           onVesselSelect?.(v);
-          await showVesselRoute(map, v.MMSI);
+          await showVesselRoutes(map, v);
         });
 
         const marker = new mapboxgl.Marker({ element: el })
@@ -103,45 +142,94 @@ const Map = forwardRef<
     }
   };
 
-  /** Fetch and display vessel historical route */
-  const showVesselRoute = async (map: mapboxgl.Map, mmsi: number) => {
-    try {
-      const positions: VesselPosition[] = await fetch(
-        `/api/vessels/${mmsi}/history?days=7`
-      ).then((r) => r.json());
+  /** Update or create a GeoJSON line layer */
+  const setLineLayer = (
+    map: mapboxgl.Map,
+    sourceId: string,
+    layerId: string,
+    coordinates: number[][],
+    color: string,
+    dashed: boolean
+  ) => {
+    const data: GeoJSON.Feature<GeoJSON.LineString> = {
+      type: "Feature",
+      properties: {},
+      geometry: { type: "LineString", coordinates },
+    };
+    const source = map.getSource(sourceId) as mapboxgl.GeoJSONSource;
+    if (source) {
+      source.setData(data);
+    } else {
+      map.addSource(sourceId, { type: "geojson", data });
+      map.addLayer({
+        id: layerId,
+        type: "line",
+        source: sourceId,
+        paint: {
+          "line-color": color,
+          "line-width": 3,
+          "line-opacity": 0.9,
+          ...(dashed ? { "line-dasharray": [4, 2] } : {}),
+        },
+      });
+    }
+  };
 
-      if (!positions.length) return;
-
-      const coordinates = positions.map((p) => [p.lon, p.lat]);
-
-      // Update or create route source
-      const source = map.getSource(ROUTE_SOURCE) as mapboxgl.GeoJSONSource;
-      if (source) {
-        source.setData({
+  /** Fetch and display vessel historical route + projected route */
+  const showVesselRoutes = async (map: mapboxgl.Map, vessel: Vessel) => {
+    // Draw projected route (1 hour ahead based on SOG/COG)
+    const speed = vessel.SOG ?? 0;
+    const course = vessel.COG ?? vessel.HEADING ?? 0;
+    if (speed > 0.5) {
+      const distanceNm = speed; // 1 hour projection
+      const dest = destinationPoint(
+        vessel.LATITUDE,
+        vessel.LONGITUDE,
+        course,
+        distanceNm
+      );
+      setLineLayer(
+        map,
+        PROJECTED_SOURCE,
+        PROJECTED_LAYER,
+        [[vessel.LONGITUDE, vessel.LATITUDE], dest],
+        "#67e8f9", // bright cyan for projected
+        false
+      );
+    } else {
+      // Clear projected route if vessel is stationary
+      const src = map.getSource(PROJECTED_SOURCE) as mapboxgl.GeoJSONSource;
+      if (src)
+        src.setData({
           type: "Feature",
           properties: {},
-          geometry: { type: "LineString", coordinates },
+          geometry: { type: "LineString", coordinates: [] },
         });
-      } else {
-        map.addSource(ROUTE_SOURCE, {
-          type: "geojson",
-          data: {
-            type: "Feature",
-            properties: {},
-            geometry: { type: "LineString", coordinates },
-          },
-        });
-        map.addLayer({
-          id: ROUTE_LAYER,
-          type: "line",
-          source: ROUTE_SOURCE,
-          paint: {
-            "line-color": "var(--vessel-active)",
-            "line-width": 2,
-            "line-opacity": 0.7,
-            "line-dasharray": [2, 2],
-          },
-        });
+    }
+
+    // Fetch and draw historical route
+    try {
+      const positions: VesselPosition[] = await fetch(
+        `/api/vessels/${vessel.MMSI}/history?days=7`
+      ).then((r) => r.json());
+
+      console.log(
+        "History positions:",
+        positions.length,
+        positions.slice(0, 3)
+      );
+
+      if (positions.length) {
+        const coords = positions.map((p) => [p.lon, p.lat]);
+        console.log("Drawing route with coords:", coords.length);
+        setLineLayer(
+          map,
+          HISTORY_SOURCE,
+          HISTORY_LAYER,
+          coords,
+          "#d1d5db", // light grey for history
+          true
+        );
       }
     } catch (e) {
       console.error("Failed to load route:", e);
