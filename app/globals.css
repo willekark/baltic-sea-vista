@@ -90,6 +90,32 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--muted);
+}
+
 @keyframes panel-pop {
   0% {
     transform: translateY(-50%) scale(0.98);
