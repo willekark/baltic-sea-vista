@@ -4,20 +4,15 @@
  * @module components/Sidebar
  */
 
-import {
-  type Vessel,
-  type VesselFilter,
-  VESSEL_COLORS,
-  getVesselColor,
-} from "./lib/vessel";
+import { type Vessel, type VesselFilter } from "./lib/vessel";
+import { sortVesselsByRisk, getVesselRiskColor } from "./lib/shadow-score";
 import FilterPanel from "./filter-panel";
 
-/** Legend items mapping status labels to their colors */
+/** Legend items for shadow fleet risk levels */
 const LEGEND = [
-  { label: "Active", color: VESSEL_COLORS.active },
-  { label: "Idle", color: VESSEL_COLORS.idle },
-  { label: "Shadow Fleet", color: VESSEL_COLORS.shadow },
-  { label: "Anchored", color: VESSEL_COLORS.anchored },
+  { label: "High Risk (≥90%)", color: "#ef4444" },
+  { label: "Medium Risk (50-90%)", color: "#eab308" },
+  { label: "Low Risk (<50%)", color: "#22c55e" },
 ];
 
 /**
@@ -87,7 +82,7 @@ export default function Sidebar({
           Vessels ({vessels.length})
         </h2>
         <div className="space-y-1">
-          {vessels.map((v) => (
+          {sortVesselsByRisk(vessels).map(({ vessel: v, prediction }) => (
             <button
               key={v.MMSI}
               onClick={() => onVesselClick?.(v)}
@@ -96,14 +91,20 @@ export default function Sidebar({
               <div className="flex items-center gap-2">
                 <span
                   className="w-2 h-2 rounded-full"
-                  style={{ background: getVesselColor(v) }}
+                  style={{ background: getVesselRiskColor(v) }}
                 />
-                <span className="text-sm text-map-text truncate">
+                <span className="text-sm text-map-text truncate flex-1">
                   {v.NAME || "Unknown"}
+                </span>
+                <span
+                  className="text-xs font-medium"
+                  style={{ color: getVesselRiskColor(v) }}
+                >
+                  {prediction.score.toFixed(0)}%
                 </span>
               </div>
               <div className="text-xs text-map-text-muted mt-1 pl-4">
-                {v.SOG ?? 0} kn · {v.MMSI}
+                {v.SOG ?? 0} kn · {v.FLAG || "??"}
               </div>
             </button>
           ))}

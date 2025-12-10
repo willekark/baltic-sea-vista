@@ -5,6 +5,7 @@
  */
 
 import { type Vessel, getFlagEmoji } from "./lib/vessel";
+import { predictShadowFleetRisk, getVesselRiskColor } from "./lib/shadow-score";
 
 /**
  * Floating panel showing vessel details with close button.
@@ -18,6 +19,9 @@ export default function VesselPanel({
   vessel: Vessel;
   onClose: () => void;
 }) {
+  const prediction = predictShadowFleetRisk(vessel);
+  const riskColor = getVesselRiskColor(vessel);
+
   return (
     <div
       key={vessel.MMSI}
@@ -59,17 +63,69 @@ export default function VesselPanel({
       </div>
 
       <div className="p-4 border-b border-panel-border">
-        <div className="w-full h-32 bg-muted rounded-lg flex items-center justify-center">
-          <span className="text-muted-foreground text-sm">Vessel Photo</span>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm text-muted-foreground">
+            Shadow Fleet Risk
+          </span>
+          <span className="text-lg font-bold" style={{ color: riskColor }}>
+            {prediction.score.toFixed(0)}%
+          </span>
         </div>
+        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full transition-all"
+            style={{
+              width: `${prediction.score}%`,
+              backgroundColor: riskColor,
+            }}
+          />
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          {prediction.color === "RED"
+            ? "High probability of shadow fleet vessel"
+            : prediction.color === "YELLOW"
+            ? "Medium risk - requires further investigation"
+            : "Low risk - likely legitimate vessel"}
+        </p>
       </div>
 
       <div className="p-4 border-b border-panel-border">
-        <p className="text-sm text-map-text">
-          {vessel.isShadowFleet
-            ? "This vessel has been flagged as part of the shadow fleet operating in the Baltic Sea region."
-            : "Commercial vessel operating in the Baltic Sea region."}
-        </p>
+        <h3 className="text-xs font-medium text-muted-foreground uppercase mb-3">
+          Risk Factors
+        </h3>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          {[
+            ["Flag State", prediction.features.flag_risk_score],
+            [
+              "Vessel Age",
+              Math.min(prediction.features.vessel_age_years / 30, 1),
+            ],
+            ["Cargo Type", prediction.features.cargo_risk_score],
+            ["AIS Behavior", prediction.features.ais_risk_score],
+            ["Ownership", prediction.features.ownership_risk_score],
+            ["Insurance", prediction.features.insurance_risk_score],
+          ].map(([label, score]) => (
+            <div key={label} className="flex items-center gap-2">
+              <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full"
+                  style={{
+                    width: `${(score as number) * 100}%`,
+                    backgroundColor:
+                      (score as number) >= 0.7
+                        ? "#ef4444"
+                        : (score as number) >= 0.4
+                        ? "#eab308"
+                        : "#22c55e",
+                  }}
+                />
+              </div>
+              <span className="text-muted-foreground w-16 truncate">
+                {label}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="p-4">

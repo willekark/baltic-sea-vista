@@ -101,14 +101,15 @@ export const VESSEL_COLORS = {
   anchored: "var(--vessel-anchored)",
 } as const;
 
+import { getVesselRiskColor as getRiskColor } from "./shadow-score";
+
 /**
- * Returns the appropriate color for a vessel based on its status.
- * Shadow fleet vessels are highlighted with the shadow color.
+ * Returns the appropriate color for a vessel based on shadow fleet risk.
+ * RED: >= 90%, YELLOW: 50-90%, GREEN: < 50%
  * @param v - The vessel to get color for
- * @returns CSS variable string for the vessel color
+ * @returns Hex color string for the vessel
  */
-export const getVesselColor = (v: Vessel): string =>
-  v.isShadowFleet ? VESSEL_COLORS.shadow : VESSEL_COLORS.active;
+export const getVesselColor = (v: Vessel): string => getRiskColor(v);
 
 /**
  * Creates an SVG marker string for displaying vessels on the map.
