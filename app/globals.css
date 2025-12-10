@@ -1,20 +1,49 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
-  --secondary: #6b7280;
-  --secondary-foreground: #ffffff;
-  --accent: #10b981;
-  --accent-foreground: #ffffff;
-  --muted: #f3f4f6;
-  --muted-foreground: #6b7280;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #e5e7eb;
-  --ring: #3b82f6;
+  /* Base UI */
+  --background: #0d1117;
+  --foreground: #e6edf3;
+  --primary: #58a6ff;
+  --primary-foreground: #0d1117;
+  --secondary: #8b949e;
+  --secondary-foreground: #0d1117;
+  --accent: #3fb950;
+  --accent-foreground: #0d1117;
+  --muted: #161b22;
+  --muted-foreground: #8b949e;
+  --destructive: #f85149;
+  --destructive-foreground: #0d1117;
+  --border: #30363d;
+  --ring: #58a6ff;
+
+  /* Maritime Map Theme */
+  --map-bg: #0d1117;
+  --map-water: #161b22;
+  --map-water-dark: #0d1117;
+  --map-land: #21262d;
+  --map-land-highlight: #30363d;
+  --map-border: #484f58;
+  --map-border-muted: #30363d;
+  --map-coastline: #3d444d;
+  --map-text-primary: #c9d1d9;
+  --map-text-muted: #6e7681;
+  --map-text-water: #388bfd;
+
+  /* Vessel States */
+  --vessel-active: #3fb950;
+  --vessel-active-glow: #238636;
+  --vessel-idle: #d29922;
+  --vessel-idle-glow: #9e6a03;
+  --vessel-shadow: #f85149;
+  --vessel-shadow-glow: #b62324;
+  --vessel-anchored: #a371f7;
+  --vessel-anchored-glow: #8957e5;
+
+  /* Panel UI */
+  --panel-bg: rgba(22, 27, 34, 0.95);
+  --panel-border: #30363d;
+  --panel-hover: #21262d;
 }
 
 @theme inline {
@@ -32,27 +61,27 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-ring: var(--ring);
+
+  /* Map Colors for Tailwind */
+  --color-map-bg: var(--map-bg);
+  --color-map-water: var(--map-water);
+  --color-map-land: var(--map-land);
+  --color-map-text: var(--map-text-primary);
+  --color-map-text-muted: var(--map-text-muted);
+
+  /* Vessel Colors for Tailwind */
+  --color-vessel-active: var(--vessel-active);
+  --color-vessel-idle: var(--vessel-idle);
+  --color-vessel-shadow: var(--vessel-shadow);
+  --color-vessel-anchored: var(--vessel-anchored);
+
+  /* Panel Colors */
+  --color-panel-bg: var(--panel-bg);
+  --color-panel-border: var(--panel-border);
+  --color-panel-hover: var(--panel-hover);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --primary: #60a5fa;
-    --primary-foreground: #0a0a0a;
-    --secondary: #9ca3af;
-    --secondary-foreground: #0a0a0a;
-    --accent: #34d399;
-    --accent-foreground: #0a0a0a;
-    --muted: #1f2937;
-    --muted-foreground: #9ca3af;
-    --destructive: #f87171;
-    --destructive-foreground: #0a0a0a;
-    --border: #374151;
-    --ring: #60a5fa;
-  }
 }
 
 body {
