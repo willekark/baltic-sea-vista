@@ -46,9 +46,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Transform to match our Vessel interface
-    const vessels = (json.data?.vessels || []).map(
-      (v: Record<string, unknown>) => ({
+    // Transform to match our Vessel interface, filter out invalid MMSI, deduplicate
+    const seen = new Set<number>();
+    const vessels = (json.data?.vessels || [])
+      .map((v: Record<string, unknown>) => ({
         MMSI: Number(v.mmsi),
         LONGITUDE: v.lon,
         LATITUDE: v.lat,
@@ -58,8 +59,12 @@ export async function GET(request: NextRequest) {
         HEADING: v.heading,
         NAVSTAT: v.navigation_status,
         TYPE: v.type,
-      })
-    );
+      }))
+      .filter((v: { MMSI: number }) => {
+        if (v.MMSI <= 0 || seen.has(v.MMSI)) return false;
+        seen.add(v.MMSI);
+        return true;
+      });
 
     return NextResponse.json(vessels);
   } catch (err) {

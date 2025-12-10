@@ -30,6 +30,7 @@ export default function Page() {
         vessels={vessels}
         filter={filter}
         onFilterChange={handleFilterChange}
+        onRefetch={() => mapRef.current?.refetch()}
         onVesselClick={(v: Vessel) =>
           mapRef.current?.flyTo(v.LONGITUDE, v.LATITUDE)
         }

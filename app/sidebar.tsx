@@ -25,17 +25,20 @@ const LEGEND = [
  * @param vessels - Array of vessels to display in the list
  * @param filter - Current filter settings
  * @param onFilterChange - Callback when filters are modified
+ * @param onRefetch - Callback to refetch vessels at current map position
  * @param onVesselClick - Callback when a vessel is clicked (for map navigation)
  */
 export default function Sidebar({
   vessels,
   filter,
   onFilterChange,
+  onRefetch,
   onVesselClick,
 }: {
   vessels: Vessel[];
   filter: VesselFilter;
   onFilterChange: (f: VesselFilter) => void;
+  onRefetch?: () => void;
   onVesselClick?: (v: Vessel) => void;
 }) {
   return (
@@ -54,6 +57,12 @@ export default function Sidebar({
           Filters
         </h2>
         <FilterPanel filter={filter} onChange={onFilterChange} />
+        <button
+          onClick={onRefetch}
+          className="mt-3 w-full py-2 px-3 bg-primary/20 hover:bg-primary/30 text-primary text-sm font-medium rounded transition-colors"
+        >
+          Search This Area
+        </button>
       </div>
 
       <div className="p-4 border-b border-panel-border">

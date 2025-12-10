@@ -20,9 +20,11 @@ import {
 /**
  * Imperative handle for controlling the map from parent components.
  * @property flyTo - Animates the map to center on given coordinates
+ * @property refetch - Refetches vessels at current map center
  */
 export interface MapHandle {
   flyTo: (lng: number, lat: number) => void;
+  refetch: () => void;
 }
 
 /** Route source and layer IDs */
@@ -93,6 +95,17 @@ const Map = forwardRef<
   useImperativeHandle(ref, () => ({
     flyTo: (lng, lat) => {
       mapRef.current?.flyTo({ center: [lng, lat], zoom: 10 });
+    },
+    refetch: () => {
+      if (!mapRef.current?.loaded()) return;
+      const center = mapRef.current.getCenter();
+      const currentFilter: VesselFilter = {
+        ...filter,
+        lat: center.lat,
+        lon: center.lng,
+        radius: filter?.radius || 50,
+      };
+      loadVessels(mapRef.current, currentFilter);
     },
   }));
 
