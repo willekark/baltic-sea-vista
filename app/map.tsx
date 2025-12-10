@@ -1,3 +1,9 @@
+/**
+ * Interactive Mapbox GL map component for vessel tracking.
+ * Displays vessel markers and handles map interactions.
+ * @module components/Map
+ */
+
 "use client";
 
 import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
@@ -5,13 +11,25 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { type Vessel, getVesselColor, createMarkerSvg } from "./lib/vessel";
 
+/**
+ * Imperative handle for controlling the map from parent components.
+ * @property flyTo - Animates the map to center on given coordinates
+ */
 export interface MapHandle {
   flyTo: (lng: number, lat: number) => void;
 }
 
+/**
+ * Map component with vessel markers and navigation controls.
+ * Fetches vessels on load and displays them with interactive popups.
+ * @param onVesselsLoaded - Callback fired when vessels are fetched from API
+ * @param ref - Imperative handle for programmatic map control
+ */
 const Map = forwardRef<MapHandle, { onVesselsLoaded?: (v: Vessel[]) => void }>(
   ({ onVesselsLoaded }, ref) => {
+    /** Reference to the map container DOM element */
     const containerRef = useRef<HTMLDivElement>(null);
+    /** Reference to the Mapbox GL map instance */
     const mapRef = useRef<mapboxgl.Map | null>(null);
 
     useImperativeHandle(ref, () => ({

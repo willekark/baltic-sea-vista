@@ -1,5 +1,12 @@
+/**
+ * Sidebar component for vessel list and legend display.
+ * Shows vessel status legend and scrollable list of tracked vessels.
+ * @module components/Sidebar
+ */
+
 import { type Vessel, VESSEL_COLORS, getVesselColor } from "./lib/vessel";
 
+/** Legend items mapping status labels to their colors */
 const LEGEND = [
   { label: "Active", color: VESSEL_COLORS.active },
   { label: "Idle", color: VESSEL_COLORS.idle },
@@ -7,6 +14,11 @@ const LEGEND = [
   { label: "Anchored", color: VESSEL_COLORS.anchored },
 ];
 
+/**
+ * Sidebar displaying vessel legend and clickable vessel list.
+ * @param vessels - Array of vessels to display in the list
+ * @param onVesselClick - Callback when a vessel is clicked (for map navigation)
+ */
 export default function Sidebar({
   vessels,
   onVesselClick,
