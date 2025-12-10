@@ -1,11 +1,13 @@
 import Map from "./map";
-import NavBar from "./nav-bar";
+import Sidebar from "./sidebar";
 
 export default function Page() {
   return (
-    <div className="flex flex-row">
-      <NavBar />
-      <Map />
+    <div className="flex h-screen">
+      <Sidebar />
+      <main className="flex-1">
+        <Map />
+      </main>
     </div>
   );
 }
