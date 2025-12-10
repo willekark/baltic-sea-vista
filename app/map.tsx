@@ -310,7 +310,7 @@ const Map = forwardRef<
       container: containerRef.current,
       style: "mapbox://styles/mapbox/dark-v11",
       center: [20, 59],
-      zoom: 5,
+      zoom: 6,
     }));
 
     map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
