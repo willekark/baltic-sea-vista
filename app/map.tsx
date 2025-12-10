@@ -21,10 +21,12 @@ import {
  * Imperative handle for controlling the map from parent components.
  * @property flyTo - Animates the map to center on given coordinates
  * @property refetch - Refetches vessels at current map center
+ * @property updateMarkerColors - Updates all marker colors based on current scoring
  */
 export interface MapHandle {
   flyTo: (lng: number, lat: number) => void;
   refetch: () => void;
+  updateMarkerColors: () => void;
 }
 
 /** Route source and layer IDs */
@@ -90,7 +92,7 @@ const Map = forwardRef<
 >(({ filter, onVesselsLoaded, onVesselSelect }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const markersRef = useRef<{ marker: mapboxgl.Marker; vessel: Vessel }[]>([]);
 
   useImperativeHandle(ref, () => ({
     flyTo: (lng, lat) => {
@@ -106,6 +108,16 @@ const Map = forwardRef<
         radius: filter?.radius || 50,
       };
       loadVessels(mapRef.current, currentFilter);
+    },
+    updateMarkerColors: () => {
+      markersRef.current.forEach(({ marker, vessel }) => {
+        const el = marker.getElement();
+        el.innerHTML = createMarkerSvg(
+          getVesselColor(vessel),
+          vessel.HEADING ?? vessel.COG ?? 0,
+          (vessel.SOG ?? 0) >= 0.5
+        );
+      });
     },
   }));
 
@@ -125,7 +137,7 @@ const Map = forwardRef<
   /** Fetch and display vessels */
   const loadVessels = async (map: mapboxgl.Map, f?: VesselFilter) => {
     // Clear existing markers
-    markersRef.current.forEach((m) => m.remove());
+    markersRef.current.forEach(({ marker }) => marker.remove());
     markersRef.current = [];
 
     try {
@@ -248,7 +260,7 @@ const Map = forwardRef<
         const marker = new mapboxgl.Marker({ element: el })
           .setLngLat([v.LONGITUDE, v.LATITUDE])
           .addTo(map);
-        markersRef.current.push(marker);
+        markersRef.current.push({ marker, vessel: v });
       });
     } catch (e) {
       console.error(e);

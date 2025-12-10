@@ -21,6 +21,7 @@ const LEGEND = [
  * @param filter - Current filter settings
  * @param onFilterChange - Callback when filters are modified
  * @param onRefetch - Callback to refetch vessels at current map position
+ * @param onTuneAlgorithm - Callback to open algorithm tuning panel
  * @param onVesselClick - Callback when a vessel is clicked (for map navigation)
  */
 export default function Sidebar({
@@ -28,12 +29,14 @@ export default function Sidebar({
   filter,
   onFilterChange,
   onRefetch,
+  onTuneAlgorithm,
   onVesselClick,
 }: {
   vessels: Vessel[];
   filter: VesselFilter;
   onFilterChange: (f: VesselFilter) => void;
   onRefetch?: () => void;
+  onTuneAlgorithm?: () => void;
   onVesselClick?: (v: Vessel) => void;
 }) {
   return (
@@ -57,6 +60,25 @@ export default function Sidebar({
           className="mt-3 w-full py-2 px-3 bg-primary/20 hover:bg-primary/30 text-primary text-sm font-medium rounded transition-colors"
         >
           Search This Area
+        </button>
+        <button
+          onClick={onTuneAlgorithm}
+          className="mt-2 w-full py-2 px-3 bg-muted hover:bg-panel-hover text-map-text text-sm font-medium rounded transition-colors flex items-center justify-center gap-2"
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+            />
+          </svg>
+          Tune Algorithm
         </button>
       </div>
 

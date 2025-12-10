@@ -30,22 +30,51 @@ export interface ShadowFleetPrediction {
   features: FeatureVector;
 }
 
-/** Logistic regression model coefficients */
-const MODEL = {
-  intercept: -2.5,
-  weights: {
-    vessel_age_years: 0.08,
-    origin_risk_score: 1.2,
-    destination_risk_score: 1.1,
-    route_risk_score: 0.9,
-    flag_risk_score: 1.3,
-    ais_risk_score: 1.5,
-    ownership_risk_score: 1.0,
-    insurance_risk_score: 1.1,
-    cargo_risk_score: 0.7,
-    sts_indicator: 0.9,
-  },
-} as const;
+/** Model weights configuration */
+export interface ModelWeights {
+  intercept: number;
+  vessel_age_years: number;
+  origin_risk_score: number;
+  destination_risk_score: number;
+  route_risk_score: number;
+  flag_risk_score: number;
+  ais_risk_score: number;
+  ownership_risk_score: number;
+  insurance_risk_score: number;
+  cargo_risk_score: number;
+  sts_indicator: number;
+}
+
+/** Default logistic regression model coefficients */
+export const DEFAULT_WEIGHTS: ModelWeights = {
+  intercept: -4.0,
+  vessel_age_years: 0.05,
+  origin_risk_score: 0.8,
+  destination_risk_score: 0.7,
+  route_risk_score: 0.6,
+  flag_risk_score: 1.5,
+  ais_risk_score: 1.2,
+  ownership_risk_score: 0.8,
+  insurance_risk_score: 0.9,
+  cargo_risk_score: 0.5,
+  sts_indicator: 1.0,
+};
+
+/** Current active weights - can be modified by UI */
+let activeWeights: ModelWeights = { ...DEFAULT_WEIGHTS };
+
+/** Set custom model weights */
+export const setModelWeights = (weights: ModelWeights): void => {
+  activeWeights = { ...weights };
+};
+
+/** Get current model weights */
+export const getModelWeights = (): ModelWeights => ({ ...activeWeights });
+
+/** Reset to default weights */
+export const resetModelWeights = (): void => {
+  activeWeights = { ...DEFAULT_WEIGHTS };
+};
 
 /** Flags of convenience - high risk flag states */
 const FLAG_OF_CONVENIENCE = new Set([
@@ -221,19 +250,20 @@ export const predictShadowFleetRisk = (
   vessel: Vessel
 ): ShadowFleetPrediction => {
   const features = extractFeatures(vessel);
+  const w = activeWeights;
 
   // Compute linear term z = B0 + sum(Bi * xi)
-  let z = MODEL.intercept;
-  z += MODEL.weights.vessel_age_years * features.vessel_age_years;
-  z += MODEL.weights.origin_risk_score * features.origin_risk_score;
-  z += MODEL.weights.destination_risk_score * features.destination_risk_score;
-  z += MODEL.weights.route_risk_score * features.route_risk_score;
-  z += MODEL.weights.flag_risk_score * features.flag_risk_score;
-  z += MODEL.weights.ais_risk_score * features.ais_risk_score;
-  z += MODEL.weights.ownership_risk_score * features.ownership_risk_score;
-  z += MODEL.weights.insurance_risk_score * features.insurance_risk_score;
-  z += MODEL.weights.cargo_risk_score * features.cargo_risk_score;
-  z += MODEL.weights.sts_indicator * features.sts_indicator;
+  let z = w.intercept;
+  z += w.vessel_age_years * features.vessel_age_years;
+  z += w.origin_risk_score * features.origin_risk_score;
+  z += w.destination_risk_score * features.destination_risk_score;
+  z += w.route_risk_score * features.route_risk_score;
+  z += w.flag_risk_score * features.flag_risk_score;
+  z += w.ais_risk_score * features.ais_risk_score;
+  z += w.ownership_risk_score * features.ownership_risk_score;
+  z += w.insurance_risk_score * features.insurance_risk_score;
+  z += w.cargo_risk_score * features.cargo_risk_score;
+  z += w.sts_indicator * features.sts_indicator;
 
   // Apply sigmoid: P = 1 / (1 + e^(-z))
   const probability = 1.0 / (1.0 + Math.exp(-z));

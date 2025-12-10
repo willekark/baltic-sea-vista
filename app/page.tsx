@@ -4,18 +4,27 @@ import { useState, useRef, useCallback } from "react";
 import Map, { type MapHandle } from "./map";
 import Sidebar from "./sidebar";
 import VesselPanel from "./vessel-panel";
+import AlgorithmPanel from "./algorithm-panel";
 import { type Vessel, type VesselFilter } from "./lib/vessel";
 
 export default function Page() {
   const [vessels, setVessels] = useState<Vessel[]>([]);
   const [selectedVessel, setSelectedVessel] = useState<Vessel | null>(null);
   const [filter, setFilter] = useState<VesselFilter>({ radius: 50 });
+  const [showAlgorithmPanel, setShowAlgorithmPanel] = useState(false);
+  const [, forceUpdate] = useState(0);
   const mapRef = useRef<MapHandle>(null);
 
   /** Handle filter changes - clear selected vessel and trigger refetch */
   const handleFilterChange = useCallback((newFilter: VesselFilter) => {
     setFilter(newFilter);
     setSelectedVessel(null);
+  }, []);
+
+  /** Force re-render when algorithm weights change */
+  const handleWeightsChange = useCallback(() => {
+    forceUpdate((n) => n + 1);
+    mapRef.current?.updateMarkerColors();
   }, []);
 
   return (
@@ -31,14 +40,21 @@ export default function Page() {
         filter={filter}
         onFilterChange={handleFilterChange}
         onRefetch={() => mapRef.current?.refetch()}
+        onTuneAlgorithm={() => setShowAlgorithmPanel(true)}
         onVesselClick={(v: Vessel) =>
           mapRef.current?.flyTo(v.LONGITUDE, v.LATITUDE)
         }
       />
-      {selectedVessel && (
+      {selectedVessel && !showAlgorithmPanel && (
         <VesselPanel
           vessel={selectedVessel}
           onClose={() => setSelectedVessel(null)}
+        />
+      )}
+      {showAlgorithmPanel && (
+        <AlgorithmPanel
+          onWeightsChange={handleWeightsChange}
+          onClose={() => setShowAlgorithmPanel(false)}
         />
       )}
     </div>
