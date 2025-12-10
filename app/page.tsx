@@ -41,9 +41,10 @@ export default function Page() {
         onFilterChange={handleFilterChange}
         onRefetch={() => mapRef.current?.refetch()}
         onTuneAlgorithm={() => setShowAlgorithmPanel(true)}
-        onVesselClick={(v: Vessel) =>
-          mapRef.current?.flyTo(v.LONGITUDE, v.LATITUDE)
-        }
+        onVesselClick={(v: Vessel) => {
+          setSelectedVessel(v);
+          mapRef.current?.flyTo(v.LONGITUDE, v.LATITUDE);
+        }}
       />
       <div className="absolute top-4 right-4 bottom-4 flex flex-row-reverse gap-4 z-10">
         {selectedVessel && (
