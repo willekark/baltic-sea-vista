@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { generateMockHistory } from "@/app/lib/mock-vessels";
+
+/** Use mock data in development to avoid API costs */
+const USE_MOCK = process.env.NODE_ENV === "development";
 
 /**
  * Fetches historical positions for a vessel by MMSI.
@@ -8,8 +12,15 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ mmsi: string }> }
 ) {
-  const apiKey = process.env.DATALASTIC_API_KEY;
   const { mmsi } = await params;
+
+  // Return mock history in development
+  if (USE_MOCK) {
+    const positions = generateMockHistory(Number(mmsi));
+    return NextResponse.json(positions);
+  }
+
+  const apiKey = process.env.DATALASTIC_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json(

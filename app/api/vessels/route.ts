@@ -1,10 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
+import { mockVessels } from "@/app/lib/mock-vessels";
+
+/** Use mock data in development to avoid API costs */
+const USE_MOCK = process.env.NODE_ENV === "development";
 
 /** Default Baltic Sea center coordinates */
 const DEFAULT_CENTER = { lat: 58.5, lon: 20 };
 const DEFAULT_RADIUS = 50;
 
 export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const type = searchParams.get("type");
+  const navStatus = searchParams.get("nav_status");
+
+  // Return mock data in development
+  if (USE_MOCK) {
+    let vessels = [...mockVessels];
+    if (type) vessels = vessels.filter((v) => v.TYPE === type);
+    if (navStatus)
+      vessels = vessels.filter((v) => v.NAVSTAT === Number(navStatus));
+    return NextResponse.json(vessels);
+  }
+
   const apiKey = process.env.DATALASTIC_API_KEY;
 
   if (!apiKey) {
@@ -14,15 +31,12 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const { searchParams } = new URL(request.url);
   const lat = searchParams.get("lat") || DEFAULT_CENTER.lat;
   const lon = searchParams.get("lon") || DEFAULT_CENTER.lon;
   const radius = Math.min(
     Number(searchParams.get("radius")) || DEFAULT_RADIUS,
     50
   );
-  const type = searchParams.get("type");
-  const navStatus = searchParams.get("nav_status");
 
   try {
     let url = `https://api.datalastic.com/api/v0/vessel_inradius?api-key=${apiKey}&lat=${lat}&lon=${lon}&radius=${radius}`;
