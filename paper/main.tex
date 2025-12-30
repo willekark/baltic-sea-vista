@@ -1,0 +1,121 @@
+% Master's thesis template, Lund University
+% Department of Computer Science and Engineering, LTH
+% Adapted from PhD template originally designed for Faculty of Science
+%
+% Student: Leon Håkansson Ingman
+% Thesis: Machine Learning Detection of Shadow Fleet Vessels in the Baltic Sea
+% Company: Rendavouz
+% Expected completion: June 12, 2025
+%
+% Compilation instructions: use "xelatex" (necessary for support of the fonts
+% used by Lund University. The fonts need to be installed first, see README.txt
+% for instructions).
+%
+% If you use (pdf)latex instead, the default latex fonts will be used. 
+% That would be a pity, cause the Garamond/Frutiger suggestion by the
+% University looks much nicer for your thesis!
+%
+% Special command to automatically make Mac's TeXshop use xelatex for this file:
+% !TEX TS-program = XeLaTeX
+%
+\documentclass[11pt]{book} 
+
+% Hide all the usepackage commands and definitions in a preamble file.
+% Normally you should not need to edit it.
+\input{auxiliary_textfiles/preamble}
+
+% ********************************************************************
+% Re-usable information (title page, abstract), please edit the file parameters.tex to include correct information
+\input{parameters}
+
+\begin{document}
+
+%%%%%%%%%%%%% First pages with thesis title etc %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% First pages are contained in a separate file. Normally you should not
+% need to edit it.
+\input{auxiliary_textfiles/frontmatter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Table of contents   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\cleardoublepage
+\setcounter{page}{1} % Page Roman 1 of the frontmatter
+\setcounter{tocdepth}{2}
+\tableofcontents
+% no page number on toc page:
+\addtocontents{toc}{\protect\thispagestyle{empty}}
+
+% ===============================================================
+% ====================== Acknowledgements:  =====================
+\cleardoublepage
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+\input{chapters/acknowledgements.tex}
+
+% ===============================================================
+% ===================== POPULAR SUMMARY (SWEDISH):  =============
+\cleardoublepage
+\selectlanguage{swedish}
+\chapter*{Populärvetenskaplig sammanfattning}
+\addcontentsline{toc}{chapter}{Populärvetenskaplig sammanfattning}
+\input{chapters/sammanfattning}
+
+% ===============================================================
+% ======================= MAIN CHAPTERS   =======================
+% Back to English
+\selectlanguage{english}
+% Need to add hyphenation corrections? Do like this:
+% \hyphenation{ma-chine learn-ing}
+
+% Page numbers arabic 
+\mainmatter
+% Reset table counters
+\setcounter{table}{0} 
+% Reset page counters, this is where it all starts!
+\setcounter{page}{1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Main content %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Introduction}
+\label{ch:introduction}
+\input{chapters/introduction}
+
+\chapter{Background and Related Work}
+\label{ch:background}
+\input{chapters/background}
+
+\chapter{Methodology}
+\label{ch:methodology}
+\input{chapters/methodology}
+
+\chapter{Implementation}
+\label{ch:implementation}
+\input{chapters/implementation}
+
+\chapter{Results}
+\label{ch:results}
+\input{chapters/results}
+
+\chapter{Discussion}
+\label{ch:discussion}
+\input{chapters/discussion}
+
+\chapter{Conclusions and Future Work}
+\label{ch:conclusions}
+\input{chapters/conclusions}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ===============================================================
+% ====================== References:  ===========================
+\cleardoublepage
+\bibliographystyle{unsrtnat}
+\bibliography{refs}  % Link to bibtex file
+
+% ===============================================================
+% ====================== Appendices (if needed):  ===============
+% Uncomment if you need appendices
+%\appendix
+%\chapter{Additional Data}
+%\label{app:data}
+%\input{chapters/appendix_data}
+
+\end{document}

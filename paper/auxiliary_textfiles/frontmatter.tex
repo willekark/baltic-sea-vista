@@ -1,0 +1,86 @@
+% Frontmatter - Title page and Abstract
+% This file generates the first pages of the thesis
+
+% ===== TITLE PAGE =====
+\begin{titlepage}
+\centering
+
+% University logo (uncomment if you have the logo file)
+% \includegraphics[width=0.3\textwidth]{figures/lth_logo.pdf}\\[1cm]
+
+{\large \myUni}\\[0.5cm]
+{\large \myFaculty}\\[0.5cm]
+{\large \myDepartment}\\[2cm]
+
+% Thesis title
+{\LARGE \textbf{\myTitle}}\\[1.5cm]
+
+% Degree statement
+{\large Master's Thesis}\\[0.5cm]
+{\large \myDegree}\\[0.5cm]
+{\large \myProgram}\\[2cm]
+
+% Author
+{\large \textbf{\myName}}\\[2cm]
+
+% Supervisors and examiner
+\begin{tabular}{ll}
+Supervisor: & \mySupervisor \\
+\ifx\myCoSupervisor\empty
+\else
+Co-supervisor: & \myCoSupervisor \\
+\fi
+Examiner: & \myExaminer \\
+\end{tabular}\\[1.5cm]
+
+% Company (if applicable)
+\ifx\myCompany\empty
+\else
+{\large In collaboration with \myCompany}\\[1cm]
+\fi
+
+% Date
+{\large \myTime}
+
+\vfill
+
+% Additional info at bottom
+{\small Department of Computer Science\\
+Faculty of Engineering, LTH\\
+Lund University\\
+Box 118, SE-221 00 Lund, Sweden}
+
+\end{titlepage}
+
+% ===== ABSTRACT PAGE =====
+\cleardoublepage
+\thispagestyle{empty}
+
+\begin{center}
+{\Large \textbf{Abstract}}
+\end{center}
+
+\vspace{1cm}
+
+\myAbstract
+
+\vfill
+
+% Metadata at bottom of abstract page
+\noindent
+\begin{tabular}{@{}ll}
+\textbf{Title:} & \myTitle \\
+\textbf{Author:} & \myName \\
+\textbf{Supervisor:} & \mySupervisor \\
+\ifx\myCoSupervisor\empty
+\else
+\textbf{Co-supervisor:} & \myCoSupervisor \\
+\fi
+\textbf{Examiner:} & \myExaminer \\
+\textbf{Department:} & \myDepartment \\
+\textbf{Degree:} & \myDegree \\
+\textbf{Program:} & \myProgram \\
+\textbf{Year:} & \myYear \\
+\end{tabular}
+
+\cleardoublepage

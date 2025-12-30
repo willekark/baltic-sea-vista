@@ -1,0 +1,57 @@
+% Methodology chapter
+
+\section{Overview}
+Provide a high-level overview of your methodology and research approach.
+
+\section{Data Collection}
+\subsection{Data Sources}
+Describe the sources of vessel tracking data (AIS data providers, APIs, databases, etc.).
+
+\subsection{Dataset Characteristics}
+Detail the temporal and spatial coverage, number of vessels, data fields, etc.
+
+\subsection{Ground Truth Data}
+Explain how you obtained labeled data on known shadow fleet vessels.
+
+\section{Data Preprocessing}
+\subsection{Data Cleaning}
+Describe how you handled missing data, outliers, and errors in AIS signals.
+
+\subsection{Data Filtering}
+Explain any filtering applied to focus on relevant vessels or regions.
+
+\subsection{Trajectory Reconstruction}
+Describe methods for reconstructing vessel trajectories from point data.
+
+\section{Feature Engineering}
+\subsection{Movement Features}
+Features extracted from vessel routes: speed patterns, course changes, etc.
+
+\subsection{Behavioral Features}
+AIS signal characteristics, port visit patterns, time spent in certain areas, etc.
+
+\subsection{Contextual Features}
+Vessel metadata: flag, type, age, ownership changes, etc.
+
+\section{Machine Learning Approach}
+\subsection{Problem Formulation}
+Frame the detection task (classification, anomaly detection, etc.).
+
+\subsection{Algorithm Selection}
+Justify your choice of ML algorithms (Random Forest, Neural Networks, SVM, etc.).
+
+\subsection{Model Architecture}
+Describe the specific model architecture and hyperparameters.
+
+\subsection{Training Strategy}
+Explain how models are trained, including train/validation/test splits.
+
+\section{Evaluation Methodology}
+\subsection{Evaluation Metrics}
+Define metrics: accuracy, precision, recall, F1-score, ROC-AUC, etc.
+
+\subsection{Cross-Validation}
+Describe validation strategy to ensure robust performance estimates.
+
+\subsection{Baseline Comparisons}
+Establish baselines for comparison.

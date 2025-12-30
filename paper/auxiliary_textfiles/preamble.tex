@@ -1,0 +1,132 @@
+% Preamble file - LaTeX packages and formatting
+% Generally you should not need to edit this file
+
+% ===== PACKAGES =====
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english,swedish]{babel}
+
+% Math packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% Graphics and figures
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage{float}
+\usepackage{floatrow}
+
+% Tables
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{multirow}
+
+% Citations and bibliography
+\usepackage{natbib}
+
+% Links and references
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{url}
+
+% Code listings
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Algorithms
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+% Page layout
+\usepackage[a4paper, left=25mm, right=25mm, top=30mm, bottom=30mm]{geometry}
+
+% Headers and footers
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[RE]{\leftmark}
+\fancyhead[LO]{\rightmark}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Chapter and section formatting
+\usepackage{titlesec}
+
+% For better typography
+\usepackage{microtype}
+
+% Appendix
+\usepackage[toc,page]{appendix}
+
+% ===== CUSTOM COMMANDS =====
+
+% Chapter command without numbering but in TOC
+\newcommand{\chap}[1]{%
+  \chapter*{#1}%
+  \addcontentsline{toc}{chapter}{#1}%
+}
+
+% Section command without numbering but in TOC
+\newcommand{\sect}[1]{%
+  \section*{#1}%
+  \addcontentsline{toc}{section}{#1}%
+}
+
+% Subsection command without numbering
+\newcommand{\subsect}[1]{%
+  \subsection*{#1}%
+}
+
+% Roman numerals for papers (if needed)
+\newcommand{\I}{\textsc{i}}
+\newcommand{\II}{\textsc{ii}}
+\newcommand{\III}{\textsc{iii}}
+\newcommand{\IV}{\textsc{iv}}
+
+% ===== CODE LISTING STYLE =====
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=5pt,
+  backgroundcolor=\color{white},
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  frame=single,
+  tabsize=2,
+  captionpos=b,
+  breaklines=true,
+  breakatwhitespace=false
+}
+
+% ===== THEOREM ENVIRONMENTS =====
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{example}{Example}[chapter]
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}{Lemma}[chapter]
+\newtheorem{proposition}{Proposition}[chapter]
+\newtheorem{corollary}{Corollary}[chapter]
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[chapter]
+
+% ===== FORMATTING =====
+% Line spacing
+\usepackage{setspace}
+\onehalfspacing
+
+% Paragraph formatting
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+% Table of contents depth
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{3}
