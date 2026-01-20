@@ -1,57 +1,187 @@
 % Methodology chapter
 
 \section{Overview}
-Provide a high-level overview of your methodology and research approach.
+This chapter presents the methodology for detecting shadow fleet vessels in the Baltic Sea using gradient boosting machine learning. The approach combines AIS data analysis with supervised classification to produce probability scores (0-100\%) indicating the likelihood that a vessel belongs to the shadow fleet. The system operates in real-time, processing continuous AIS streams to identify suspicious vessels based on behavioral patterns.
 
 \section{Data Collection}
-\subsection{Data Sources}
-Describe the sources of vessel tracking data (AIS data providers, APIs, databases, etc.).
+
+\subsection{AIS Data Sources}
+The primary data source is the Global Fishing Watch Public Data API, providing near real-time Automatic Identification System (AIS) transmissions for vessels in the Baltic Sea region. Additional free-tier APIs supplement this data:
+\begin{itemize}
+    \item AISstream (free tier: 100 tracked vessels)
+    \item NASA EarthData and NOAA Open Data for satellite imagery validation
+    \item MarineCadastre for US-flagged vessel metadata
+    \item HELCOM for Baltic Sea-specific maritime data
+\end{itemize}
+
+AIS messages contain vessel identification (MMSI, IMO), positional data (latitude, longitude, course, speed), and metadata (flag state, vessel type, dimensions).
+
+\subsection{Ground Truth Labels}
+Known shadow fleet vessels are sourced from multiple sanctions lists:
+\begin{itemize}
+    \item Ukrainian military intelligence list (756 vessels)
+    \item Greenpeace Baltic shadow fleet list
+    \item UK sanctions list
+    \item EU vessel designations (Danish Maritime Authority)
+    \item Fleet Leaks database
+\end{itemize}
+
+These lists provide positive class labels (shadow fleet = 1). Negative class labels (legitimate vessels = 0) are assigned to vessels with clean operational histories, proper flag registrations, and transparent ownership.
 
 \subsection{Dataset Characteristics}
-Detail the temporal and spatial coverage, number of vessels, data fields, etc.
-
-\subsection{Ground Truth Data}
-Explain how you obtained labeled data on known shadow fleet vessels.
+The dataset covers all AIS-transmitting vessels in the Baltic Sea region (approximately 54°-66°N, 10°-30°E). Temporal coverage spans historical data for model training and continuous real-time streams for inference. Given the class imbalance (~1-5\% positive class), special handling techniques are required.
 
 \section{Data Preprocessing}
-\subsection{Data Cleaning}
-Describe how you handled missing data, outliers, and errors in AIS signals.
 
-\subsection{Data Filtering}
-Explain any filtering applied to focus on relevant vessels or regions.
+\subsection{Data Cleaning}
+Raw AIS data contains noise, spoofed signals, and transmission errors. Preprocessing includes:
+\begin{itemize}
+    \item Removing duplicate messages (same MMSI, timestamp, position)
+    \item Filtering impossible positions (on land, invalid coordinates)
+    \item Detecting and flagging spoofed MMSI/IMO numbers
+    \item Handling missing values through interpolation or imputation where appropriate
+\end{itemize}
 
 \subsection{Trajectory Reconstruction}
-Describe methods for reconstructing vessel trajectories from point data.
+AIS point data is aggregated into vessel trajectories by grouping messages by MMSI and sorting chronologically. Trajectories are segmented into voyages based on port entry/exit events or extended stationary periods.
+
+\subsection{Temporal Aggregation}
+Features are computed over rolling time windows (24 hours, 7 days, 30 days) to capture both short-term maneuvers and long-term behavioral patterns.
 
 \section{Feature Engineering}
-\subsection{Movement Features}
-Features extracted from vessel routes: speed patterns, course changes, etc.
 
-\subsection{Behavioral Features}
-AIS signal characteristics, port visit patterns, time spent in certain areas, etc.
+Features are designed to capture the behavioral signatures of shadow fleet operations. Four categories are engineered:
+
+\subsection{AIS Transmission Patterns}
+\begin{itemize}
+    \item \textbf{Gap frequency}: Number of AIS blackout periods per month
+    \item \textbf{Gap duration}: Mean and maximum duration of transmission gaps
+    \item \textbf{Gap locations}: Proximity to critical infrastructure during gaps
+    \item \textbf{Transmission regularity}: Standard deviation of inter-message intervals
+\end{itemize}
+
+\subsection{Flag and Ownership Changes}
+\begin{itemize}
+    \item \textbf{Flag change count}: Number of flag state changes in past year
+    \item \textbf{Flag change recency}: Days since last flag change
+    \item \textbf{Flag risk score}: Flags of convenience classification
+    \item \textbf{Ownership opacity}: Registered owner transparency index
+\end{itemize}
+
+\subsection{Movement Anomalies}
+\begin{itemize}
+    \item \textbf{Speed anomalies}: Z-score of speed relative to vessel type mean
+    \item \textbf{Course erraticism}: Frequency of sharp course changes
+    \item \textbf{Loitering behavior}: Time spent in small geographic areas
+    \item \textbf{Route deviation}: Distance from typical shipping lanes
+\end{itemize}
 
 \subsection{Contextual Features}
-Vessel metadata: flag, type, age, ownership changes, etc.
+\begin{itemize}
+    \item \textbf{Sanctions proximity}: Minimum distance to known shadow fleet vessels
+    \item \textbf{Port visit patterns}: Frequency of visits to high-risk ports
+    \item \textbf{Cargo type}: Declared vs. inferred cargo (e.g., oil tankers)
+    \item \textbf{Vessel age}: Years since construction
+    \item \textbf{Insurance status}: P\&I club quality classification
+\end{itemize}
 
 \section{Machine Learning Approach}
-\subsection{Problem Formulation}
-Frame the detection task (classification, anomaly detection, etc.).
 
-\subsection{Algorithm Selection}
-Justify your choice of ML algorithms (Random Forest, Neural Networks, SVM, etc.).
+\subsection{Problem Formulation}
+Shadow fleet detection is formulated as a probabilistic binary classification problem. For each vessel $v$ at time $t$, the model predicts:
+\begin{equation}
+P(\text{shadow fleet} \mid X_v^t) \in [0, 1]
+\end{equation}
+where $X_v^t$ is the feature vector for vessel $v$ at time $t$. Probabilities are scaled to 0-100\% for client-facing presentation.
+
+\subsection{Algorithm Selection: Gradient Boosting}
+XGBoost (Extreme Gradient Boosting) is selected as the primary algorithm for the following reasons:
+
+\textbf{Advantages for this application:}
+\begin{enumerate}
+    \item \textbf{Probability calibration}: Produces well-calibrated probability estimates suitable for risk scoring
+    \item \textbf{Tabular data performance}: Consistently outperforms other algorithms on structured/tabular data
+    \item \textbf{Imbalance handling}: Built-in support for class weights and focal loss
+    \item \textbf{Feature importance}: Native feature importance and SHAP compatibility for explainability
+    \item \textbf{Inference speed}: Fast prediction latency suitable for real-time deployment
+    \item \textbf{Robustness}: Handles missing values, outliers, and nonlinear relationships effectively
+\end{enumerate}
+
+XGBoost builds an ensemble of decision trees sequentially, where each tree corrects the errors of previous trees. The final prediction is the weighted sum of all tree predictions, passed through a logistic function for binary classification.
 
 \subsection{Model Architecture}
-Describe the specific model architecture and hyperparameters.
+
+\textbf{Hyperparameters:}
+\begin{itemize}
+    \item Max depth: 6-8 (controlled to prevent overfitting)
+    \item Learning rate: 0.01-0.1 (tuned via cross-validation)
+    \item Number of estimators: 500-1000 (early stopping based on validation)
+    \item Subsample: 0.8 (row sampling to reduce overfitting)
+    \item Colsample\_bytree: 0.8 (column sampling)
+    \item Objective: \texttt{binary:logistic}
+\end{itemize}
+
+\subsection{Handling Class Imbalance}
+The severe class imbalance (~1-5\% shadow fleet vessels) is addressed through:
+
+\begin{enumerate}
+    \item \textbf{Scale\_pos\_weight}: XGBoost parameter set to $\frac{N_{\text{negative}}}{N_{\text{positive}}}$ to penalize misclassification of minority class
+    \item \textbf{SMOTE oversampling}: Synthetic Minority Oversampling Technique generates synthetic shadow fleet examples in feature space during training
+    \item \textbf{Threshold tuning}: Classification threshold adjusted from default 0.5 to maximize recall while maintaining acceptable precision
+    \item \textbf{Stratified sampling}: Train/validation/test splits maintain class distribution
+\end{enumerate}
 
 \subsection{Training Strategy}
-Explain how models are trained, including train/validation/test splits.
+
+\textbf{Data splitting:}
+\begin{itemize}
+    \item Training set: 70\% (historical data up to cutoff date)
+    \item Validation set: 15\% (for hyperparameter tuning)
+    \item Test set: 15\% (held-out for final evaluation)
+\end{itemize}
+
+\textbf{Temporal validation:}
+To prevent data leakage and ensure realistic performance estimates, temporal cross-validation is employed where training data precedes validation data chronologically. This simulates real deployment where the model predicts future vessel behavior.
+
+\textbf{Hyperparameter optimization:}
+Bayesian optimization (via Optuna or Hyperopt) explores hyperparameter space to maximize AUC-PR (Area Under Precision-Recall Curve), which is more appropriate than ROC-AUC for imbalanced datasets.
+
+\section{Model Explainability}
+
+Client-facing predictions require justification. SHAP (SHapley Additive exPlanations) values are computed for each prediction to explain:
+\begin{itemize}
+    \item Which features contributed most to the shadow fleet probability
+    \item Direction of influence (increasing or decreasing risk)
+    \item Feature value context (e.g., "3 flag changes in 6 months")
+\end{itemize}
+
+SHAP provides model-agnostic explanations rooted in game theory, satisfying requirements for transparency and accountability when presenting findings to authorities or clients.
 
 \section{Evaluation Methodology}
-\subsection{Evaluation Metrics}
-Define metrics: accuracy, precision, recall, F1-score, ROC-AUC, etc.
 
-\subsection{Cross-Validation}
-Describe validation strategy to ensure robust performance estimates.
+\subsection{Evaluation Metrics}
+
+Given the imbalanced dataset and operational priority (high recall to catch all shadow fleet vessels), the following metrics are reported:
+
+\begin{itemize}
+    \item \textbf{Precision}: $\frac{TP}{TP + FP}$ - proportion of flagged vessels that are truly shadow fleet
+    \item \textbf{Recall (Sensitivity)}: $\frac{TP}{TP + FN}$ - proportion of shadow fleet vessels successfully detected
+    \item \textbf{F1-Score}: $\frac{2 \cdot \text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}$ - harmonic mean balancing precision and recall
+    \item \textbf{AUC-PR}: Area under precision-recall curve (more informative than ROC-AUC for imbalanced data)
+    \item \textbf{Confusion Matrix}: Detailed breakdown of true/false positives/negatives
+\end{itemize}
+
+\subsection{Threshold Selection}
+The probability threshold for binary classification is tuned to prioritize recall (minimize false negatives) while maintaining operationally acceptable precision. Multiple thresholds are evaluated to generate precision-recall trade-off curves.
 
 \subsection{Baseline Comparisons}
-Establish baselines for comparison.
+Model performance is compared against:
+\begin{itemize}
+    \item Random classifier (expected AUC-PR = positive class proportion)
+    \item Simple rule-based system (e.g., flag on sanctions list = positive)
+    \item Logistic regression with same features
+    \item Random Forest classifier
+\end{itemize}
+
+\subsection{Real-time Performance}
+Inference latency is measured to ensure real-time capability. Target: <100ms per vessel prediction to support continuous monitoring of all Baltic Sea vessels.
