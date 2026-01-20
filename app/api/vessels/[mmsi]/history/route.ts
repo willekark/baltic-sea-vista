@@ -1,74 +1,71 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateMockHistory } from "@/app/lib/mock-vessels";
 
-/** Use mock data in development to avoid API costs */
 const USE_MOCK = process.env.NODE_ENV === "development";
 
-/**
- * Fetches historical positions for a vessel by MMSI.
- * Returns array of positions with lat, lon, speed, course, heading, timestamp.
- */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ mmsi: string }> }
+  { params }: { params: Promise<{ mmsi: string }> },
 ) {
   const { mmsi } = await params;
 
-  // Return mock history in development
   if (USE_MOCK) {
-    const positions = generateMockHistory(Number(mmsi));
-    return NextResponse.json(positions);
+    return NextResponse.json(generateMockHistory(Number(mmsi)));
   }
 
-  const apiKey = process.env.DATALASTIC_API_KEY;
-
+  const apiKey = process.env.GLOBAL_FISHING_WATCH_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "DATALASTIC_API_KEY not set" },
-      { status: 500 }
+      { error: "GLOBAL_FISHING_WATCH_API_KEY not set" },
+      { status: 500 },
     );
   }
 
-  const { searchParams } = new URL(request.url);
-  const days = searchParams.get("days") || "7";
+  const days = Number(new URL(request.url).searchParams.get("days")) || 7;
+  const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split("T")[0];
+  const endDate = new Date().toISOString().split("T")[0];
 
   try {
-    const url = `https://api.datalastic.com/api/v0/vessel_history?api-key=${apiKey}&mmsi=${mmsi}&days=${days}`;
-    const res = await fetch(url, { next: { revalidate: 300 } });
+    const res = await fetch(
+      `https://gateway.api.globalfishingwatch.org/v3/vessels/${mmsi}/tracks?start-date=${startDate}&end-date=${endDate}&format=json&datasets=public-global-tracks:latest`,
+      {
+        headers: { Authorization: `Bearer ${apiKey}` },
+        next: { revalidate: 300 },
+      },
+    );
 
     if (!res.ok) {
-      const text = await res.text();
-      console.error("Datalastic history API error:", text);
       return NextResponse.json({ error: "API error" }, { status: res.status });
     }
 
     const json = await res.json();
-
-    if (!json.meta?.success) {
+    if (!json.coordinatesCollection) {
       return NextResponse.json(
-        { error: json.meta?.error || "Unknown error" },
-        { status: 400 }
+        { error: "No track data returned" },
+        { status: 400 },
       );
     }
 
-    // Transform positions to our format
-    const positions = (json.data?.positions || []).map(
-      (p: Record<string, unknown>) => ({
-        lat: p.lat,
-        lon: p.lon,
-        speed: p.speed ?? 0,
-        course: p.course ?? 0,
-        heading: p.heading ?? 0,
-        timestamp: p.last_position_UTC,
-      })
+    const positions = json.coordinatesCollection.flatMap((track: any) =>
+      (track.coordinates || [])
+        .filter((coord: any) => coord.length >= 3)
+        .map((coord: any, i: number) => ({
+          lat: coord[1],
+          lon: coord[0],
+          speed: track.speeds?.[i] || 0,
+          course: track.courses?.[i] || 0,
+          heading: track.courses?.[i] || 0,
+          timestamp: new Date(coord[2]).toISOString(),
+        })),
     );
 
     return NextResponse.json(positions);
-  } catch (err) {
-    console.error("Fetch error:", err);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch vessel history" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
