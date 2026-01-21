@@ -4,8 +4,11 @@
  * @module components/VesselPanel
  */
 
-import { type Vessel, getFlagEmoji } from "./lib/vessel";
-import { predictShadowFleetRisk, getVesselRiskColor } from "./lib/shadow-score";
+import { type Vessel, getFlagEmoji } from "../app/lib/vessel";
+import {
+  predictShadowFleetRisk,
+  getVesselRiskColor,
+} from "../app/lib/shadow-score";
 
 /**
  * Floating panel showing vessel details with close button.
@@ -84,8 +87,8 @@ export default function VesselPanel({
           {prediction.color === "RED"
             ? "High probability of shadow fleet vessel"
             : prediction.color === "YELLOW"
-            ? "Medium risk - requires further investigation"
-            : "Low risk - likely legitimate vessel"}
+              ? "Medium risk - requires further investigation"
+              : "Low risk - likely legitimate vessel"}
         </p>
       </div>
 
@@ -115,8 +118,8 @@ export default function VesselPanel({
                       (score as number) >= 0.7
                         ? "#ef4444"
                         : (score as number) >= 0.4
-                        ? "#eab308"
-                        : "#22c55e",
+                          ? "#eab308"
+                          : "#22c55e",
                   }}
                 />
               </div>

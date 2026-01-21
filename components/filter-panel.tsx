@@ -6,7 +6,7 @@
 
 "use client";
 
-import { type VesselFilter, VESSEL_TYPES, NAV_STATUS } from "./lib/vessel";
+import { type VesselFilter, VESSEL_TYPES, NAV_STATUS } from "../app/lib/vessel";
 
 /**
  * Filter panel with vessel type, nav status, and radius controls.

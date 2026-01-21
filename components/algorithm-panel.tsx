@@ -13,7 +13,7 @@ import {
   getModelWeights,
   setModelWeights,
   resetModelWeights,
-} from "./lib/shadow-score";
+} from "../app/lib/shadow-score";
 
 /** Weight parameter configuration */
 const WEIGHT_CONFIG: {

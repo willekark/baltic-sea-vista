@@ -4,8 +4,8 @@
  * @module components/Sidebar
  */
 
-import { type Vessel, type VesselFilter } from "./lib/vessel";
-import { sortVesselsByRisk, getVesselRiskColor } from "./lib/shadow-score";
+import { type Vessel, type VesselFilter } from "../app/lib/vessel";
+import { sortVesselsByRisk, getVesselRiskColor } from "../app/lib/shadow-score";
 import FilterPanel from "./filter-panel";
 
 /** Legend items for shadow fleet risk levels */

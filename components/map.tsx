@@ -15,7 +15,7 @@ import {
   type VesselPosition,
   getVesselColor,
   createMarkerSvg,
-} from "./lib/vessel";
+} from "../app/lib/vessel";
 
 /**
  * Imperative handle for controlling the map from parent components.
@@ -52,7 +52,7 @@ const destinationPoint = (
   lat: number,
   lon: number,
   bearing: number,
-  distanceNm: number
+  distanceNm: number,
 ): [number, number] => {
   const toRad = (d: number) => (d * Math.PI) / 180;
   const toDeg = (r: number) => (r * 180) / Math.PI;
@@ -62,13 +62,13 @@ const destinationPoint = (
   const δ = distanceNm / EARTH_RADIUS_NM;
 
   const φ2 = Math.asin(
-    Math.sin(φ1) * Math.cos(δ) + Math.cos(φ1) * Math.sin(δ) * Math.cos(θ)
+    Math.sin(φ1) * Math.cos(δ) + Math.cos(φ1) * Math.sin(δ) * Math.cos(θ),
   );
   const λ2 =
     λ1 +
     Math.atan2(
       Math.sin(θ) * Math.sin(δ) * Math.cos(φ1),
-      Math.cos(δ) - Math.sin(φ1) * Math.sin(φ2)
+      Math.cos(δ) - Math.sin(φ1) * Math.sin(φ2),
     );
 
   return [toDeg(λ2), toDeg(φ2)];
@@ -115,7 +115,7 @@ const Map = forwardRef<
         el.innerHTML = createMarkerSvg(
           getVesselColor(vessel),
           vessel.HEADING ?? vessel.COG ?? 0,
-          (vessel.SOG ?? 0) >= 0.5
+          (vessel.SOG ?? 0) >= 0.5,
         );
       });
     },
@@ -142,7 +142,7 @@ const Map = forwardRef<
 
     try {
       const vessels: Vessel[] = await fetch(
-        `/api/vessels${buildQuery(f)}`
+        `/api/vessels${buildQuery(f)}`,
       ).then((r) => r.json());
       onVesselsLoaded?.(vessels);
 
@@ -154,7 +154,7 @@ const Map = forwardRef<
             mmsi: v.MMSI,
             coords: positions.map((p) => [p.lon, p.lat]),
           }))
-          .catch(() => ({ mmsi: v.MMSI, coords: [] as number[][] }))
+          .catch(() => ({ mmsi: v.MMSI, coords: [] as number[][] })),
       );
       const allHistories = await Promise.all(historyPromises);
       const vesselHistoryMap: Record<number, number[][]> = {};
@@ -198,7 +198,7 @@ const Map = forwardRef<
 
       // Initialize empty selected route layer
       const selSrc = map.getSource(
-        SELECTED_ROUTE_SOURCE
+        SELECTED_ROUTE_SOURCE,
       ) as mapboxgl.GeoJSONSource;
       if (!selSrc) {
         map.addSource(SELECTED_ROUTE_SOURCE, {
@@ -250,7 +250,7 @@ const Map = forwardRef<
         el.innerHTML = createMarkerSvg(
           getVesselColor(v),
           v.HEADING ?? v.COG ?? 0,
-          (v.SOG ?? 0) >= 0.5
+          (v.SOG ?? 0) >= 0.5,
         );
         el.addEventListener("click", () => {
           onVesselSelect?.(v);
@@ -271,11 +271,11 @@ const Map = forwardRef<
   const highlightVesselRoute = (
     map: mapboxgl.Map,
     vessel: Vessel,
-    coords: number[][]
+    coords: number[][],
   ) => {
     // Highlight historical route
     const selSrc = map.getSource(
-      SELECTED_ROUTE_SOURCE
+      SELECTED_ROUTE_SOURCE,
     ) as mapboxgl.GeoJSONSource;
     if (selSrc && coords.length > 1) {
       selSrc.setData({
@@ -294,7 +294,7 @@ const Map = forwardRef<
         vessel.LATITUDE,
         vessel.LONGITUDE,
         course,
-        speed
+        speed,
       );
       projSrc.setData({
         type: "Feature",
